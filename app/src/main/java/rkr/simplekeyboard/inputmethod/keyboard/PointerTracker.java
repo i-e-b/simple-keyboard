@@ -771,14 +771,14 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         }
 
         setReleasedKeyGraphics(key, false /* withAnimation */);
-        final MoreKeysPanel moreKeysPanel = sDrawingProxy.showMoreKeysKeyboard(key, this);
+        /*final MoreKeysPanel moreKeysPanel = sDrawingProxy.showMoreKeysKeyboard(key, this);
         if (moreKeysPanel == null) {
             return;
         }
         final int translatedX = moreKeysPanel.translateX(mLastX);
         final int translatedY = moreKeysPanel.translateY(mLastY);
         moreKeysPanel.onDownEvent(translatedX, translatedY, mPointerId);
-        mMoreKeysPanel = moreKeysPanel;
+        mMoreKeysPanel = moreKeysPanel;*/
     }
 
     private void cancelKeyTracking() {

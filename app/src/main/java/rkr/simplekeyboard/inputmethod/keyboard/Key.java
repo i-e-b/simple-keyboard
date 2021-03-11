@@ -714,6 +714,9 @@ public class Key implements Comparable<Key> {
     }
 
     public Drawable getIcon(final KeyboardIconsSet iconSet, final int alpha) {
+
+        // TODO: does this render the button?
+
         final OptionalAttributes attrs = mOptionalAttributes;
         final int disabledIconId = (attrs != null) ? attrs.mDisabledIconId : ICON_UNDEFINED;
         final int iconId = mEnabled ? getIconId() : disabledIconId;
@@ -913,6 +916,9 @@ public class Key implements Comparable<Key> {
     public final Drawable selectBackgroundDrawable(final Drawable keyBackground,
             final Drawable functionalKeyBackground,
             final Drawable spacebarBackground) {
+
+        // TODO: draws background layer
+
         final Drawable background;
         if (mBackgroundType == BACKGROUND_TYPE_FUNCTIONAL) {
             background = functionalKeyBackground;

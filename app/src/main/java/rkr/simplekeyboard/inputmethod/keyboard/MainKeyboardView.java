@@ -341,9 +341,12 @@ public final class MainKeyboardView extends KeyboardView implements MoreKeysPane
     public void onKeyPressed(final Key key, final boolean withPreview) {
         key.onPressed();
         invalidateKey(key);
-        if (withPreview && !key.noKeyPreview()) {
+
+        // TODO: Show 'zoomed' view here
+
+        /*if (withPreview && !key.noKeyPreview()) {
             showKeyPreview(key);
-        }
+        }*/
     }
 
     private void showKeyPreview(final Key key) {
@@ -407,6 +410,8 @@ public final class MainKeyboardView extends KeyboardView implements MoreKeysPane
     //@Override
     public MoreKeysPanel showMoreKeysKeyboard(final Key key,
             final PointerTracker tracker) {
+
+        // TODO: this is where the press-and-hold is shown
         final MoreKeySpec[] moreKeys = key.getMoreKeys();
         if (moreKeys == null) {
             return null;

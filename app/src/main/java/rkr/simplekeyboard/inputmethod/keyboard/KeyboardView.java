@@ -257,6 +257,9 @@ public class KeyboardView extends View {
             return;
         }
 
+        // TODO: this IS the top level drawing.
+
+
         final Paint paint = mPaint;
         final Drawable background = getBackground();
         if (Color.alpha(mCustomColor) > 0 && keyboard.getKey(Constants.CODE_SPACE) != null) {
@@ -266,6 +269,8 @@ public class KeyboardView extends View {
         final boolean drawAllKeys = mInvalidateAllKeys || mInvalidatedKeys.isEmpty();
         final boolean isHardwareAccelerated = canvas.isHardwareAccelerated();
         // TODO: Confirm if it's really required to draw all keys when hardware acceleration is on.
+
+        /*
         if (drawAllKeys || isHardwareAccelerated) {
             if (!isHardwareAccelerated && background != null) {
                 // Need to draw keyboard background on {@link #mOffscreenBuffer}.
@@ -294,7 +299,7 @@ public class KeyboardView extends View {
                 }
                 onDrawKey(key, canvas, paint);
             }
-        }
+        }*/
 
         mInvalidatedKeys.clear();
         mInvalidateAllKeys = false;
@@ -342,12 +347,16 @@ public class KeyboardView extends View {
     }
 
     // Draw key top visuals.
-    protected void onDrawKeyTopVisuals(final Key key,final Canvas canvas,
+    protected void onDrawKeyTopVisuals(final Key key, final Canvas canvas,
             final Paint paint, final KeyDrawParams params) {
         final int keyWidth = key.getWidth();
         final int keyHeight = key.getHeight();
         final float centerX = keyWidth * 0.5f;
         final float centerY = keyHeight * 0.5f;
+
+
+        // TODO: near the top of drawing routines?
+
 
         // Draw key label.
         final Keyboard keyboard = getKeyboard();
