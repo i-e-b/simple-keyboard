@@ -251,6 +251,9 @@ public class KeyboardView extends View {
         }
     }
 
+    protected float mLastTouchX = 0.0f;
+    protected float mLastTouchY = 0.0f;
+
     private void onDrawKeyboard(final Canvas canvas) {
         final Keyboard keyboard = getKeyboard();
         if (keyboard == null) {
@@ -265,85 +268,27 @@ public class KeyboardView extends View {
         if (Color.alpha(mCustomColor) > 0 && keyboard.getKey(Constants.CODE_SPACE) != null) {
             setBackgroundColor(mCustomColor);
         }
-        // Calculate clip region and set.
-        final boolean drawAllKeys = mInvalidateAllKeys || mInvalidatedKeys.isEmpty();
-        final boolean isHardwareAccelerated = canvas.isHardwareAccelerated();
-        // TODO: Confirm if it's really required to draw all keys when hardware acceleration is on.
 
-        /*
-        if (drawAllKeys || isHardwareAccelerated) {
-            if (!isHardwareAccelerated && background != null) {
-                // Need to draw keyboard background on {@link #mOffscreenBuffer}.
-                canvas.drawColor(Color.BLACK, PorterDuff.Mode.CLEAR);
-                background.draw(canvas);
-            }
-            // Draw all keys.
-            for (final Key key : keyboard.getSortedKeys()) {
-                onDrawKey(key, canvas, paint);
-            }
-        } else {
-            for (final Key key : mInvalidatedKeys) {
-                if (!keyboard.hasKey(key)) {
-                    continue;
-                }
-                if (background != null) {
-                    // Need to redraw key's background on {@link #mOffscreenBuffer}.
-                    final int x = key.getX() + getPaddingLeft();
-                    final int y = key.getY() + getPaddingTop();
-                    mClipRect.set(x, y, x + key.getWidth(), y + key.getHeight());
-                    canvas.save();
-                    canvas.clipRect(mClipRect);
-                    canvas.drawColor(Color.BLACK, PorterDuff.Mode.CLEAR);
-                    background.draw(canvas);
-                    canvas.restore();
-                }
-                onDrawKey(key, canvas, paint);
-            }
-        }*/
+        paint.setARGB(255, 127, 255,127);
+        canvas.drawCircle(mLastTouchX, mLastTouchY, 50, paint);
+
+        int height= canvas.getHeight();
+        int width = canvas.getHeight();
+        float fontDiv = Math.min(height, width) / 9.0f;
+
+        paint.setARGB(255, 127, 127,255);
+        paint.setTypeface(Typeface.MONOSPACE);
+        paint.setTextSize(fontDiv);
+        canvas.drawText("←↑→↓↲⇥⇦ Small font = "+fontDiv,12.5f, fontDiv, paint);
+
+        float bigDiv = fontDiv * 3;
+        paint.setTextSize(bigDiv);
+        canvas.drawText("Big font",12.5f, fontDiv+bigDiv, paint);
+
+
 
         mInvalidatedKeys.clear();
         mInvalidateAllKeys = false;
-    }
-
-    private void onDrawKey(final Key key, final Canvas canvas,
-            final Paint paint) {
-        final int keyDrawX = key.getX() + getPaddingLeft();
-        final int keyDrawY = key.getY() + getPaddingTop();
-        canvas.translate(keyDrawX, keyDrawY);
-
-        final KeyVisualAttributes attr = key.getVisualAttributes();
-        final KeyDrawParams params = mKeyDrawParams.mayCloneAndUpdateParams(key.getHeight(), attr);
-        params.mAnimAlpha = Constants.Color.ALPHA_OPAQUE;
-
-        if (!key.isSpacer()) {
-            final Drawable background = key.selectBackgroundDrawable(
-                    mKeyBackground, mFunctionalKeyBackground, mSpacebarBackground);
-            if (background != null) {
-                onDrawKeyBackground(key, canvas, background);
-            }
-        }
-        onDrawKeyTopVisuals(key, canvas, paint, params);
-
-        canvas.translate(-keyDrawX, -keyDrawY);
-    }
-
-    // Draw key background.
-    protected void onDrawKeyBackground(final Key key, final Canvas canvas,
-            final Drawable background) {
-        final int keyWidth = key.getWidth();
-        final int keyHeight = key.getHeight();
-        final Rect padding = mKeyBackgroundPadding;
-        final int bgWidth = keyWidth + padding.left + padding.right;
-        final int bgHeight = keyHeight + padding.top + padding.bottom;
-        final int bgX = -padding.left;
-        final int bgY = -padding.top;
-        final Rect bounds = background.getBounds();
-        if (bgWidth != bounds.right || bgHeight != bounds.bottom) {
-            background.setBounds(0, 0, bgWidth, bgHeight);
-        }
-        canvas.translate(bgX, bgY);
-        background.draw(canvas);
-        canvas.translate(-bgX, -bgY);
     }
 
     // Draw key top visuals.

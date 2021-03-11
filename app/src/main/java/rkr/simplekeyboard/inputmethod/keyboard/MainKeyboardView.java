@@ -133,7 +133,7 @@ public final class MainKeyboardView extends KeyboardView implements MoreKeysPane
     private MoreKeysPanel mMoreKeysPanel;
 
     private final KeyDetector mKeyDetector;
-    private final NonDistinctMultitouchHelper mNonDistinctMultitouchHelper;
+    private final NonDistinctMultitouchHelper mNonDistinctMultitouchHelper; // TODO: this is the touch point handler
 
     private final TimerHandler mTimerHandler;
     private final int mLanguageOnSpacebarHorizontalMargin;
@@ -349,23 +349,6 @@ public final class MainKeyboardView extends KeyboardView implements MoreKeysPane
         }*/
     }
 
-    private void showKeyPreview(final Key key) {
-        final Keyboard keyboard = getKeyboard();
-        if (keyboard == null) {
-            return;
-        }
-        final KeyPreviewDrawParams previewParams = mKeyPreviewDrawParams;
-        if (!previewParams.isPopupEnabled()) {
-            previewParams.setVisibleOffset(-Math.round(keyboard.mVerticalGap));
-            return;
-        }
-
-        locatePreviewPlacerView();
-        getLocationInWindow(mOriginCoords);
-        mKeyPreviewChoreographer.placeAndShowKeyPreview(key, keyboard.mIconsSet, getKeyDrawParams(),
-                mOriginCoords, mDrawingPreviewPlacerView, isHardwareAccelerated());
-    }
-
     private void dismissKeyPreviewWithoutDelay(final Key key) {
         mKeyPreviewChoreographer.dismissKeyPreview(key, false /* withAnimation */);
         invalidateKey(key);
@@ -518,10 +501,13 @@ public final class MainKeyboardView extends KeyboardView implements MoreKeysPane
                 // Key repeating timer will be canceled if 2 or more keys are in action.
                 mTimerHandler.cancelKeyRepeatTimers();
             }
+
             // Non distinct multitouch screen support
-            mNonDistinctMultitouchHelper.processMotionEvent(event, mKeyDetector);
+            mNonDistinctMultitouchHelper.processMotionEvent(event, mKeyDetector); // TODO: touch stuff
             return true;
         }
+        mLastTouchX = event.getAxisValue(0);
+        mLastTouchY = event.getAxisValue(1);
         return processMotionEvent(event);
     }
 
@@ -529,6 +515,7 @@ public final class MainKeyboardView extends KeyboardView implements MoreKeysPane
         final int index = event.getActionIndex();
         final int id = event.getPointerId(index);
         final PointerTracker tracker = PointerTracker.getPointerTracker(id);
+
         // When a more keys panel is showing, we should ignore other fingers' single touch events
         // other than the finger that is showing the more keys panel.
         if (isShowingMoreKeysPanel() && !tracker.isShowingMoreKeysPanel()
