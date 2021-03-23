@@ -38,14 +38,12 @@ import java.util.WeakHashMap;
 import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.DrawingPreviewPlacerView;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.DrawingProxy;
-import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyDrawParams;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyPreviewChoreographer;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyPreviewDrawParams;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyPreviewView;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.MoreKeySpec;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.NonDistinctMultitouchHelper;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.TimerHandler;
-import rkr.simplekeyboard.inputmethod.latin.RichInputMethodManager;
 import rkr.simplekeyboard.inputmethod.latin.RichInputMethodSubtype;
 import rkr.simplekeyboard.inputmethod.latin.common.Constants;
 import rkr.simplekeyboard.inputmethod.latin.common.CoordinateUtils;
@@ -336,45 +334,23 @@ public final class MainKeyboardView extends KeyboardView implements MoreKeysPane
         windowContentView.addView(mDrawingPreviewPlacerView);
     }
 
+    @Override
+    public void invalidateAll() {
+        invalidate();
+    }
+
     // Implements {@link DrawingProxy#onKeyPressed(Key,boolean)}.
     @Override
-    public void onKeyPressed(final Key key, final boolean withPreview) {
-        key.onPressed();
-        invalidateKey(key);
-
+    public void onKeyPressed() {
         // TODO: Show 'zoomed' view here
-
-        /*if (withPreview && !key.noKeyPreview()) {
-            showKeyPreview(key);
-        }*/
+        sIsBeingPressed = true;
+        invalidate();
     }
-
-    private void dismissKeyPreviewWithoutDelay(final Key key) {
-        mKeyPreviewChoreographer.dismissKeyPreview(key, false /* withAnimation */);
-        invalidateKey(key);
-    }
-
     // Implements {@link DrawingProxy#onKeyReleased(Key,boolean)}.
     @Override
-    public void onKeyReleased(final Key key, final boolean withAnimation) {
-        key.onReleased();
-        invalidateKey(key);
-        if (!key.noKeyPreview()) {
-            if (withAnimation) {
-                dismissKeyPreview(key);
-            } else {
-                dismissKeyPreviewWithoutDelay(key);
-            }
-        }
-    }
-
-    private void dismissKeyPreview(final Key key) {
-        if (isHardwareAccelerated()) {
-            mKeyPreviewChoreographer.dismissKeyPreview(key, true /* withAnimation */);
-            return;
-        }
-        // TODO: Implement preference option to control key preview method and duration.
-        mTimerHandler.postDismissKeyPreview(key, mKeyPreviewDrawParams.getLingerTimeout());
+    public void onKeyReleased() {
+        sIsBeingPressed = false;
+        invalidate();
     }
 
     @Override
@@ -452,14 +428,6 @@ public final class MainKeyboardView extends KeyboardView implements MoreKeysPane
 
     @Override
     public void onShowMoreKeysPanel(final MoreKeysPanel panel) {
-        locatePreviewPlacerView();
-        // Dismiss another {@link MoreKeysPanel} that may be being showed.
-        onDismissMoreKeysPanel();
-        // Dismiss all key previews that may be being showed.
-        PointerTracker.setReleasedKeyGraphicsToAllKeys();
-        // Dismiss sliding key input preview that may be being showed.
-        panel.showInParent(mDrawingPreviewPlacerView);
-        mMoreKeysPanel = panel;
     }
 
     public boolean isShowingMoreKeysPanel() {
@@ -528,7 +496,6 @@ public final class MainKeyboardView extends KeyboardView implements MoreKeysPane
 
     public void cancelAllOngoingEvents() {
         mTimerHandler.cancelAllMessages();
-        PointerTracker.setReleasedKeyGraphicsToAllKeys();
         PointerTracker.dismissAllMoreKeysPanels();
         PointerTracker.cancelAllPointerTrackers();
     }
@@ -579,23 +546,6 @@ public final class MainKeyboardView extends KeyboardView implements MoreKeysPane
             }
         }
         invalidateKey(mSpaceKey);
-    }
-
-    @Override
-    protected void onDrawKeyTopVisuals(final Key key, final Canvas canvas, final Paint paint,
-            final KeyDrawParams params) {
-        if (key.altCodeWhileTyping() && key.isEnabled()) {
-            params.mAnimAlpha = mAltCodeKeyWhileTypingAnimAlpha;
-        }
-        super.onDrawKeyTopVisuals(key, canvas, paint, params);
-        final int code = key.getCode();
-        if (code == Constants.CODE_SPACE) {
-            // If more than one language is enabled in current input method
-            final RichInputMethodManager imm = RichInputMethodManager.getInstance();
-            if (imm.getMyEnabledInputMethodSubtypeList(false).size() > 1) {
-                drawLanguageOnSpacebar(key, canvas, paint);
-            }
-        }
     }
 
     private boolean fitsTextIntoWidth(final int width, final String text, final Paint paint) {

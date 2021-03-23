@@ -69,10 +69,7 @@ public final class NonDistinctMultitouchHelper {
             mainTracker.getLastCoordinates(mLastCoords);
             final int x = CoordinateUtils.x(mLastCoords);
             final int y = CoordinateUtils.y(mLastCoords);
-            mOldKey = mainTracker.getKeyOn(x, y);
-            // Inject an artifact up event for the old key.
-            injectMotionEvent(MotionEvent.ACTION_UP, x, y, downTime, eventTime,
-                    mainTracker, keyDetector);
+
             return;
         }
 
@@ -82,18 +79,6 @@ public final class NonDistinctMultitouchHelper {
             // key.
             final int x = (int)me.getX(index);
             final int y = (int)me.getY(index);
-            final Key newKey = mainTracker.getKeyOn(x, y);
-            if (mOldKey != newKey) {
-                // Inject an artifact down event for the new key.
-                // An artifact up event for the new key will usually be injected as a single-touch.
-                injectMotionEvent(MotionEvent.ACTION_DOWN, x, y, downTime, eventTime,
-                        mainTracker, keyDetector);
-                if (action == MotionEvent.ACTION_UP) {
-                    // Inject an artifact up event for the new key also.
-                    injectMotionEvent(MotionEvent.ACTION_UP, x, y, downTime, eventTime,
-                            mainTracker, keyDetector);
-                }
-            }
             return;
         }
 

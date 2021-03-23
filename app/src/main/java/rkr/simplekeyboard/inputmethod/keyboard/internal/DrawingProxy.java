@@ -22,18 +22,19 @@ import rkr.simplekeyboard.inputmethod.keyboard.PointerTracker;
 
 public interface DrawingProxy {
     /**
-     * Called when a key is being pressed.
-     * @param key the {@link Key} that is being pressed.
-     * @param withPreview true if key popup preview should be displayed.
+     * Cause the entire drawing proxy to be invalidated
      */
-    void onKeyPressed(Key key, boolean withPreview);
+    void invalidateAll();
+
+    /**
+     * Called when a key is being pressed.
+     */
+    void onKeyPressed();
 
     /**
      * Called when a key is being released.
-     * @param key the {@link Key} that is being released.
-     * @param withAnimation when true, key popup preview should be dismissed with animation.
      */
-    void onKeyReleased(Key key, boolean withAnimation);
+    void onKeyReleased();
 
     /**
      * Start showing more keys keyboard of a key that is being long pressed.

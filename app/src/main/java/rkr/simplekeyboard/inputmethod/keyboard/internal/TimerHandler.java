@@ -57,10 +57,9 @@ public final class TimerHandler extends LeakGuardHandlerWrapper<DrawingProxy>
         case MSG_LONGPRESS_SHIFT_KEY:
             cancelLongPressTimers();
             final PointerTracker tracker2 = (PointerTracker) msg.obj;
-            tracker2.onLongPressed();
             break;
         case MSG_DISMISS_KEY_PREVIEW:
-            drawingProxy.onKeyReleased((Key) msg.obj, false /* withAnimation */);
+            drawingProxy.onKeyReleased();
             break;
         }
     }
