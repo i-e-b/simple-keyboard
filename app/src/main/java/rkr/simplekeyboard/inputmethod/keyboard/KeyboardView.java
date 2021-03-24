@@ -199,7 +199,7 @@ public class KeyboardView extends View {
 
         int height = canvas.getHeight();
         int width = canvas.getWidth();
-        float fontDiv = Math.min(height, width) / 9.0f;
+        float fontDiv = (Math.min(height, width) / 9.0f) - 3.0f;
 
         int xZero = 0;
         int yZero = 0;
@@ -228,12 +228,28 @@ public class KeyboardView extends View {
         canvas.drawLine(oneThirdWidth, yZero, oneThirdWidth, height, paint);
         canvas.drawLine(twoThirdWidth, yZero, twoThirdWidth, height, paint);
 
-        // Minor lines (pre-touch only)
         if(!sIsBeingPressed) {
+            // Minor lines (pre-touch only)
             paint.setARGB(255, 180, 180, 127);
             for (int i = 1; i < 9; i++) {
                 canvas.drawLine(xZero, ninthHeight * i, width, ninthHeight * i, paint);
                 canvas.drawLine(ninthWidth * i, yZero, ninthWidth * i, height, paint);
+            }
+
+            // key positions
+            paint.setTextSize(fontDiv);
+            paint.setARGB(255, 63, 63,127);
+            char[][] l = KeyboardLayout.CurrentLayout();
+            for (int y = 0; y < 9; y++) {
+                for (int x = 0; x < 9; x++) {
+                    String desc = KeyboardLayout.Visualise(l[y][x]);
+                    if (desc.length() > 1) paint.setTextSize(fontDiv * 0.7f);
+                    else paint.setTextSize(fontDiv);
+
+                    float sw = paint.measureText(desc);
+                    float offs = (ninthWidth / 2.0f) - (sw / 2.0f);
+                    canvas.drawText(desc,x*ninthWidth + offs, (fontDiv*0.8f)+(y*ninthHeight), paint);
+                }
             }
         }
 
@@ -246,8 +262,6 @@ public class KeyboardView extends View {
             paint.setTextSize(bigDiv);
             canvas.drawText("Big font", 12.5f, fontDiv + bigDiv, paint);
         } else {
-            paint.setTextSize(fontDiv);
-            canvas.drawText("←↑→↓↲⇥⇦ Small font = "+fontDiv,12.5f, fontDiv, paint);
         }
 
 
