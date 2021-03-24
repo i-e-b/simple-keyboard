@@ -16,6 +16,7 @@
 
 package rkr.simplekeyboard.inputmethod.keyboard;
 
+import rkr.simplekeyboard.inputmethod.latin.RichInputConnection;
 import rkr.simplekeyboard.inputmethod.latin.common.Constants;
 
 public interface KeyboardActionListener {
@@ -46,12 +47,10 @@ public interface KeyboardActionListener {
      * @param primaryCode this is the code of the key that was pressed
      * @param x x-coordinate pixel of touched event. If {@link #onCodeInput} is not called by
      *            {@link PointerTracker} or so, the value should be
-     *            {@link Constants#NOT_A_COORDINATE}. If it's called on insertion from the
-     *            suggestion strip, it should be {@link Constants#SUGGESTION_STRIP_COORDINATE}.
+     *            {@link Constants#NOT_A_COORDINATE}.
      * @param y y-coordinate pixel of touched event. If {@link #onCodeInput} is not called by
      *            {@link PointerTracker} or so, the value should be
-     *            {@link Constants#NOT_A_COORDINATE}.If it's called on insertion from the
-     *            suggestion strip, it should be {@link Constants#SUGGESTION_STRIP_COORDINATE}.
+     *            {@link Constants#NOT_A_COORDINATE}.
      * @param isKeyRepeat true if this is a key repeat, false otherwise
      */
     // TODO: change this to send an Event object instead
@@ -60,7 +59,7 @@ public interface KeyboardActionListener {
     /**
      * Sends a string of characters to the listener.
      *
-     * @param text the string of characters to be registered.
+     * @param rawText the string of characters to be registered.
      */
     void onTextInput(final String rawText);
 
@@ -80,7 +79,11 @@ public interface KeyboardActionListener {
 
     KeyboardActionListener EMPTY_LISTENER = new Adapter();
 
+    RichInputConnection GimmieTheConnection();
+
     class Adapter implements KeyboardActionListener {
+        @Override
+        public RichInputConnection GimmieTheConnection(){return null;}
         @Override
         public void onPressKey(int primaryCode, int repeatCount, boolean isSinglePointer) {}
         @Override

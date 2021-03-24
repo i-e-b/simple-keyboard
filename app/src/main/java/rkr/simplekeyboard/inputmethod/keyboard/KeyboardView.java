@@ -208,46 +208,54 @@ public class KeyboardView extends View {
         char[][] layout = KeyboardLayout.CurrentLayout();
 
         if(!sIsBeingPressed) {
-            // Minor lines (pre-touch only)
-            paint.setARGB(255, 180, 180, 127);
-            for (int i = 1; i < 9; i++) {
-                canvas.drawLine(xZero, ninthHeight * i, width, ninthHeight * i, paint);
-                canvas.drawLine(ninthWidth * i, yZero, ninthWidth * i, height, paint);
-            }
-
-            // key positions
-            paint.setTextSize(fontDiv);
-            paint.setARGB(255, 63, 63,127);
-            for (int y = 0; y < 9; y++) {
-                for (int x = 0; x < 9; x++) {
-                    String desc = KeyboardLayout.Visualise(layout[y][x]);
-                    if (desc.length() > 1) paint.setTextSize(fontDiv * 0.7f);
-                    else paint.setTextSize(fontDiv);
-
-                    float sw = paint.measureText(desc);
-                    float offs = (ninthWidth / 2.0f) - (sw / 2.0f);
-                    canvas.drawText(desc,x*ninthWidth + offs, (fontDiv*0.8f)+(y*ninthHeight), paint);
-                }
-            }
+            DrawZoomedOutView(canvas, height, width, fontDiv, xZero, yZero, ninthWidth, ninthHeight, paint, layout);
         } else {
-            // Draw zoomed view
-            int qx = KeyboardLayout.sQuadrantX;
-            int qy = KeyboardLayout.sQuadrantY;
+            DrawZoomedInView(canvas, fontDiv, oneThirdWidth, oneThirdHeight, paint, layout);
+        }
+    }
 
-            paint.setARGB(255, 63, 63,127);
-            float bigDiv = fontDiv * 3;
-            paint.setTextSize(bigDiv);
+    private void DrawZoomedInView(Canvas canvas, float fontDiv, int oneThirdWidth, int oneThirdHeight, Paint paint, char[][] layout) {
+        // Draw zoomed view
+        int qx = KeyboardLayout.sQuadrantX;
+        int qy = KeyboardLayout.sQuadrantY;
 
-            for (int y = 0; y < 3; y++) {
-                for (int x = 0; x < 3; x++) {
-                    String desc = KeyboardLayout.Visualise(layout[y+qy][x+qx]);
-                    if (desc.length() > 1) paint.setTextSize(bigDiv * 0.7f);
-                    else paint.setTextSize(bigDiv);
+        paint.setARGB(255, 63, 63,127);
+        float bigDiv = fontDiv * 3;
+        paint.setTextSize(bigDiv);
 
-                    float sw = paint.measureText(desc);
-                    float offs = (oneThirdWidth / 2.0f) - (sw / 2.0f);
-                    canvas.drawText(desc,x*oneThirdWidth + offs, (bigDiv*0.8f)+(y*oneThirdHeight), paint);
-                }
+        for (int y = 0; y < 3; y++) {
+            for (int x = 0; x < 3; x++) {
+                String desc = KeyboardLayout.Visualise(layout[y+qy][x+qx]);
+                if (desc.length() > 1) paint.setTextSize(bigDiv * 0.7f);
+                else paint.setTextSize(bigDiv);
+
+                float sw = paint.measureText(desc);
+                float offs = (oneThirdWidth / 2.0f) - (sw / 2.0f);
+                canvas.drawText(desc,x*oneThirdWidth + offs, (bigDiv*0.8f)+(y*oneThirdHeight), paint);
+            }
+        }
+    }
+
+    private void DrawZoomedOutView(Canvas canvas, int height, int width, float fontDiv, int xZero, int yZero, int ninthWidth, int ninthHeight, Paint paint, char[][] layout) {
+        // Minor lines (pre-touch only)
+        paint.setARGB(255, 180, 180, 127);
+        for (int i = 1; i < 9; i++) {
+            canvas.drawLine(xZero, ninthHeight * i, width, ninthHeight * i, paint);
+            canvas.drawLine(ninthWidth * i, yZero, ninthWidth * i, height, paint);
+        }
+
+        // key positions
+        paint.setTextSize(fontDiv);
+        paint.setARGB(255, 63, 63,127);
+        for (int y = 0; y < 9; y++) {
+            for (int x = 0; x < 9; x++) {
+                String desc = KeyboardLayout.Visualise(layout[y][x]);
+                if (desc.length() > 1) paint.setTextSize(fontDiv * 0.7f);
+                else paint.setTextSize(fontDiv);
+
+                float sw = paint.measureText(desc);
+                float offs = (ninthWidth / 2.0f) - (sw / 2.0f);
+                canvas.drawText(desc,x*ninthWidth + offs, (fontDiv*0.8f)+(y*ninthHeight), paint);
             }
         }
     }

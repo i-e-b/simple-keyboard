@@ -18,7 +18,9 @@ package rkr.simplekeyboard.inputmethod.keyboard;
 
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.os.SystemClock;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 import java.util.ArrayList;
@@ -409,8 +411,30 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
 
         // get the key and send it
         char result = KeyboardLayout.TouchUp((x*3) / lastDrawWidth,(y*3) / lastDrawHeight);
-        sListener.onTextInput(""+result); // <-- that seems to work ok
+        sListener.onTextInput(""+result);
+        long startTick = SystemClock.uptimeMillis();
 
+        sListener.GimmieTheConnection().sendKeyEvent(new KeyEvent(
+                startTick,startTick,KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_Q, 0, KeyEvent.META_SHIFT_ON
+        ));
+
+        long endTick = SystemClock.uptimeMillis() + 1;
+        sListener.GimmieTheConnection().sendKeyEvent(new KeyEvent(
+                endTick,endTick,KeyEvent.ACTION_UP, KeyEvent.KEYCODE_Q, 0, KeyEvent.META_SHIFT_ON
+        ));
+        /*if (result != '\0') {
+            int[] codes = KeyboardLayout.KeyCodes(result);
+
+            // press keys down then up again to handle 'shift' etc
+            for (int i = 0; i < codes.length; i++){
+                sListener.onPressKey(codes[i], 0, false);
+                sListener.onCodeInput(codes[i], -1,-1, false);
+            }
+
+            for (int i = codes.length - 1; i >= 0; i--){
+                sListener.onReleaseKey(codes[i], false);
+            }
+        }*/
         // clean up
         sTimerProxy.cancelKeyTimersOf(this); // was in `onUpEventInternal`
         sPointerTrackerQueue.remove(this);
@@ -446,18 +470,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
 
         if (mCursorMoved) {
             mCursorMoved = false;
-            return;
-        }
-        if (mIsTrackingForActionDisabled) {
-            return;
-        }
-        if (currentKey != null && currentKey.isRepeatable()
-                && (currentKey.getCode() == currentRepeatingKeyCode) && !isInDraggingFinger) {
-            return;
-        }
-        detectAndSendKey(currentKey, mKeyX, mKeyY);
-        if (isInSlidingKeyInput) {
-            callListenerOnFinishSlidingInput();
         }
     }
 

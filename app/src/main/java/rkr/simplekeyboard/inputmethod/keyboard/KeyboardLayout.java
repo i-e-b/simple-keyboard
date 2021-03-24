@@ -1,5 +1,9 @@
 package rkr.simplekeyboard.inputmethod.keyboard;
 
+import android.view.KeyEvent;
+
+import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardCodesSet;
+
 public class KeyboardLayout {
 
     public static final char nul = '\0';
@@ -92,6 +96,11 @@ public class KeyboardLayout {
         int qy = sQuadrantY;
         int qx = sQuadrantX;
         return CurrentLayout()[qy+yi][qx+xi];
+    }
+
+    public static int[] KeyCodes(char src){
+        // See https://developer.android.com/reference/android/view/KeyEvent
+        return new int[]{KeyEvent.KEYCODE_SHIFT_LEFT, KeyEvent.KEYCODE_D};
     }
 
 }

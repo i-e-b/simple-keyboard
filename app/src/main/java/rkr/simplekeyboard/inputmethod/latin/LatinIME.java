@@ -773,6 +773,12 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     }
 
     @Override
+    public RichInputConnection GimmieTheConnection(){
+        // TODO: rip out as much of this IME/Logic stuff as possible
+        return mInputLogic.mConnection;
+    }
+
+    @Override
     public void onMoveDeletePointer(int steps) {
         if (mInputLogic.mConnection.hasCursorPosition()) {
             final int end = mInputLogic.mConnection.getExpectedSelectionEnd();
