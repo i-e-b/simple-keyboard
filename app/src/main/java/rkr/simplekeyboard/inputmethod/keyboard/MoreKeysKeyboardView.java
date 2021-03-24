@@ -163,23 +163,19 @@ public class MoreKeysKeyboardView extends KeyboardView implements MoreKeysPanel 
         // A new key is detected.
         if (oldKey != null) {
             updateReleaseKeyGraphics(oldKey);
-            invalidateKey(oldKey);
         }
         if (newKey != null) {
             updatePressKeyGraphics(newKey);
-            invalidateKey(newKey);
         }
         return newKey;
     }
 
     private void updateReleaseKeyGraphics(final Key key) {
         key.onReleased();
-        invalidateKey(key);
     }
 
     private void updatePressKeyGraphics(final Key key) {
         key.onPressed();
-        invalidateKey(key);
     }
 
     @Override

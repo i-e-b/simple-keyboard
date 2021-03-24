@@ -656,7 +656,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         // Need to set expanded touchable region only if a keyboard view is being shown.
         if (visibleKeyboardView.isShown()) {
             final int touchLeft = 0;
-            final int touchTop = mKeyboardSwitcher.isShowingMoreKeysPanel() ? 0 : visibleTopY;
+            final int touchTop = visibleTopY;
             final int touchRight = visibleKeyboardView.getWidth();
             final int touchBottom = inputHeight
                     // Extend touchable region below the keyboard.
@@ -926,10 +926,6 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
 
     private void hapticAndAudioFeedback(final int code, final int repeatCount) {
         final MainKeyboardView keyboardView = mKeyboardSwitcher.getMainKeyboardView();
-        if (keyboardView != null && keyboardView.isInDraggingFinger()) {
-            // No need to feedback while finger is dragging.
-            return;
-        }
         if (repeatCount > 0) {
             if (code == Constants.CODE_DELETE && !mInputLogic.mConnection.canDeleteCharacters()) {
                 // No need to feedback when repeat delete key will have no effect.

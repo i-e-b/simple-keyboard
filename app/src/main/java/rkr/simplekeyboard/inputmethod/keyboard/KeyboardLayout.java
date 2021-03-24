@@ -73,7 +73,14 @@ public class KeyboardLayout {
      * @param xi x index 0..2
      * @param yi y index 0..2
      */
-    public static void TouchDown(int xi, int yi){}
+    public static void TouchDown(int xi, int yi)
+    {
+        if (xi >= 0 && xi < 3) sQuadrantX = xi * 3;
+        if (yi >= 0 && yi < 3) sQuadrantY = yi * 3;
+    }
+
+    public static int sQuadrantY = 0;
+    public static int sQuadrantX = 0;
 
     /**
      * register a release of a touch at a given location index.
@@ -82,6 +89,9 @@ public class KeyboardLayout {
      * @param yi y index 0..2
      */
     public static char TouchUp(int xi, int yi){
-        return '\0'; // null char is 'no output'
+        int qy = sQuadrantY;
+        int qx = sQuadrantX;
+        return CurrentLayout()[qy+yi][qx+xi];
     }
+
 }

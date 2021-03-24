@@ -74,13 +74,9 @@ public class KeyboardView extends View {
     private final float mVerticalCorrection;
     private final Drawable mKeyBackground;
     private final Rect mKeyBackgroundPadding = new Rect();
-    private static final float KET_TEXT_SHADOW_RADIUS_DISABLED = -1.0f;
     public int mCustomColor = 0;
 
     protected static boolean sIsBeingPressed = false;
-
-    // The maximum key label width in the proportion to the key width.
-    private static final float MAX_LABEL_RATIO = 0.90f;
 
     // Main keyboard
     // TODO: Consider having a dummy keyboard object to make this @NonNull
@@ -88,18 +84,7 @@ public class KeyboardView extends View {
     private final KeyDrawParams mKeyDrawParams = new KeyDrawParams();
 
     // Drawing
-    /** True if all keys should be drawn */
-    private boolean mInvalidateAllKeys;
-    /** The keys that should be drawn */
-    private final HashSet<Key> mInvalidatedKeys = new HashSet<>();
-    /** The working rectangle for clipping */
-    private final Rect mClipRect = new Rect();
-    /** The keyboard bitmap buffer for faster updates */
-    private Bitmap mOffscreenBuffer;
-    /** The canvas for the above mutable keyboard bitmap */
-    private final Canvas mOffscreenCanvas = new Canvas();
     private final Paint mPaint = new Paint();
-    private final Paint.FontMetrics mFontMetrics = new Paint.FontMetrics();
 
     public KeyboardView(final Context context, final AttributeSet attrs) {
         this(context, attrs, R.attr.keyboardViewStyle);
@@ -178,15 +163,6 @@ public class KeyboardView extends View {
         onDrawKeyboard(canvas);
     }
 
-    private void freeOffscreenBuffer() {
-        mOffscreenCanvas.setBitmap(null);
-        mOffscreenCanvas.setMatrix(null);
-        if (mOffscreenBuffer != null) {
-            mOffscreenBuffer.recycle();
-            mOffscreenBuffer = null;
-        }
-    }
-
     protected float mLastTouchX = 0.0f;
     protected float mLastTouchY = 0.0f;
 
@@ -228,6 +204,9 @@ public class KeyboardView extends View {
         canvas.drawLine(oneThirdWidth, yZero, oneThirdWidth, height, paint);
         canvas.drawLine(twoThirdWidth, yZero, twoThirdWidth, height, paint);
 
+        paint.setTypeface(Typeface.MONOSPACE);
+        char[][] layout = KeyboardLayout.CurrentLayout();
+
         if(!sIsBeingPressed) {
             // Minor lines (pre-touch only)
             paint.setARGB(255, 180, 180, 127);
@@ -239,10 +218,9 @@ public class KeyboardView extends View {
             // key positions
             paint.setTextSize(fontDiv);
             paint.setARGB(255, 63, 63,127);
-            char[][] l = KeyboardLayout.CurrentLayout();
             for (int y = 0; y < 9; y++) {
                 for (int x = 0; x < 9; x++) {
-                    String desc = KeyboardLayout.Visualise(l[y][x]);
+                    String desc = KeyboardLayout.Visualise(layout[y][x]);
                     if (desc.length() > 1) paint.setTextSize(fontDiv * 0.7f);
                     else paint.setTextSize(fontDiv);
 
@@ -251,74 +229,43 @@ public class KeyboardView extends View {
                     canvas.drawText(desc,x*ninthWidth + offs, (fontDiv*0.8f)+(y*ninthHeight), paint);
                 }
             }
-        }
+        } else {
+            // Draw zoomed view
+            int qx = KeyboardLayout.sQuadrantX;
+            int qy = KeyboardLayout.sQuadrantY;
 
-        paint.setARGB(255, 127, 127,255);
-        paint.setTypeface(Typeface.MONOSPACE);
-
-        // TODO: draw keys in appropriate zoom mode
-        if(sIsBeingPressed) {
+            paint.setARGB(255, 63, 63,127);
             float bigDiv = fontDiv * 3;
             paint.setTextSize(bigDiv);
-            canvas.drawText("Big font", 12.5f, fontDiv + bigDiv, paint);
-        } else {
+
+            for (int y = 0; y < 3; y++) {
+                for (int x = 0; x < 3; x++) {
+                    String desc = KeyboardLayout.Visualise(layout[y+qy][x+qx]);
+                    if (desc.length() > 1) paint.setTextSize(bigDiv * 0.7f);
+                    else paint.setTextSize(bigDiv);
+
+                    float sw = paint.measureText(desc);
+                    float offs = (oneThirdWidth / 2.0f) - (sw / 2.0f);
+                    canvas.drawText(desc,x*oneThirdWidth + offs, (bigDiv*0.8f)+(y*oneThirdHeight), paint);
+                }
+            }
         }
-
-
-        mInvalidatedKeys.clear();
-        mInvalidateAllKeys = false;
-    }
-
-    public Paint newLabelPaint(final Key key) {
-        final Paint paint = new Paint();
-        paint.setAntiAlias(true);
-        if (key == null) {
-            paint.setTypeface(mKeyDrawParams.mTypeface);
-            paint.setTextSize(mKeyDrawParams.mLabelSize);
-        } else {
-            paint.setColor(key.selectTextColor(mKeyDrawParams));
-            paint.setTypeface(key.selectTypeface(mKeyDrawParams));
-            paint.setTextSize(key.selectTextSize(mKeyDrawParams));
-        }
-        return paint;
     }
 
     /**
      * Requests a redraw of the entire keyboard. Calling {@link #invalidate} is not sufficient
      * because the keyboard renders the keys to an off-screen buffer and an invalidate() only
      * draws the cached buffer.
-     * @see #invalidateKey(Key)
      */
     public void invalidateAllKeys() {
-        mInvalidatedKeys.clear();
-        mInvalidateAllKeys = true;
         invalidate();
-    }
-
-    /**
-     * Invalidates a key so that it will be redrawn on the next repaint. Use this method if only
-     * one key is changing it's content. Any changes that affect the position or size of the key
-     * may not be honored.
-     * @param key key in the attached {@link Keyboard}.
-     * @see #invalidateAllKeys
-     */
-    public void invalidateKey(final Key key) {
-        if (mInvalidateAllKeys || key == null) {
-            return;
-        }
-        mInvalidatedKeys.add(key);
-        final int x = key.getX() + getPaddingLeft();
-        final int y = key.getY() + getPaddingTop();
-        invalidate(x, y, x + key.getWidth(), y + key.getHeight());
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        freeOffscreenBuffer();
     }
 
     public void deallocateMemory() {
-        freeOffscreenBuffer();
     }
 }

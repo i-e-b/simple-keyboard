@@ -172,14 +172,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         }
     }
 
-    public static void dismissAllMoreKeysPanels() {
-        final int trackersSize = sTrackers.size();
-        for (int i = 0; i < trackersSize; ++i) {
-            final PointerTracker tracker = sTrackers.get(i);
-            tracker.dismissMoreKeysPanel();
-        }
-    }
-
     private PointerTracker(final int id) {
         mPointerId = id;
     }
@@ -322,8 +314,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         if (action == MotionEvent.ACTION_MOVE) {
             // When this pointer is the only active pointer and is showing a more keys panel,
             // we should ignore other pointers' motion event.
-            final boolean shouldIgnoreOtherPointers =
-                    isShowingMoreKeysPanel() && getActivePointerTrackerCount() == 1;
+            final boolean shouldIgnoreOtherPointers = getActivePointerTrackerCount() == 1;
             final int pointerCount = me.getPointerCount();
             for (int index = 0; index < pointerCount; index++) {
                 final int id = me.getPointerId(index);
@@ -379,24 +370,8 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         sDrawingProxy.onKeyPressed();
         mStartX = x;
         mStartY = y;
-        onDownEventInternal(x, y);
-    }
-
-    /* package */ boolean isShowingMoreKeysPanel() {
-        return (mMoreKeysPanel != null);
-    }
-
-    private void dismissMoreKeysPanel() {
-        if (isShowingMoreKeysPanel()) {
-            mMoreKeysPanel.dismissMoreKeysPanel();
-            mMoreKeysPanel = null;
-        }
-    }
-
-    private void onDownEventInternal(final int x, final int y) {
+        KeyboardLayout.TouchDown((x*3) / lastDrawWidth,(y*3) / lastDrawHeight);
         sDrawingProxy.onKeyPressed();
-        mStartX = x;
-        mStartY = y;
         mStartTime = System.currentTimeMillis();
     }
 
@@ -409,10 +384,8 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         if (DEBUG_MOVE_EVENT) {
             printTouchEvent("onMoveEvent:", x, y, eventTime);
         }
-
         mLastX = x;
         mLastY = y;
-
         sDrawingProxy.invalidateAll();
     }
 
@@ -432,11 +405,13 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
 
         mLastX = x;
         mLastY = y;
-        // TODO: Decide from mStart_ and mLast_ what key we should send
         sDrawingProxy.onKeyReleased();
 
-        sListener.onTextInput("This is a test output"); // <-- that seems to work ok
+        // get the key and send it
+        char result = KeyboardLayout.TouchUp((x*3) / lastDrawWidth,(y*3) / lastDrawHeight);
+        sListener.onTextInput(""+result); // <-- that seems to work ok
 
+        // clean up
         sTimerProxy.cancelKeyTimersOf(this); // was in `onUpEventInternal`
         sPointerTrackerQueue.remove(this);
     }
@@ -469,16 +444,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
             sListener.onUpWithDeletePointerActive();
         }
 
-        if (isShowingMoreKeysPanel()) {
-            if (!mIsTrackingForActionDisabled) {
-                final int translatedX = mMoreKeysPanel.translateX(x);
-                final int translatedY = mMoreKeysPanel.translateY(y);
-                mMoreKeysPanel.onUpEvent(translatedX, translatedY, mPointerId);
-            }
-            dismissMoreKeysPanel();
-            return;
-        }
-
         if (mCursorMoved) {
             mCursorMoved = false;
             return;
@@ -498,9 +463,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
 
     @Override
     public void cancelTrackingForAction() {
-        if (isShowingMoreKeysPanel()) {
-            return;
-        }
         mIsTrackingForActionDisabled = true;
     }
 
@@ -517,7 +479,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
     private void onCancelEventInternal() {
         sTimerProxy.cancelKeyTimersOf(this);
         resetKeySelectionByDraggingFinger();
-        dismissMoreKeysPanel();
     }
 
     private int getLongPressTimeout(final int code) {

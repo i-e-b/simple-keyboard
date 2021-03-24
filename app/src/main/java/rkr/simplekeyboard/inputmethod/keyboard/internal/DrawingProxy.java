@@ -37,15 +37,6 @@ public interface DrawingProxy {
     void onKeyReleased();
 
     /**
-     * Start showing more keys keyboard of a key that is being long pressed.
-     * @param key the {@link Key} that is being long pressed and showing more keys keyboard.
-     * @param tracker the {@link PointerTracker} that detects this long pressing.
-     * @return {@link MoreKeysPanel} that is being shown. null if there is no need to show more keys
-     *     keyboard.
-     */
-    MoreKeysPanel showMoreKeysKeyboard(Key key, PointerTracker tracker);
-
-    /**
      * Start a while-typing-animation.
      * @param fadeInOrOut {@link #FADE_IN} starts while-typing-fade-in animation.
      * {@link #FADE_OUT} starts while-typing-fade-out animation.

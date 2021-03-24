@@ -150,7 +150,6 @@ public final class KeyboardSwitcher implements KeyboardState.SwitchActions {
                 || !newKeyboard.mId.mSubtype.equals(oldKeyboard.mId.mSubtype);
         final int languageOnSpacebarFormatType = LanguageOnSpacebarUtils
                 .getLanguageOnSpacebarFormatType(newKeyboard.mId.mSubtype);
-        keyboardView.startDisplayLanguageOnSpacebar(subtypeChanged, languageOnSpacebarFormatType);
     }
 
     public Keyboard getKeyboard() {
@@ -342,10 +341,6 @@ public final class KeyboardSwitcher implements KeyboardState.SwitchActions {
             }
         }
         return false;
-    }
-
-    public boolean isShowingMoreKeysPanel() {
-        return mKeyboardView.isShowingMoreKeysPanel();
     }
 
     public View getVisibleKeyboardView() {
