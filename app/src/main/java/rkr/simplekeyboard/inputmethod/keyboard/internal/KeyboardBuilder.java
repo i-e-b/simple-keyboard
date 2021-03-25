@@ -758,6 +758,5 @@ public class KeyboardBuilder<KP extends KeyboardParams> {
     }
 
     private void endKeyboard() {
-        mParams.removeRedundantMoreKeys();
     }
 }

@@ -51,7 +51,6 @@ public final class TimerHandler extends LeakGuardHandlerWrapper<DrawingProxy>
         switch (msg.what) {
         case MSG_REPEAT_KEY:
             final PointerTracker tracker1 = (PointerTracker) msg.obj;
-            tracker1.onKeyRepeat(msg.arg1 /* code */, msg.arg2 /* repeatCount */);
             break;
         case MSG_LONGPRESS_KEY:
         case MSG_LONGPRESS_SHIFT_KEY:
@@ -65,14 +64,8 @@ public final class TimerHandler extends LeakGuardHandlerWrapper<DrawingProxy>
     }
 
     @Override
-    public void startKeyRepeatTimerOf(final PointerTracker tracker, final int repeatCount,
-            final int delay) {
-        final Key key = tracker.getKey();
-        if (key == null || delay == 0) {
-            return;
-        }
-        sendMessageDelayed(
-                obtainMessage(MSG_REPEAT_KEY, key.getCode(), repeatCount, tracker), delay);
+    public void startKeyRepeatTimerOf(final PointerTracker tracker, final int repeatCount, final int delay) {
+        return;
     }
 
     private void cancelKeyRepeatTimerOf(final PointerTracker tracker) {
@@ -90,15 +83,6 @@ public final class TimerHandler extends LeakGuardHandlerWrapper<DrawingProxy>
 
     @Override
     public void startLongPressTimerOf(final PointerTracker tracker, final int delay) {
-        final Key key = tracker.getKey();
-        if (key == null) {
-            return;
-        }
-        // Use a separate message id for long pressing shift key, because long press shift key
-        // timers should be canceled when other key is pressed.
-        final int messageId = (key.getCode() == Constants.CODE_SHIFT)
-                ? MSG_LONGPRESS_SHIFT_KEY : MSG_LONGPRESS_KEY;
-        sendMessageDelayed(obtainMessage(messageId, tracker), delay);
     }
 
     @Override

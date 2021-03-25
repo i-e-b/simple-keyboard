@@ -112,23 +112,6 @@ public class KeyboardParams {
         }
     }
 
-    public void removeRedundantMoreKeys() {
-        if (mAllowRedundantMoreKeys) {
-            return;
-        }
-        final MoreKeySpec.LettersOnBaseLayout lettersOnBaseLayout =
-                new MoreKeySpec.LettersOnBaseLayout();
-        for (final Key key : mSortedKeys) {
-            lettersOnBaseLayout.addLetter(key);
-        }
-        final ArrayList<Key> allKeys = new ArrayList<>(mSortedKeys);
-        mSortedKeys.clear();
-        for (final Key key : allKeys) {
-            final Key filteredKey = Key.removeRedundantMoreKeys(key, lettersOnBaseLayout);
-            mSortedKeys.add(mUniqueKeysCache.getUniqueKey(filteredKey));
-        }
-    }
-
     private int mMaxHeightCount = 0;
     private int mMaxWidthCount = 0;
     private final SparseIntArray mHeightHistogram = new SparseIntArray();

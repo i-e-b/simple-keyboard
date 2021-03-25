@@ -32,7 +32,6 @@ import rkr.simplekeyboard.inputmethod.keyboard.internal.TimerProxy;
 import rkr.simplekeyboard.inputmethod.latin.common.Constants;
 import rkr.simplekeyboard.inputmethod.latin.common.CoordinateUtils;
 import rkr.simplekeyboard.inputmethod.latin.define.DebugFlags;
-import rkr.simplekeyboard.inputmethod.latin.settings.Settings;
 
 public final class PointerTracker implements PointerTrackerQueue.Element {
     private static final String TAG = PointerTracker.class.getSimpleName();
@@ -69,7 +68,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
 
     // Parameters for pointer handling.
     private static PointerTrackerParams sParams;
-    private static int sPointerStep = (int)(10.0 * Resources.getSystem().getDisplayMetrics().density);
 
     private static final ArrayList<PointerTracker> sTrackers = new ArrayList<>();
     private static final PointerTrackerQueue sPointerTrackerQueue = new PointerTrackerQueue();
@@ -80,36 +78,19 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
     private static TimerProxy sTimerProxy;
     private static KeyboardActionListener sListener = KeyboardActionListener.EMPTY_LISTENER;
 
-    private Keyboard mKeyboard;
-
-    // The current key where this pointer is.
-    private Key mCurrentKey = null;
-
     // Last pointer position.
     private int mLastX;
     private int mLastY;
-    private int mStartX;
-    private int mStartY;
-    private long mStartTime;
     private boolean mCursorMoved = false;
-
-    // true if keyboard layout has been changed.
-    private boolean mKeyboardLayoutHasBeenChanged;
 
     // true if this pointer is no longer triggering any action because it has been canceled.
     private boolean mIsTrackingForActionDisabled;
 
-    private static final int MULTIPLIER_FOR_LONG_PRESS_TIMEOUT_IN_SLIDING_INPUT = 3;
     // true if this pointer is in the dragging finger mode.
     boolean mIsInDraggingFinger;
     // true if this pointer is sliding from a modifier key and in the sliding key input mode,
     // so that further modifier keys should be ignored.
     boolean mIsInSlidingKeyInput;
-    // if not a NOT_A_CODE, the key of this code is repeating
-    private int mCurrentRepeatingKeyCode = Constants.NOT_A_CODE;
-
-    // true if dragging finger is allowed.
-    private boolean mIsAllowedDraggingFinger;
 
     // TODO: Add PointerTrackerFactory singleton and move some class static methods into it.
     public static void init(final TypedArray mainKeyboardViewAttr, final TimerProxy timerProxy,
@@ -134,10 +115,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         return trackers.get(id);
     }
 
-    public static boolean isAnyInDraggingFinger() {
-        return sPointerTrackerQueue.isAnyInDraggingFinger();
-    }
-
     public static void cancelAllPointerTrackers() {
         sPointerTrackerQueue.cancelAllPointerTrackers();
     }
@@ -148,62 +125,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
 
     private PointerTracker(final int id) {
         mPointerId = id;
-    }
-
-    // Returns true if keyboard has been changed by this callback.
-    private boolean callListenerOnPressAndCheckKeyboardLayoutChange(final Key key,
-            final int repeatCount) {
-        // While gesture input is going on, this method should be a no-operation. But when gesture
-        // input has been canceled, <code>sInGesture</code> and <code>mIsDetectingGesture</code>
-        // are set to false. To keep this method is a no-operation,
-        // <code>mIsTrackingForActionDisabled</code> should also be taken account of.
-        final boolean ignoreModifierKey = mIsInDraggingFinger && key.isModifier();
-        if (DEBUG_LISTENER) {
-            Log.d(TAG, String.format("[%d] onPress    : %s%s%s%s", mPointerId,
-                    (key == null ? "none" : Constants.printableCode(key.getCode())),
-                    ignoreModifierKey ? " ignoreModifier" : "",
-                    key.isEnabled() ? "" : " disabled",
-                    repeatCount > 0 ? " repeatCount=" + repeatCount : ""));
-        }
-        if (ignoreModifierKey) {
-            return false;
-        }
-        if (key.isEnabled()) {
-            sListener.onPressKey(key.getCode(), repeatCount, getActivePointerTrackerCount() == 1);
-            final boolean keyboardLayoutHasBeenChanged = mKeyboardLayoutHasBeenChanged;
-            mKeyboardLayoutHasBeenChanged = false;
-            sTimerProxy.startTypingStateTimer(key);
-            return keyboardLayoutHasBeenChanged;
-        }
-        return false;
-    }
-
-    // Note that we need primaryCode argument because the keyboard may in shifted state and the
-    // primaryCode is different from {@link Key#mKeyCode}.
-    private void callListenerOnCodeInput(final Key key, final int primaryCode, final int x,
-            final int y, final boolean isKeyRepeat) {
-        final boolean ignoreModifierKey = mIsInDraggingFinger && key.isModifier();
-        final boolean altersCode = key.altCodeWhileTyping() && sTimerProxy.isTypingState();
-        final int code = altersCode ? key.getAltCode() : primaryCode;
-        if (DEBUG_LISTENER) {
-            final String output = code == Constants.CODE_OUTPUT_TEXT
-                    ? key.getOutputText() : Constants.printableCode(code);
-            Log.d(TAG, String.format("[%d] onCodeInput: %4d %4d %s%s%s", mPointerId, x, y,
-                    output, ignoreModifierKey ? " ignoreModifier" : "",
-                    altersCode ? " altersCode" : "", key.isEnabled() ? "" : " disabled"));
-        }
-        if (ignoreModifierKey) {
-            return;
-        }
-        // Even if the key is disabled, it should respond if it is in the altCodeWhileTyping state.
-        if (key.isEnabled() || altersCode) {
-            if (code == Constants.CODE_OUTPUT_TEXT) {
-                sListener.onTextInput(key.getOutputText());
-            } else if (code != Constants.CODE_UNSPECIFIED) {
-                sListener.onCodeInput(code,
-                    Constants.NOT_A_COORDINATE, Constants.NOT_A_COORDINATE, isKeyRepeat);
-            }
-        }
     }
 
     // Note that we need primaryCode argument because the keyboard may be in shifted state and the
@@ -226,25 +147,15 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         }
     }
 
-    private void callListenerOnFinishSlidingInput() {
-        if (DEBUG_LISTENER) {
-            Log.d(TAG, String.format("[%d] onFinishSlidingInput", mPointerId));
-        }
-        sListener.onFinishSlidingInput();
-    }
-
     @Override
     public boolean isInDraggingFinger() {
         return mIsInDraggingFinger;
     }
 
-    public Key getKey() {
-        return mCurrentKey;
-    }
 
     @Override
     public boolean isModifier() {
-        return mCurrentKey != null && mCurrentKey.isModifier();
+        return false;
     }
 
     public void getLastCoordinates(final int[] outCoords) {
@@ -303,14 +214,13 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
             printTouchEvent("onDownEvent:", x, y, eventTime);
         }
         // Naive up-to-down noise filter.
-        final long deltaT = eventTime;
-        if (deltaT < sParams.mTouchNoiseThresholdTime) {
+        if (eventTime < sParams.mTouchNoiseThresholdTime) {
             final int distance = getDistance(x, y, mLastX, mLastY);
             if (distance < sParams.mTouchNoiseThresholdDistance) {
                 if (DEBUG_MODE)
                     Log.w(TAG, String.format("[%d] onDownEvent:"
                             + " ignore potential noise: time=%d distance=%d",
-                            mPointerId, deltaT, distance));
+                            mPointerId, eventTime, distance));
                 cancelTrackingForAction();
                 return;
             }
@@ -318,11 +228,8 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
 
         sPointerTrackerQueue.add(this);
         sDrawingProxy.onKeyPressed();
-        mStartX = x;
-        mStartY = y;
         KeyboardLayout.TouchDown((x*3) / lastDrawWidth,(y*3) / lastDrawHeight);
         sDrawingProxy.onKeyPressed();
-        mStartTime = System.currentTimeMillis();
     }
 
     private void resetKeySelectionByDraggingFinger() {
@@ -345,13 +252,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         }
 
         sTimerProxy.cancelUpdateBatchInputTimer(this);
-        if (mCurrentKey != null && mCurrentKey.isModifier()) {
-            // Before processing an up event of modifier key, all pointers already being
-            // tracked should be released.
-            sPointerTrackerQueue.releaseAllPointersExcept(this, eventTime);
-        } else {
-            sPointerTrackerQueue.releaseAllPointersOlderThan(this, eventTime);
-        }
+        sPointerTrackerQueue.releaseAllPointersOlderThan(this, eventTime);
 
         mLastX = x;
         mLastY = y;
@@ -392,19 +293,10 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
 
     private void onUpEventInternal(final int x, final int y) {
         sTimerProxy.cancelKeyTimersOf(this);
-        final boolean isInDraggingFinger = mIsInDraggingFinger;
-        final boolean isInSlidingKeyInput = mIsInSlidingKeyInput;
         resetKeySelectionByDraggingFinger();
-        final Key currentKey = mCurrentKey;
-        mCurrentKey = null;
-        final int currentRepeatingKeyCode = mCurrentRepeatingKeyCode;
-        mCurrentRepeatingKeyCode = Constants.NOT_A_CODE;
+
         // Release the last pressed key.
         sDrawingProxy.onKeyReleased();
-
-        if(mCursorMoved && currentKey.getCode() == Constants.CODE_DELETE) {
-            sListener.onUpWithDeletePointerActive();
-        }
 
         if (mCursorMoved) {
             mCursorMoved = false;
@@ -429,58 +321,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
     private void onCancelEventInternal() {
         sTimerProxy.cancelKeyTimersOf(this);
         resetKeySelectionByDraggingFinger();
-    }
-
-    private int getLongPressTimeout(final int code) {
-        if (code == Constants.CODE_SHIFT) {
-            return sParams.mLongPressShiftLockTimeout;
-        }
-        final int longpressTimeout = Settings.getInstance().getCurrent().mKeyLongpressTimeout;
-        if (mIsInSlidingKeyInput) {
-            // We use longer timeout for sliding finger input started from the modifier key.
-            return longpressTimeout * MULTIPLIER_FOR_LONG_PRESS_TIMEOUT_IN_SLIDING_INPUT;
-        }
-        if (code == Constants.CODE_SPACE) {
-            // Cursor can be moved in space
-            return longpressTimeout * MULTIPLIER_FOR_LONG_PRESS_TIMEOUT_IN_SLIDING_INPUT;
-        }
-        return longpressTimeout;
-    }
-
-    private void detectAndSendKey(final Key key, final int x, final int y) {
-        if (key == null) return;
-
-        final int code = key.getCode();
-        callListenerOnCodeInput(key, code, x, y, false /* isKeyRepeat */);
-        callListenerOnRelease(key, code, false /* withSliding */);
-    }
-
-    private void startRepeatKey(final Key key) {
-        if (key == null) return;
-        if (!key.isRepeatable()) return;
-        // Don't start key repeat when we are in the dragging finger mode.
-        if (mIsInDraggingFinger) return;
-        final int startRepeatCount = 1;
-        startKeyRepeatTimer(startRepeatCount);
-    }
-
-    public void onKeyRepeat(final int code, final int repeatCount) {
-        final Key key = getKey();
-        if (key == null || key.getCode() != code) {
-            mCurrentRepeatingKeyCode = Constants.NOT_A_CODE;
-            return;
-        }
-        mCurrentRepeatingKeyCode = code;
-        final int nextRepeatCount = repeatCount + 1;
-        startKeyRepeatTimer(nextRepeatCount);
-        callListenerOnPressAndCheckKeyboardLayoutChange(key, repeatCount);
-        callListenerOnCodeInput(key, code, -1, -1, true /* isKeyRepeat */);
-    }
-
-    private void startKeyRepeatTimer(final int repeatCount) {
-        final int delay =
-                (repeatCount == 1) ? sParams.mKeyRepeatStartTimeout : sParams.mKeyRepeatInterval;
-        sTimerProxy.startKeyRepeatTimerOf(this, repeatCount, delay);
     }
 
     private void printTouchEvent(final String title, final int x, final int y,

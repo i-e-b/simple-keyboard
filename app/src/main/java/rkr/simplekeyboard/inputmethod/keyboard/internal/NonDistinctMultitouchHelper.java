@@ -19,7 +19,6 @@ package rkr.simplekeyboard.inputmethod.keyboard.internal;
 import android.util.Log;
 import android.view.MotionEvent;
 
-import rkr.simplekeyboard.inputmethod.keyboard.Key;
 import rkr.simplekeyboard.inputmethod.keyboard.PointerTracker;
 import rkr.simplekeyboard.inputmethod.latin.common.CoordinateUtils;
 
@@ -28,7 +27,6 @@ public final class NonDistinctMultitouchHelper {
 
     private static final int MAIN_POINTER_TRACKER_ID = 0;
     private int mOldPointerCount = 1;
-    private Key mOldKey;
     private int[] mLastCoords = CoordinateUtils.newInstance();
 
     public void processMotionEvent(final MotionEvent me) {
