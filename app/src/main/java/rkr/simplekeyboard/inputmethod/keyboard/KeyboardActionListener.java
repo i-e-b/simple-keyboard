@@ -16,6 +16,8 @@
 
 package rkr.simplekeyboard.inputmethod.keyboard;
 
+import android.view.KeyEvent;
+
 import rkr.simplekeyboard.inputmethod.latin.RichInputConnection;
 import rkr.simplekeyboard.inputmethod.latin.common.Constants;
 
@@ -79,11 +81,12 @@ public interface KeyboardActionListener {
 
     KeyboardActionListener EMPTY_LISTENER = new Adapter();
 
-    RichInputConnection GimmieTheConnection();
+    void SendKeyEvent(KeyEvent keyEvent);
 
     class Adapter implements KeyboardActionListener {
         @Override
-        public RichInputConnection GimmieTheConnection(){return null;}
+        public void SendKeyEvent(KeyEvent keyEvent) { }
+
         @Override
         public void onPressKey(int primaryCode, int repeatCount, boolean isSinglePointer) {}
         @Override

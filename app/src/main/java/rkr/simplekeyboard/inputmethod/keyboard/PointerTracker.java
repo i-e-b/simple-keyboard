@@ -411,30 +411,20 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
 
         // get the key and send it
         char result = KeyboardLayout.TouchUp((x*3) / lastDrawWidth,(y*3) / lastDrawHeight);
-        sListener.onTextInput(""+result);
-        long startTick = SystemClock.uptimeMillis();
-
-        sListener.GimmieTheConnection().sendKeyEvent(new KeyEvent(
-                startTick,startTick,KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_Q, 0, KeyEvent.META_SHIFT_ON
-        ));
-
-        long endTick = SystemClock.uptimeMillis() + 1;
-        sListener.GimmieTheConnection().sendKeyEvent(new KeyEvent(
-                endTick,endTick,KeyEvent.ACTION_UP, KeyEvent.KEYCODE_Q, 0, KeyEvent.META_SHIFT_ON
-        ));
-        /*if (result != '\0') {
-            int[] codes = KeyboardLayout.KeyCodes(result);
-
-            // press keys down then up again to handle 'shift' etc
-            for (int i = 0; i < codes.length; i++){
-                sListener.onPressKey(codes[i], 0, false);
-                sListener.onCodeInput(codes[i], -1,-1, false);
+        if (KeyboardLayout.IsInternal(result)) {
+            KeyboardLayout.SwitchMode(result);
+        } else if (KeyboardLayout.IsSimple(result)) {
+            sListener.onTextInput("" + result);
+        } else {
+            int[] codeAndMeta = KeyboardLayout.GetSpecialKey(result);
+            if (codeAndMeta.length == 2 && codeAndMeta[0] > 0) {
+                long t = SystemClock.uptimeMillis();
+                sListener.SendKeyEvent(new KeyEvent(t, t, KeyEvent.ACTION_DOWN, codeAndMeta[0], 0, codeAndMeta[1]));
+                t++;
+                sListener.SendKeyEvent(new KeyEvent(t, t, KeyEvent.ACTION_UP, codeAndMeta[0], 0, codeAndMeta[1]));
             }
+        }
 
-            for (int i = codes.length - 1; i >= 0; i--){
-                sListener.onReleaseKey(codes[i], false);
-            }
-        }*/
         // clean up
         sTimerProxy.cancelKeyTimersOf(this); // was in `onUpEventInternal`
         sPointerTrackerQueue.remove(this);

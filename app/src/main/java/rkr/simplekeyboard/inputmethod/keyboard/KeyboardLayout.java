@@ -10,17 +10,19 @@ public class KeyboardLayout {
     public static final char RET = '\n';
     public static final char BAK = '\u0008';
 
-    // mode switches (private use chars)
-    public static final char SYM = '\uE001';
-    public static final char NUM = '\uE002';
-    public static final char CAP = '\uE003';
-    public static final char ACC = '\uE004';
-    public static final char LET = '\uE005';
-    // arrows (private use chars)
-    public static final char ARR = '\uE006';
-    public static final char ARL = '\uE007';
-    public static final char ARU = '\uE008';
-    public static final char ARD = '\uE009';
+    // arrows (private use chars below 0xE100)
+    public static final char ARR = '\uE001';
+    public static final char ARL = '\uE002';
+    public static final char ARU = '\uE003';
+    public static final char ARD = '\uE004';
+
+    // mode switches (private use chars above 0xE100)
+    public static final char SYM = '\uE101';
+    public static final char NUM = '\uE102';
+    public static final char CAP = '\uE103';
+    public static final char ACC = '\uE104';
+    public static final char LET = '\uE105';
+
     private static char[][] sLowerLetters = {
             {'t','c',nul,  'q','h','j',  nul,'b','e'},
             {'r',nul,nul,  nul,'u',nul,  nul,nul,'s'},
@@ -47,8 +49,29 @@ public class KeyboardLayout {
         }
     }
 
+    /**
+     * Change current layout based on a mode character
+     */
+    public static void SwitchMode(char c) {
+        // TODO: implement this
+    }
+
+    /**
+     * Returns true if the key is a single character key
+     */
+    public static boolean IsSimple(char c) {
+        return (c > 31 && c < 0xE000);
+    }
+
+    /**
+     * Returns true if the character is a mode-change character (no keyboard output)
+     */
+    public static boolean IsInternal(char c) {
+        return (c >= 0xE100);
+    }
+
     public static String Visualise(char c){
-        if (c > 32 && c < 0xE000) return ""+c;
+        if (IsSimple(c)) return ""+c;
 
         switch (c){
             case nul: return "";
@@ -98,9 +121,22 @@ public class KeyboardLayout {
         return CurrentLayout()[qy+yi][qx+xi];
     }
 
-    public static int[] KeyCodes(char src){
-        // See https://developer.android.com/reference/android/view/KeyEvent
-        return new int[]{KeyEvent.KEYCODE_SHIFT_LEFT, KeyEvent.KEYCODE_D};
-    }
+    private static final int[] NoKey = new int[]{-1,-1};
 
+    /**
+     * Returns a keycode at [0] and meta state at [1] for a special key
+     */
+    public static int[] GetSpecialKey(char c) {
+        switch (c){
+            case RET: return new int[]{KeyEvent.KEYCODE_ENTER, 0};
+            case BAK: return new int[]{KeyEvent.KEYCODE_DEL, 0};
+
+            case ARD: return new int[]{KeyEvent.KEYCODE_DPAD_DOWN, 0};
+            case ARU: return new int[]{KeyEvent.KEYCODE_DPAD_UP, 0};
+            case ARL: return new int[]{KeyEvent.KEYCODE_DPAD_LEFT, 0};
+            case ARR: return new int[]{KeyEvent.KEYCODE_DPAD_RIGHT, 0};
+
+            default: return NoKey;
+        }
+    }
 }
