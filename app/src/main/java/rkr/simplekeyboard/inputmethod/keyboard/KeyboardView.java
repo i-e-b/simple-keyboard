@@ -226,8 +226,15 @@ public class KeyboardView extends View {
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 3; x++) {
                 String desc = KeyboardLayout.Visualise(layout[y+qy][x+qx]);
-                if (desc.length() > 1) paint.setTextSize(bigDiv * 0.7f);
-                else paint.setTextSize(bigDiv);
+
+                if (desc.length() > 1) {
+                    paint.setARGB(255, 127, 127,127);
+                    paint.setTextSize(bigDiv * 0.7f);
+                }
+                else {
+                    paint.setARGB(255, 63, 63,127);
+                    paint.setTextSize(bigDiv);
+                }
 
                 float sw = paint.measureText(desc);
                 float offs = (oneThirdWidth / 2.0f) - (sw / 2.0f);
@@ -246,12 +253,17 @@ public class KeyboardView extends View {
 
         // key positions
         paint.setTextSize(fontDiv);
-        paint.setARGB(255, 63, 63,127);
         for (int y = 0; y < 9; y++) {
             for (int x = 0; x < 9; x++) {
                 String desc = KeyboardLayout.Visualise(layout[y][x]);
-                if (desc.length() > 1) paint.setTextSize(fontDiv * 0.7f);
-                else paint.setTextSize(fontDiv);
+                if (desc.length() > 1) {
+                    paint.setARGB(255, 127, 127,127);
+                    paint.setTextSize(fontDiv * 0.6f);
+                }
+                else {
+                    paint.setARGB(255, 63, 63,127);
+                    paint.setTextSize(fontDiv);
+                }
 
                 float sw = paint.measureText(desc);
                 float offs = (ninthWidth / 2.0f) - (sw / 2.0f);
