@@ -29,7 +29,6 @@ import android.view.ViewGroup;
 
 import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.DrawingProxy;
-import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyPreviewDrawParams;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.NonDistinctMultitouchHelper;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.TimerHandler;
 import rkr.simplekeyboard.inputmethod.latin.common.Constants;
@@ -82,9 +81,6 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
     private final ObjectAnimator mAltCodeKeyWhileTypingFadeoutAnimator;
     private final ObjectAnimator mAltCodeKeyWhileTypingFadeinAnimator;
 
-    // Key preview
-    private final KeyPreviewDrawParams mKeyPreviewDrawParams;
-
     private final KeyDetector mKeyDetector;
     private final NonDistinctMultitouchHelper mNonDistinctMultitouchHelper; // TODO: this is the touch point handler
 
@@ -123,8 +119,6 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
                 R.styleable.MainKeyboardView_altCodeKeyWhileTypingFadeoutAnimator, 0);
         final int altCodeKeyWhileTypingFadeinAnimatorResId = mainKeyboardViewAttr.getResourceId(
                 R.styleable.MainKeyboardView_altCodeKeyWhileTypingFadeinAnimator, 0);
-
-        mKeyPreviewDrawParams = new KeyPreviewDrawParams(mainKeyboardViewAttr);
 
         mainKeyboardViewAttr.recycle();
 
@@ -216,16 +210,6 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
         super.setKeyboard(keyboard);
         mKeyDetector.setKeyboard(keyboard, -getPaddingLeft(), -getPaddingTop() + getVerticalCorrection());
         PointerTracker.setKeyDetector(mKeyDetector);
-    }
-
-    /**
-     * Enables or disables the key preview popup. This is a popup that shows a magnified
-     * version of the depressed key. By default the preview is enabled.
-     * @param previewEnabled whether or not to enable the key feedback preview
-     * @param delay the delay after which the preview is dismissed
-     */
-    public void setKeyPreviewPopupEnabled(final boolean previewEnabled, final int delay) {
-        mKeyPreviewDrawParams.setPopupEnabled(previewEnabled, delay);
     }
 
     private void installPreviewPlacerView() {
