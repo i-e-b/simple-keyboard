@@ -19,7 +19,6 @@ package rkr.simplekeyboard.inputmethod.keyboard;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -28,11 +27,8 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
 
-import java.util.HashSet;
-
 import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.compat.PreferenceManagerCompat;
-import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyDrawParams;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyVisualAttributes;
 import rkr.simplekeyboard.inputmethod.latin.settings.Settings;
 
@@ -81,7 +77,6 @@ public class KeyboardView extends View {
     // Main keyboard
     // TODO: Consider having a dummy keyboard object to make this @NonNull
     private Keyboard mKeyboard;
-    private final KeyDrawParams mKeyDrawParams = new KeyDrawParams();
 
     // Drawing
     private final Paint mPaint = new Paint();
@@ -123,8 +118,6 @@ public class KeyboardView extends View {
     public void setKeyboard(final Keyboard keyboard) {
         mKeyboard = keyboard;
         final int keyHeight = keyboard.mMostCommonKeyHeight;
-        mKeyDrawParams.updateParams(keyHeight, mKeyVisualAttributes);
-        mKeyDrawParams.updateParams(keyHeight, keyboard.mKeyVisualAttributes);
         final SharedPreferences prefs = PreferenceManagerCompat.getDeviceSharedPreferences(getContext());
         mCustomColor = Settings.readKeyboardColor(prefs, getContext());
         invalidateAllKeys();

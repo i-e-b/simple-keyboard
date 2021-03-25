@@ -18,19 +18,15 @@ package rkr.simplekeyboard.inputmethod.keyboard;
 
 import android.content.res.TypedArray;
 import android.graphics.Rect;
-import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 
 import java.util.Arrays;
 import java.util.Locale;
 
 import rkr.simplekeyboard.inputmethod.R;
-import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyDrawParams;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeySpecParser;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyStyle;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyVisualAttributes;
-import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardIconsSet;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardParams;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardRow;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.MoreKeySpec;
@@ -509,10 +505,6 @@ public class Key implements Comparable<Key> {
         return mLabel;
     }
 
-    public String getHintLabel() {
-        return mHintLabel;
-    }
-
     public MoreKeySpec[] getMoreKeys() {
         return mMoreKeys;
     }
@@ -523,10 +515,6 @@ public class Key implements Comparable<Key> {
 
     public final boolean isSpacer() {
         return this instanceof Spacer;
-    }
-
-    public final boolean isActionKey() {
-        return mBackgroundType == BACKGROUND_TYPE_ACTION;
     }
 
     public final boolean isShift() {
@@ -541,78 +529,8 @@ public class Key implements Comparable<Key> {
         return (mActionFlags & ACTION_FLAGS_IS_REPEATABLE) != 0;
     }
 
-    public final boolean noKeyPreview() {
-        return (mActionFlags & ACTION_FLAGS_NO_KEY_PREVIEW) != 0;
-    }
-
     public final boolean altCodeWhileTyping() {
         return (mActionFlags & ACTION_FLAGS_ALT_CODE_WHILE_TYPING) != 0;
-    }
-
-    public final boolean isLongPressEnabled() {
-        // We need not start long press timer on the key which has activated shifted letter.
-        return (mActionFlags & ACTION_FLAGS_ENABLE_LONG_PRESS) != 0
-                && (mLabelFlags & LABEL_FLAGS_SHIFTED_LETTER_ACTIVATED) == 0;
-    }
-
-    public KeyVisualAttributes getVisualAttributes() {
-        return mKeyVisualAttributes;
-    }
-
-    public final Typeface selectTypeface(final KeyDrawParams params) {
-        switch (mLabelFlags & LABEL_FLAGS_FONT_MASK) {
-        case LABEL_FLAGS_FONT_NORMAL:
-            return Typeface.DEFAULT;
-        case LABEL_FLAGS_FONT_MONO_SPACE:
-            return Typeface.MONOSPACE;
-        case LABEL_FLAGS_FONT_DEFAULT:
-        default:
-            // The type-face is specified by keyTypeface attribute.
-            return params.mTypeface;
-        }
-    }
-
-    public final int selectTextSize(final KeyDrawParams params) {
-        switch (mLabelFlags & LABEL_FLAGS_FOLLOW_KEY_TEXT_RATIO_MASK) {
-        case LABEL_FLAGS_FOLLOW_KEY_LETTER_RATIO:
-            return params.mLetterSize;
-        case LABEL_FLAGS_FOLLOW_KEY_LARGE_LETTER_RATIO:
-            return params.mLargeLetterSize;
-        case LABEL_FLAGS_FOLLOW_KEY_LABEL_RATIO:
-            return params.mLabelSize;
-        case LABEL_FLAGS_FOLLOW_KEY_HINT_LABEL_RATIO:
-            return params.mHintLabelSize;
-        default: // No follow key ratio flag specified.
-            return StringUtils.codePointCount(mLabel) == 1 ? params.mLetterSize : params.mLabelSize;
-        }
-    }
-
-    public final int selectTextColor(final KeyDrawParams params) {
-        if ((mLabelFlags & LABEL_FLAGS_FOLLOW_FUNCTIONAL_TEXT_COLOR) != 0) {
-            return params.mFunctionalTextColor;
-        }
-        return isShiftedLetterActivated() ? params.mTextInactivatedColor : params.mTextColor;
-    }
-
-    public final int selectHintTextSize(final KeyDrawParams params) {
-        if (hasHintLabel()) {
-            return params.mHintLabelSize;
-        }
-        if (hasShiftedLetterHint()) {
-            return params.mShiftedLetterHintSize;
-        }
-        return params.mHintLetterSize;
-    }
-
-    public final int selectHintTextColor(final KeyDrawParams params) {
-        if (hasHintLabel()) {
-            return params.mHintLabelColor;
-        }
-        if (hasShiftedLetterHint()) {
-            return isShiftedLetterActivated() ? params.mShiftedLetterHintActivatedColor
-                    : params.mShiftedLetterHintInactivatedColor;
-        }
-        return params.mHintLetterColor;
     }
 
     public final String getPreviewLabel() {
@@ -624,79 +542,14 @@ public class Key implements Comparable<Key> {
                 || StringUtils.codePointCount(getPreviewLabel()) == 1;
     }
 
-    public final int selectPreviewTextSize(final KeyDrawParams params) {
-        if (previewHasLetterSize()) {
-            return params.mPreviewTextSize;
-        }
-        return params.mLetterSize;
-    }
-
-    public Typeface selectPreviewTypeface(final KeyDrawParams params) {
-        if (previewHasLetterSize()) {
-            return selectTypeface(params);
-        }
-        return Typeface.DEFAULT_BOLD;
-    }
-
-    public final boolean isAlignHintLabelToBottom(final int defaultFlags) {
-        return ((mLabelFlags | defaultFlags) & LABEL_FLAGS_ALIGN_HINT_LABEL_TO_BOTTOM) != 0;
-    }
-
-    public final boolean isAlignIconToBottom() {
-        return (mLabelFlags & LABEL_FLAGS_ALIGN_ICON_TO_BOTTOM) != 0;
-    }
-
-    public final boolean isAlignLabelOffCenter() {
-        return (mLabelFlags & LABEL_FLAGS_ALIGN_LABEL_OFF_CENTER) != 0;
-    }
-
     public final boolean hasShiftedLetterHint() {
         return (mLabelFlags & LABEL_FLAGS_HAS_SHIFTED_LETTER_HINT) != 0
                 && !TextUtils.isEmpty(mHintLabel);
     }
 
-    public final boolean hasHintLabel() {
-        return (mLabelFlags & LABEL_FLAGS_HAS_HINT_LABEL) != 0;
-    }
-
-    public final boolean needsAutoXScale() {
-        return (mLabelFlags & LABEL_FLAGS_AUTO_X_SCALE) != 0;
-    }
-
-    public final boolean needsAutoScale() {
-        return (mLabelFlags & LABEL_FLAGS_AUTO_SCALE) == LABEL_FLAGS_AUTO_SCALE;
-    }
-
     private final boolean isShiftedLetterActivated() {
         return (mLabelFlags & LABEL_FLAGS_SHIFTED_LETTER_ACTIVATED) != 0
                 && !TextUtils.isEmpty(mHintLabel);
-    }
-
-    public final int getMoreKeysColumnNumber() {
-        return mMoreKeysColumnAndFlags & MORE_KEYS_COLUMN_NUMBER_MASK;
-    }
-
-    public final boolean isMoreKeysFixedColumn() {
-        return (mMoreKeysColumnAndFlags & MORE_KEYS_FLAGS_FIXED_COLUMN) != 0;
-    }
-
-    public final boolean isMoreKeysFixedOrder() {
-        return (mMoreKeysColumnAndFlags & MORE_KEYS_FLAGS_FIXED_ORDER) != 0;
-    }
-
-    public final boolean hasLabelsInMoreKeys() {
-        return (mMoreKeysColumnAndFlags & MORE_KEYS_FLAGS_HAS_LABELS) != 0;
-    }
-
-    public final int getMoreKeyLabelFlags() {
-        final int labelSizeFlag = hasLabelsInMoreKeys()
-                ? LABEL_FLAGS_FOLLOW_KEY_LABEL_RATIO
-                : LABEL_FLAGS_FOLLOW_KEY_LETTER_RATIO;
-        return labelSizeFlag | LABEL_FLAGS_AUTO_X_SCALE;
-    }
-
-    public final boolean hasNoPanelAutoMoreKey() {
-        return (mMoreKeysColumnAndFlags & MORE_KEYS_FLAGS_NO_PANEL_AUTO_MORE_KEY) != 0;
     }
 
     public final String getOutputText() {
@@ -709,27 +562,6 @@ public class Key implements Comparable<Key> {
         return (attrs != null) ? attrs.mAltCode : CODE_UNSPECIFIED;
     }
 
-    public int getIconId() {
-        return mIconId;
-    }
-
-    public Drawable getIcon(final KeyboardIconsSet iconSet, final int alpha) {
-
-        // TODO: does this render the button?
-
-        final OptionalAttributes attrs = mOptionalAttributes;
-        final int disabledIconId = (attrs != null) ? attrs.mDisabledIconId : ICON_UNDEFINED;
-        final int iconId = mEnabled ? getIconId() : disabledIconId;
-        final Drawable icon = iconSet.getIconDrawable(iconId);
-        if (icon != null) {
-            icon.setAlpha(alpha);
-        }
-        return icon;
-    }
-
-    public Drawable getPreviewIcon(final KeyboardIconsSet iconSet) {
-        return iconSet.getIconDrawable(getIconId());
-    }
 
     /**
      * Gets the width of the key in pixels, excluding the padding.
@@ -817,23 +649,6 @@ public class Key implements Comparable<Key> {
         return mHitbox.right - mX - mWidth;
     }
 
-    /**
-     * Informs the key that it has been pressed, in case it needs to change its appearance or
-     * state.
-     * @see #onReleased()
-     */
-    public void onPressed() {
-        mPressed = true;
-    }
-
-    /**
-     * Informs the key that it has been released, in case it needs to change its appearance or
-     * state.
-     * @see #onPressed()
-     */
-    public void onReleased() {
-        mPressed = false;
-    }
 
     public final boolean isEnabled() {
         return mEnabled;
@@ -853,83 +668,6 @@ public class Key implements Comparable<Key> {
      */
     public boolean isOnKey(final int x, final int y) {
         return mHitbox.contains(x, y);
-    }
-
-    /**
-     * Returns the square of the distance to the nearest clickable edge of the key and the given
-     * point.
-     * @param x the x-coordinate of the point
-     * @param y the y-coordinate of the point
-     * @return the square of the distance of the point from the nearest edge of the key
-     */
-    public int squaredDistanceToHitboxEdge(final int x, final int y) {
-        final int left = mHitbox.left;
-        // The hit box right is exclusive
-        final int right = mHitbox.right - 1;
-        final int top = mHitbox.top;
-        // The hit box bottom is exclusive
-        final int bottom = mHitbox.bottom - 1;
-        final int edgeX = x < left ? left : Math.min(x, right);
-        final int edgeY = y < top ? top : Math.min(y, bottom);
-        final int dx = x - edgeX;
-        final int dy = y - edgeY;
-        return dx * dx + dy * dy;
-    }
-
-    static class KeyBackgroundState {
-        private final int[] mReleasedState;
-        private final int[] mPressedState;
-
-        private KeyBackgroundState(final int ... attrs) {
-            mReleasedState = attrs;
-            mPressedState = Arrays.copyOf(attrs, attrs.length + 1);
-            mPressedState[attrs.length] = android.R.attr.state_pressed;
-        }
-
-        public int[] getState(final boolean pressed) {
-            return pressed ? mPressedState : mReleasedState;
-        }
-
-        public static final KeyBackgroundState[] STATES = {
-            // 0: BACKGROUND_TYPE_EMPTY
-            new KeyBackgroundState(android.R.attr.state_empty),
-            // 1: BACKGROUND_TYPE_NORMAL
-            new KeyBackgroundState(),
-            // 2: BACKGROUND_TYPE_FUNCTIONAL
-            new KeyBackgroundState(),
-            // 3: BACKGROUND_TYPE_STICKY_OFF
-            new KeyBackgroundState(android.R.attr.state_checkable),
-            // 4: BACKGROUND_TYPE_STICKY_ON
-            new KeyBackgroundState(android.R.attr.state_checkable, android.R.attr.state_checked),
-            // 5: BACKGROUND_TYPE_ACTION
-            new KeyBackgroundState(android.R.attr.state_active),
-            // 6: BACKGROUND_TYPE_SPACEBAR
-            new KeyBackgroundState(),
-        };
-    }
-
-    /**
-     * Returns the background drawable for the key, based on the current state and type of the key.
-     * @return the background drawable of the key.
-     * @see android.graphics.drawable.StateListDrawable#setState(int[])
-     */
-    public final Drawable selectBackgroundDrawable(final Drawable keyBackground,
-            final Drawable functionalKeyBackground,
-            final Drawable spacebarBackground) {
-
-        // TODO: draws background layer
-
-        final Drawable background;
-        if (mBackgroundType == BACKGROUND_TYPE_FUNCTIONAL) {
-            background = functionalKeyBackground;
-        } else if (mBackgroundType == BACKGROUND_TYPE_SPACEBAR) {
-            background = spacebarBackground;
-        } else {
-            background = keyBackground;
-        }
-        final int[] state = KeyBackgroundState.STATES[mBackgroundType].getState(mPressed);
-        background.setState(state);
-        return background;
     }
 
     public static class Spacer extends Key {
