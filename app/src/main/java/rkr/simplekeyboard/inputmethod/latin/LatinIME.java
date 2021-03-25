@@ -58,6 +58,7 @@ import rkr.simplekeyboard.inputmethod.compat.ViewOutlineProviderCompatUtils.Inse
 import rkr.simplekeyboard.inputmethod.event.Event;
 import rkr.simplekeyboard.inputmethod.keyboard.KeyboardActionListener;
 import rkr.simplekeyboard.inputmethod.keyboard.KeyboardId;
+import rkr.simplekeyboard.inputmethod.keyboard.MainKeyboardView;
 import rkr.simplekeyboard.inputmethod.latin.common.Constants;
 import rkr.simplekeyboard.inputmethod.latin.define.DebugFlags;
 import rkr.simplekeyboard.inputmethod.latin.inputlogic.InputLogic;
@@ -147,10 +148,6 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
                 latinIme.switchLanguage((InputMethodSubtype)msg.obj);
                 break;
             }
-        }
-
-        public void postReopenDictionaries() {
-            sendMessage(obtainMessage(MSG_REOPEN_DICTIONARIES));
         }
 
         public void postResetCaches(final boolean tryResumeSuggestions, final int remainingTries) {
@@ -366,7 +363,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
 
     @Override
     public View onCreateInputView() {
-        return null;
+        return new MainKeyboardView(context, attrs);
     }
 
     @Override
@@ -435,6 +432,9 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         // also wouldn't be consuming gesture data.
         mRichImm.refreshSubtypeCaches();
         SettingsValues currentSettingsValues = mSettings.getCurrent();
+
+        // TODO: need to load the view here?
+        updateFullscreenMode();
 
         if (editorInfo == null) {
             Log.e(TAG, "Null EditorInfo in onStartInputView()");

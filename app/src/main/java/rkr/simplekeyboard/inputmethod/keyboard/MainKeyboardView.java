@@ -68,12 +68,6 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
                 R.styleable.MainKeyboardView_ignoreAltCodeKeyTimeout, 0);
         mTimerHandler = new TimerHandler(this, ignoreAltCodeKeyTimeout);
 
-        final float keyHysteresisDistance = mainKeyboardViewAttr.getDimension(
-                R.styleable.MainKeyboardView_keyHysteresisDistance, 0.0f);
-        final float keyHysteresisDistanceForSlidingModifier = mainKeyboardViewAttr.getDimension(
-                R.styleable.MainKeyboardView_keyHysteresisDistanceForSlidingModifier, 0.0f);
-
-
         PointerTracker.init(mainKeyboardViewAttr, mTimerHandler, this /* DrawingProxy */);
 
         final boolean hasDistinctMultitouch = context.getPackageManager()
@@ -95,6 +89,8 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
         mAltCodeKeyWhileTypingFadeinAnimator = loadObjectAnimator(
                 altCodeKeyWhileTypingFadeinAnimatorResId, this);
 
+        this.setTop(this.getBottom() / 2);
+        this.requestLayout();
     }
 
     private ObjectAnimator loadObjectAnimator(final int resId, final Object target) {
