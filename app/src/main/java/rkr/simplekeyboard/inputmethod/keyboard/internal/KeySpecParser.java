@@ -152,35 +152,6 @@ public final class KeySpecParser {
         return parseEscape(getAfterLabelEnd(keySpec, labelEnd));
     }
 
-    public static String getOutputText(final String keySpec) {
-        if (keySpec == null) {
-            // TODO: Throw {@link KeySpecParserError} once Key.keyLabel attribute becomes mandatory.
-            return null;
-        }
-        final int labelEnd = indexOfLabelEnd(keySpec);
-        if (hasCode(keySpec, labelEnd)) {
-            return null;
-        }
-        final String outputText = getOutputTextInternal(keySpec, labelEnd);
-        if (outputText != null) {
-            if (StringUtils.codePointCount(outputText) == 1) {
-                // If output text is one code point, it should be treated as a code.
-                // See {@link #getCode(Resources, String)}.
-                return null;
-            }
-            if (outputText.isEmpty()) {
-                throw new KeySpecParserError("Empty outputText: " + keySpec);
-            }
-            return outputText;
-        }
-        final String label = getLabel(keySpec);
-        if (label == null) {
-            throw new KeySpecParserError("Empty label: " + keySpec);
-        }
-        // Code is automatically generated for one letter label. See {@link getCode()}.
-        return (StringUtils.codePointCount(label) == 1) ? null : label;
-    }
-
     public static int getCode(final String keySpec) {
         if (keySpec == null) {
             // TODO: Throw {@link KeySpecParserError} once Key.keyLabel attribute becomes mandatory.

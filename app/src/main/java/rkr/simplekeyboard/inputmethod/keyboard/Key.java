@@ -34,7 +34,6 @@ import rkr.simplekeyboard.inputmethod.latin.common.Constants;
 import rkr.simplekeyboard.inputmethod.latin.common.StringUtils;
 
 import static rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardIconsSet.ICON_UNDEFINED;
-import static rkr.simplekeyboard.inputmethod.latin.common.Constants.CODE_OUTPUT_TEXT;
 import static rkr.simplekeyboard.inputmethod.latin.common.Constants.CODE_SHIFT;
 import static rkr.simplekeyboard.inputmethod.latin.common.Constants.CODE_SWITCH_ALPHA_SYMBOL;
 import static rkr.simplekeyboard.inputmethod.latin.common.Constants.CODE_UNSPECIFIED;
@@ -46,7 +45,7 @@ public class Key implements Comparable<Key> {
     /**
      * The key code (unicode or custom code) that this key generates.
      */
-    private final int mCode;
+    private final int mCode = 0;
 
     /** Label to display */
     private final String mLabel;
@@ -54,9 +53,7 @@ public class Key implements Comparable<Key> {
     private final String mHintLabel;
     /** Flags of the label */
     private final int mLabelFlags;
-    private static final int LABEL_FLAGS_HAS_SHIFTED_LETTER_HINT = 0x400;
     private static final int LABEL_FLAGS_PRESERVE_CASE = 0x10000;
-    private static final int LABEL_FLAGS_SHIFTED_LETTER_ACTIVATED = 0x20000;
     private static final int LABEL_FLAGS_FROM_CUSTOM_ACTION_LABEL = 0x40000;
     private static final int LABEL_FLAGS_DISABLE_HINT_LABEL = 0x40000000;
     private static final int LABEL_FLAGS_DISABLE_ADDITIONAL_MORE_KEYS = 0x80000000;
@@ -111,7 +108,6 @@ public class Key implements Comparable<Key> {
     public static final int BACKGROUND_TYPE_NORMAL = 1;
 
     private final int mActionFlags;
-    private static final int ACTION_FLAGS_IS_REPEATABLE = 0x01;
     private static final int ACTION_FLAGS_NO_KEY_PREVIEW = 0x02;
     private static final int ACTION_FLAGS_ALT_CODE_WHILE_TYPING = 0x04;
     private static final int ACTION_FLAGS_ENABLE_LONG_PRESS = 0x08;
@@ -176,7 +172,6 @@ public class Key implements Comparable<Key> {
         mLabel = label;
         mOptionalAttributes = OptionalAttributes.newInstance(outputText, CODE_UNSPECIFIED,
                 ICON_UNDEFINED);
-        mCode = code;
         mEnabled = (code != CODE_UNSPECIFIED);
         mIconId = iconId;
         mKeyVisualAttributes = null;
@@ -300,44 +295,13 @@ public class Key implements Comparable<Key> {
                     ? StringUtils.toTitleCaseOfKeyLabel(hintLabel, localeForUpcasing)
                     : hintLabel;
         }
-        String outputText = KeySpecParser.getOutputText(keySpec);
-        if (needsToUpcase) {
-            outputText = StringUtils.toTitleCaseOfKeyLabel(outputText, localeForUpcasing);
-        }
-        // Choose the first letter of the label as primary code if not specified.
-        if (code == CODE_UNSPECIFIED && TextUtils.isEmpty(outputText)
-                && !TextUtils.isEmpty(mLabel)) {
-            if (StringUtils.codePointCount(mLabel) == 1) {
-                // Use the first letter of the hint label if shiftedLetterActivated flag is
-                // specified.
-                if (hasShiftedLetterHint() && isShiftedLetterActivated()) {
-                    mCode = mHintLabel.codePointAt(0);
-                } else {
-                    mCode = mLabel.codePointAt(0);
-                }
-            } else {
-                // In some locale and case, the character might be represented by multiple code
-                // points, such as upper case Eszett of German alphabet.
-                outputText = mLabel;
-                mCode = CODE_OUTPUT_TEXT;
-            }
-        } else if (code == CODE_UNSPECIFIED && outputText != null) {
-            if (StringUtils.codePointCount(outputText) == 1) {
-                mCode = outputText.codePointAt(0);
-                outputText = null;
-            } else {
-                mCode = CODE_OUTPUT_TEXT;
-            }
-        } else {
-            mCode = needsToUpcase ? StringUtils.toTitleCaseOfKeyCode(code, localeForUpcasing)
-                    : code;
-        }
+
         final int altCodeInAttr = KeySpecParser.parseCode(
                 style.getString(keyAttr, R.styleable.Keyboard_Key_altCode), CODE_UNSPECIFIED);
         final int altCode = needsToUpcase
                 ? StringUtils.toTitleCaseOfKeyCode(altCodeInAttr, localeForUpcasing)
                 : altCodeInAttr;
-        mOptionalAttributes = OptionalAttributes.newInstance(outputText, altCode, disabledIconId);
+        mOptionalAttributes = OptionalAttributes.newInstance("", altCode, disabledIconId);
         mKeyVisualAttributes = KeyVisualAttributes.newInstance(keyAttr);
         mHashCode = computeHashCode(this);
     }
@@ -353,7 +317,6 @@ public class Key implements Comparable<Key> {
 
     private Key(final Key key,final MoreKeySpec[] moreKeys) {
         // Final attributes.
-        mCode = key.mCode;
         mLabel = key.mLabel;
         mHintLabel = key.mHintLabel;
         mLabelFlags = key.mLabelFlags;
@@ -377,13 +340,6 @@ public class Key implements Comparable<Key> {
         mEnabled = key.mEnabled;
     }
 
-    public static Key removeRedundantMoreKeys(final Key key,
-            final MoreKeySpec.LettersOnBaseLayout lettersOnBaseLayout) {
-        final MoreKeySpec[] moreKeys = key.getMoreKeys();
-        final MoreKeySpec[] filteredMoreKeys = MoreKeySpec.removeRedundantMoreKeys(
-                moreKeys, lettersOnBaseLayout);
-        return (filteredMoreKeys == moreKeys) ? key : new Key(key, filteredMoreKeys);
-    }
 
     private static boolean needsToUpcase(final int labelFlags, final int keyboardElementId) {
         if ((labelFlags & LABEL_FLAGS_PRESERVE_CASE) != 0) return false;
@@ -497,32 +453,14 @@ public class Key implements Comparable<Key> {
         return mCode == CODE_SHIFT || mCode == CODE_SWITCH_ALPHA_SYMBOL;
     }
 
-    public final boolean isRepeatable() {
-        return (mActionFlags & ACTION_FLAGS_IS_REPEATABLE) != 0;
-    }
-
     public final boolean altCodeWhileTyping() {
         return (mActionFlags & ACTION_FLAGS_ALT_CODE_WHILE_TYPING) != 0;
     }
 
-    public final boolean hasShiftedLetterHint() {
-        return (mLabelFlags & LABEL_FLAGS_HAS_SHIFTED_LETTER_HINT) != 0
-                && !TextUtils.isEmpty(mHintLabel);
-    }
-
-    private boolean isShiftedLetterActivated() {
-        return (mLabelFlags & LABEL_FLAGS_SHIFTED_LETTER_ACTIVATED) != 0
-                && !TextUtils.isEmpty(mHintLabel);
-    }
 
     public final String getOutputText() {
         final OptionalAttributes attrs = mOptionalAttributes;
         return (attrs != null) ? attrs.mOutputText : null;
-    }
-
-    public final int getAltCode() {
-        final OptionalAttributes attrs = mOptionalAttributes;
-        return (attrs != null) ? attrs.mAltCode : CODE_UNSPECIFIED;
     }
 
 
@@ -619,18 +557,6 @@ public class Key implements Comparable<Key> {
 
     public void setEnabled(final boolean enabled) {
         mEnabled = enabled;
-    }
-
-    /**
-     * Detects if a point falls on this key.
-     * @param x the x-coordinate of the point
-     * @param y the y-coordinate of the point
-     * @return whether or not the point falls on the key. This generally includes all points
-     * between the key and the keyboard edge for keys attached to an edge and all points between
-     * the key and halfway to adjacent keys.
-     */
-    public boolean isOnKey(final int x, final int y) {
-        return mHitbox.contains(x, y);
     }
 
     public static class Spacer extends Key {

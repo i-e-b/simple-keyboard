@@ -63,9 +63,7 @@ public final class MoreKeySpec {
             mOutputText = mLabel;
         } else {
             mCode = code;
-            final String outputText = KeySpecParser.getOutputText(moreKeySpec);
-            mOutputText = needsToUpperCase
-                    ? StringUtils.toTitleCaseOfKeyLabel(outputText, locale) : outputText;
+            mOutputText = "";
         }
         mIconId = KeySpecParser.getIconId(moreKeySpec);
     }
