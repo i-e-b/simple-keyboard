@@ -67,7 +67,6 @@ public final class KeyboardLayoutSet {
     // By construction of soft references, anything that is also referenced somewhere else
     // will stay in the cache. So we forcibly keep some references in an array to prevent
     // them from disappearing from sKeyboardCache.
-    private static final Keyboard[] sForcibleKeyboardCache = new Keyboard[FORCIBLE_CACHE_SIZE];
     private static final HashMap<KeyboardId, SoftReference<Keyboard>> sKeyboardCache =
             new HashMap<>();
     private static final UniqueKeysCache sUniqueKeysCache = UniqueKeysCache.newInstance();
@@ -177,17 +176,7 @@ public final class KeyboardLayoutSet {
         builder.load(keyboardXmlId, id);
         final Keyboard keyboard = builder.build();
         sKeyboardCache.put(id, new SoftReference<>(keyboard));
-        if ((id.mElementId == KeyboardId.ELEMENT_ALPHABET
-                || id.mElementId == KeyboardId.ELEMENT_ALPHABET_AUTOMATIC_SHIFTED)) {
-            // We only forcibly cache the primary, "ALPHABET", layouts.
-            for (int i = sForcibleKeyboardCache.length - 1; i >= 1; --i) {
-                sForcibleKeyboardCache[i] = sForcibleKeyboardCache[i - 1];
-            }
-            sForcibleKeyboardCache[0] = keyboard;
-            if (DEBUG_CACHE) {
-                Log.d(TAG, "forcing caching of keyboard with id=" + id);
-            }
-        }
+
         if (DEBUG_CACHE) {
             Log.d(TAG, "keyboard cache size=" + sKeyboardCache.size() + ": "
                     + ((ref == null) ? "LOAD" : "GCed") + " id=" + id);
@@ -226,20 +215,8 @@ public final class KeyboardLayoutSet {
         }
 
         public Builder setSubtype(final RichInputMethodSubtype subtype) {
-            // TODO: Consolidate with {@link InputAttributes}.
             mParams.mSubtype = subtype;
-            mParams.mKeyboardLayoutSetName = KEYBOARD_LAYOUT_SET_RESOURCE_PREFIX
-                    + subtype.getKeyboardLayoutSetName();
-            return this;
-        }
-
-        public Builder setLanguageSwitchKeyEnabled(final boolean enabled) {
-            mParams.mLanguageSwitchKeyEnabled = enabled;
-            return this;
-        }
-
-        public Builder setShowSpecialChars(final boolean enabled) {
-            mParams.mShowMoreKeys = enabled;
+            mParams.mKeyboardLayoutSetName = KEYBOARD_LAYOUT_SET_RESOURCE_PREFIX + subtype.getKeyboardLayoutSetName();
             return this;
         }
 
@@ -249,14 +226,11 @@ public final class KeyboardLayoutSet {
         }
 
         public KeyboardLayoutSet build() {
-            if (mParams.mSubtype == null)
-                throw new RuntimeException("KeyboardLayoutSet subtype is not specified");
             final int xmlId = getXmlId(mResources, mParams.mKeyboardLayoutSetName);
             try {
                 parseKeyboardLayoutSet(mResources, xmlId);
             } catch (final IOException | XmlPullParserException e) {
-                throw new RuntimeException(e.getMessage() + " in " + mParams.mKeyboardLayoutSetName,
-                        e);
+                throw new RuntimeException(e.getMessage() + " in " + mParams.mKeyboardLayoutSetName, e);
             }
             return new KeyboardLayoutSet(mContext, mParams);
         }

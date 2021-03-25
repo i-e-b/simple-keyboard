@@ -81,7 +81,6 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
     private final ObjectAnimator mAltCodeKeyWhileTypingFadeoutAnimator;
     private final ObjectAnimator mAltCodeKeyWhileTypingFadeinAnimator;
 
-    private final KeyDetector mKeyDetector;
     private final NonDistinctMultitouchHelper mNonDistinctMultitouchHelper; // TODO: this is the touch point handler
 
     private final TimerHandler mTimerHandler;
@@ -104,8 +103,6 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
                 R.styleable.MainKeyboardView_keyHysteresisDistance, 0.0f);
         final float keyHysteresisDistanceForSlidingModifier = mainKeyboardViewAttr.getDimension(
                 R.styleable.MainKeyboardView_keyHysteresisDistanceForSlidingModifier, 0.0f);
-        mKeyDetector = new KeyDetector(
-                keyHysteresisDistance, keyHysteresisDistanceForSlidingModifier);
 
         PointerTracker.init(mainKeyboardViewAttr, mTimerHandler, this /* DrawingProxy */);
 
@@ -184,16 +181,11 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
         PointerTracker.setKeyboardActionListener(listener);
     }
 
-    // TODO: We should reconsider which coordinate system should be used to represent keyboard
-    // event.
     public int getKeyX(final int x) {
-        return Constants.isValidCoordinate(x) ? mKeyDetector.getTouchX(x) : x;
+        return x;
     }
-
-    // TODO: We should reconsider which coordinate system should be used to represent keyboard
-    // event.
     public int getKeyY(final int y) {
-        return Constants.isValidCoordinate(y) ? mKeyDetector.getTouchY(y) : y;
+        return y;
     }
 
     /**
@@ -208,8 +200,8 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
         // Remove any pending messages, except dismissing preview and key repeat.
         mTimerHandler.cancelLongPressTimers();
         super.setKeyboard(keyboard);
-        mKeyDetector.setKeyboard(keyboard, -getPaddingLeft(), -getPaddingTop() + getVerticalCorrection());
-        PointerTracker.setKeyDetector(mKeyDetector);
+        //mKeyDetector.setKeyboard(keyboard, -getPaddingLeft(), -getPaddingTop() + getVerticalCorrection());
+        //PointerTracker.setKeyDetector(mKeyDetector);
     }
 
     private void installPreviewPlacerView() {
@@ -280,7 +272,7 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
             }
 
             // Non distinct multitouch screen support
-            mNonDistinctMultitouchHelper.processMotionEvent(event, mKeyDetector); // TODO: touch stuff
+            mNonDistinctMultitouchHelper.processMotionEvent(event); // TODO: touch stuff
             return true;
         }
         mLastTouchX = event.getAxisValue(0);
@@ -293,7 +285,7 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
         final int id = event.getPointerId(index);
         final PointerTracker tracker = PointerTracker.getPointerTracker(id);
 
-        tracker.processMotionEvent(event, mKeyDetector);
+        tracker.processMotionEvent(event);
         return true;
     }
 

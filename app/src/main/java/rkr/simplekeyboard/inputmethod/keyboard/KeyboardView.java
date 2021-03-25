@@ -117,7 +117,6 @@ public class KeyboardView extends View {
      */
     public void setKeyboard(final Keyboard keyboard) {
         mKeyboard = keyboard;
-        final int keyHeight = keyboard.mMostCommonKeyHeight;
         final SharedPreferences prefs = PreferenceManagerCompat.getDeviceSharedPreferences(getContext());
         mCustomColor = Settings.readKeyboardColor(prefs, getContext());
         invalidateAllKeys();

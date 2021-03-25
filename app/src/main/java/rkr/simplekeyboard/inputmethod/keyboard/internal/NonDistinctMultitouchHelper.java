@@ -20,7 +20,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 
 import rkr.simplekeyboard.inputmethod.keyboard.Key;
-import rkr.simplekeyboard.inputmethod.keyboard.KeyDetector;
 import rkr.simplekeyboard.inputmethod.keyboard.PointerTracker;
 import rkr.simplekeyboard.inputmethod.latin.common.CoordinateUtils;
 
@@ -32,7 +31,7 @@ public final class NonDistinctMultitouchHelper {
     private Key mOldKey;
     private int[] mLastCoords = CoordinateUtils.newInstance();
 
-    public void processMotionEvent(final MotionEvent me, final KeyDetector keyDetector) {
+    public void processMotionEvent(final MotionEvent me) {
         final int pointerCount = me.getPointerCount();
         final int oldPointerCount = mOldPointerCount;
         mOldPointerCount = pointerCount;
@@ -53,12 +52,12 @@ public final class NonDistinctMultitouchHelper {
         // In single-touch.
         if (oldPointerCount == 1 && pointerCount == 1) {
             if (me.getPointerId(index) == mainTracker.mPointerId) {
-                mainTracker.processMotionEvent(me, keyDetector);
+                mainTracker.processMotionEvent(me);
                 return;
             }
             // Inject a copied event.
             injectMotionEvent(action, me.getX(index), me.getY(index), downTime, eventTime,
-                    mainTracker, keyDetector);
+                    mainTracker);
             return;
         }
 
@@ -87,12 +86,11 @@ public final class NonDistinctMultitouchHelper {
     }
 
     private static void injectMotionEvent(final int action, final float x, final float y,
-            final long downTime, final long eventTime, final PointerTracker tracker,
-            final KeyDetector keyDetector) {
+            final long downTime, final long eventTime, final PointerTracker tracker) {
         final MotionEvent me = MotionEvent.obtain(
                 downTime, eventTime, action, x, y, 0 /* metaState */);
         try {
-            tracker.processMotionEvent(me, keyDetector);
+            tracker.processMotionEvent(me);
         } finally {
             me.recycle();
         }

@@ -54,34 +54,10 @@ public class Key implements Comparable<Key> {
     private final String mHintLabel;
     /** Flags of the label */
     private final int mLabelFlags;
-    private static final int LABEL_FLAGS_ALIGN_HINT_LABEL_TO_BOTTOM = 0x02;
-    private static final int LABEL_FLAGS_ALIGN_ICON_TO_BOTTOM = 0x04;
-    private static final int LABEL_FLAGS_ALIGN_LABEL_OFF_CENTER = 0x08;
-    // Font typeface specification.
-    private static final int LABEL_FLAGS_FONT_MASK = 0x30;
-    private static final int LABEL_FLAGS_FONT_NORMAL = 0x10;
-    private static final int LABEL_FLAGS_FONT_MONO_SPACE = 0x20;
-    private static final int LABEL_FLAGS_FONT_DEFAULT = 0x30;
-    // Start of key text ratio enum values
-    private static final int LABEL_FLAGS_FOLLOW_KEY_TEXT_RATIO_MASK = 0x1C0;
-    private static final int LABEL_FLAGS_FOLLOW_KEY_LARGE_LETTER_RATIO = 0x40;
-    private static final int LABEL_FLAGS_FOLLOW_KEY_LETTER_RATIO = 0x80;
-    private static final int LABEL_FLAGS_FOLLOW_KEY_LABEL_RATIO = 0xC0;
-    private static final int LABEL_FLAGS_FOLLOW_KEY_HINT_LABEL_RATIO = 0x140;
-    // End of key text ratio mask enum values
     private static final int LABEL_FLAGS_HAS_SHIFTED_LETTER_HINT = 0x400;
-    private static final int LABEL_FLAGS_HAS_HINT_LABEL = 0x800;
-    // The bit to calculate the ratio of key label width against key width. If autoXScale bit is on
-    // and autoYScale bit is off, the key label may be shrunk only for X-direction.
-    // If both autoXScale and autoYScale bits are on, the key label text size may be auto scaled.
-    private static final int LABEL_FLAGS_AUTO_X_SCALE = 0x4000;
-    private static final int LABEL_FLAGS_AUTO_Y_SCALE = 0x8000;
-    private static final int LABEL_FLAGS_AUTO_SCALE = LABEL_FLAGS_AUTO_X_SCALE
-            | LABEL_FLAGS_AUTO_Y_SCALE;
     private static final int LABEL_FLAGS_PRESERVE_CASE = 0x10000;
     private static final int LABEL_FLAGS_SHIFTED_LETTER_ACTIVATED = 0x20000;
     private static final int LABEL_FLAGS_FROM_CUSTOM_ACTION_LABEL = 0x40000;
-    private static final int LABEL_FLAGS_FOLLOW_FUNCTIONAL_TEXT_COLOR = 0x80000;
     private static final int LABEL_FLAGS_DISABLE_HINT_LABEL = 0x40000000;
     private static final int LABEL_FLAGS_DISABLE_ADDITIONAL_MORE_KEYS = 0x80000000;
 
@@ -132,11 +108,7 @@ public class Key implements Comparable<Key> {
 
     /** Background type that represents different key background visual than normal one. */
     private final int mBackgroundType;
-    public static final int BACKGROUND_TYPE_EMPTY = 0;
     public static final int BACKGROUND_TYPE_NORMAL = 1;
-    public static final int BACKGROUND_TYPE_FUNCTIONAL = 2;
-    public static final int BACKGROUND_TYPE_ACTION = 5;
-    public static final int BACKGROUND_TYPE_SPACEBAR = 6;
 
     private final int mActionFlags;
     private static final int ACTION_FLAGS_IS_REPEATABLE = 0x01;
@@ -533,21 +505,12 @@ public class Key implements Comparable<Key> {
         return (mActionFlags & ACTION_FLAGS_ALT_CODE_WHILE_TYPING) != 0;
     }
 
-    public final String getPreviewLabel() {
-        return isShiftedLetterActivated() ? mHintLabel : mLabel;
-    }
-
-    private boolean previewHasLetterSize() {
-        return (mLabelFlags & LABEL_FLAGS_FOLLOW_KEY_LETTER_RATIO) != 0
-                || StringUtils.codePointCount(getPreviewLabel()) == 1;
-    }
-
     public final boolean hasShiftedLetterHint() {
         return (mLabelFlags & LABEL_FLAGS_HAS_SHIFTED_LETTER_HINT) != 0
                 && !TextUtils.isEmpty(mHintLabel);
     }
 
-    private final boolean isShiftedLetterActivated() {
+    private boolean isShiftedLetterActivated() {
         return (mLabelFlags & LABEL_FLAGS_SHIFTED_LETTER_ACTIVATED) != 0
                 && !TextUtils.isEmpty(mHintLabel);
     }

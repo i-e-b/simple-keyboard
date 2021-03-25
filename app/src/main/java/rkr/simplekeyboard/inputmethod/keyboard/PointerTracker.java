@@ -80,9 +80,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
     private static TimerProxy sTimerProxy;
     private static KeyboardActionListener sListener = KeyboardActionListener.EMPTY_LISTENER;
 
-    // The {@link KeyDetector} is set whenever the down event is processed. Also this is updated
-    // when new {@link Keyboard} is set by {@link #setKeyDetector(KeyDetector)}.
-    private KeyDetector mKeyDetector = new KeyDetector();
     private Keyboard mKeyboard;
 
     // The current key where this pointer is.
@@ -147,18 +144,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
 
     public static void setKeyboardActionListener(final KeyboardActionListener listener) {
         sListener = listener;
-    }
-
-    public static void setKeyDetector(final KeyDetector keyDetector) {
-        final Keyboard keyboard = keyDetector.getKeyboard();
-        if (keyboard == null) {
-            return;
-        }
-        final int trackersSize = sTrackers.size();
-        for (int i = 0; i < trackersSize; ++i) {
-            final PointerTracker tracker = sTrackers.get(i);
-            tracker.setKeyDetectorInner(keyDetector);
-        }
     }
 
     private PointerTracker(final int id) {
@@ -248,18 +233,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         sListener.onFinishSlidingInput();
     }
 
-    private void setKeyDetectorInner(final KeyDetector keyDetector) {
-        final Keyboard keyboard = keyDetector.getKeyboard();
-        if (keyboard == null) {
-            return;
-        }
-        if (keyDetector == mKeyDetector && keyboard == mKeyboard) {
-            return;
-        }
-        mKeyDetector = keyDetector;
-        mKeyboard = keyboard;
-    }
-
     @Override
     public boolean isInDraggingFinger() {
         return mIsInDraggingFinger;
@@ -286,7 +259,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         return sPointerTrackerQueue.size();
     }
 
-    public void processMotionEvent(final MotionEvent me, final KeyDetector keyDetector) {
+    public void processMotionEvent(final MotionEvent me) {
         // TODO: this is where we should handle down/up events and sending keys
         final int action = me.getActionMasked();
         final long eventTime = me.getEventTime();
@@ -313,7 +286,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         switch (action) {
         case MotionEvent.ACTION_DOWN:
         case MotionEvent.ACTION_POINTER_DOWN:
-            onDownEvent(x, y, eventTime, keyDetector);
+            onDownEvent(x, y, eventTime);
             break;
         case MotionEvent.ACTION_UP:
         case MotionEvent.ACTION_POINTER_UP:
@@ -325,9 +298,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         }
     }
 
-    private void onDownEvent(final int x, final int y, final long eventTime,
-            final KeyDetector keyDetector) {
-        setKeyDetectorInner(keyDetector);
+    private void onDownEvent(final int x, final int y, final long eventTime) {
         if (DEBUG_EVENT) {
             printTouchEvent("onDownEvent:", x, y, eventTime);
         }
@@ -514,9 +485,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
 
     private void printTouchEvent(final String title, final int x, final int y,
             final long eventTime) {
-        final Key key = mKeyDetector.detectHitKey(x, y);
-        final String code = (key == null ? "none" : Constants.printableCode(key.getCode()));
         Log.d(TAG, String.format("[%d]%s%s %4d %4d %5d %s", mPointerId,
-                (mIsTrackingForActionDisabled ? "-" : " "), title, x, y, eventTime, code));
+                (mIsTrackingForActionDisabled ? "-" : " "), title, x, y, eventTime, 0));
     }
 }

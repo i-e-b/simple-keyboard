@@ -58,10 +58,9 @@ import rkr.simplekeyboard.inputmethod.compat.ViewOutlineProviderCompatUtils;
 import rkr.simplekeyboard.inputmethod.compat.ViewOutlineProviderCompatUtils.InsetsUpdater;
 import rkr.simplekeyboard.inputmethod.event.Event;
 import rkr.simplekeyboard.inputmethod.event.InputTransaction;
-import rkr.simplekeyboard.inputmethod.keyboard.Keyboard;
 import rkr.simplekeyboard.inputmethod.keyboard.KeyboardActionListener;
 import rkr.simplekeyboard.inputmethod.keyboard.KeyboardId;
-import rkr.simplekeyboard.inputmethod.keyboard.KeyboardSwitcher;
+import rkr.simplekeyboard.inputmethod.keyboard.KeyboardLoader;
 import rkr.simplekeyboard.inputmethod.keyboard.MainKeyboardView;
 import rkr.simplekeyboard.inputmethod.latin.common.Constants;
 import rkr.simplekeyboard.inputmethod.latin.define.DebugFlags;
@@ -98,7 +97,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     private InsetsUpdater mInsetsUpdater;
 
     private RichInputMethodManager mRichImm;
-    final KeyboardSwitcher mKeyboardSwitcher;
+    final KeyboardLoader mKeyboardSwitcher;
     private final SubtypeState mSubtypeState = new SubtypeState();
 
     private AlertDialog mOptionsDialog;
@@ -138,7 +137,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
             if (latinIme == null) {
                 return;
             }
-            final KeyboardSwitcher switcher = latinIme.mKeyboardSwitcher;
+            final KeyboardLoader switcher = latinIme.mKeyboardSwitcher;
             switch (msg.what) {
             case MSG_UPDATE_SHIFT_STATE:
                 switcher.requestUpdatingShiftState(latinIme.getCurrentAutoCapsState(),
@@ -326,7 +325,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     public LatinIME() {
         super();
         mSettings = Settings.getInstance();
-        mKeyboardSwitcher = KeyboardSwitcher.getInstance();
+        mKeyboardSwitcher = KeyboardLoader.getInstance();
     }
 
     @Override
@@ -335,7 +334,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         DebugFlags.init(PreferenceManagerCompat.getDeviceSharedPreferences(this));
         RichInputMethodManager.init(this);
         mRichImm = RichInputMethodManager.getInstance();
-        KeyboardSwitcher.init(this);
+        KeyboardLoader.init(this);
         AudioAndHapticFeedbackManager.init(this);
         super.onCreate();
 
@@ -368,7 +367,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     }
 
     private boolean isImeSuppressedByHardwareKeyboard() {
-        final KeyboardSwitcher switcher = KeyboardSwitcher.getInstance();
+        final KeyboardLoader switcher = KeyboardLoader.getInstance();
         return !onEvaluateInputViewShown() && switcher.isImeSuppressedByHardwareKeyboard(
                 mSettings.getCurrent(), switcher.getKeyboardSwitchState());
     }
@@ -459,7 +458,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         // Switch to the null consumer to handle cases leading to early exit below, for which we
         // also wouldn't be consuming gesture data.
         mRichImm.refreshSubtypeCaches();
-        final KeyboardSwitcher switcher = mKeyboardSwitcher;
+        final KeyboardLoader switcher = mKeyboardSwitcher;
         switcher.updateKeyboardTheme(getResources().getConfiguration().uiMode);
         final MainKeyboardView mainKeyboardView = switcher.getMainKeyboardView();
         // If we are starting input in a different text field from before, we'll have to reload
@@ -542,11 +541,6 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
 
             switcher.loadKeyboard(editorInfo, currentSettingsValues, getCurrentAutoCapsState(),
                     getCurrentRecapitalizeState());
-            if (needToCallLoadKeyboardLater) {
-                // If we need to call loadKeyboard again later, we need to save its state now. The
-                // later call will be done in #retryResetCaches.
-                switcher.saveKeyboardState();
-            }
         } else if (restarting) {
             // TODO: Come up with a more comprehensive way to reset the keyboard layout when
             // a keyboard layout set doesn't get reloaded in this method.
@@ -819,13 +813,6 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     // TODO: Instead of checking for alphabetic keyboard here, separate keycodes for
     // alphabetic shift and shift while in symbol layout and get rid of this method.
     private int getCodePointForKeyboard(final int codePoint) {
-        if (Constants.CODE_SHIFT == codePoint) {
-            final Keyboard currentKeyboard = mKeyboardSwitcher.getKeyboard();
-            if (null != currentKeyboard && currentKeyboard.mId.isAlphabetKeyboard()) {
-                return codePoint;
-            }
-            return Constants.CODE_SYMBOL_SHIFT;
-        }
         return codePoint;
     }
 
@@ -1066,9 +1053,6 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         p.println("LatinIME state :");
         p.println("  VersionCode = " + ApplicationUtils.getVersionCode(this));
         p.println("  VersionName = " + ApplicationUtils.getVersionName(this));
-        final Keyboard keyboard = mKeyboardSwitcher.getKeyboard();
-        final int keyboardMode = keyboard != null ? keyboard.mId.mMode : -1;
-        p.println("  Keyboard mode = " + keyboardMode);
     }
 
     public boolean shouldSwitchToOtherInputMethods() {

@@ -16,6 +16,7 @@
 
 package rkr.simplekeyboard.inputmethod.keyboard;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.util.Log;
@@ -35,14 +36,12 @@ import rkr.simplekeyboard.inputmethod.latin.RichInputMethodManager;
 import rkr.simplekeyboard.inputmethod.latin.settings.Settings;
 import rkr.simplekeyboard.inputmethod.latin.settings.SettingsValues;
 import rkr.simplekeyboard.inputmethod.latin.utils.CapsModeUtils;
-import rkr.simplekeyboard.inputmethod.latin.utils.LanguageOnSpacebarUtils;
 import rkr.simplekeyboard.inputmethod.latin.utils.RecapitalizeStatus;
 import rkr.simplekeyboard.inputmethod.latin.utils.ResourceUtils;
 
-public final class KeyboardSwitcher implements KeyboardState.SwitchActions {
-    private static final String TAG = KeyboardSwitcher.class.getSimpleName();
+public final class KeyboardLoader implements KeyboardState.SwitchActions {
+    private static final String TAG = KeyboardLoader.class.getSimpleName();
 
-    private InputView mCurrentInputView;
     private int mCurrentUiMode;
     private View mMainKeyboardFrame;
     private MainKeyboardView mKeyboardView;
@@ -58,13 +57,14 @@ public final class KeyboardSwitcher implements KeyboardState.SwitchActions {
     private KeyboardTheme mKeyboardTheme;
     private Context mThemeContext;
 
-    private static final KeyboardSwitcher sInstance = new KeyboardSwitcher();
+    @SuppressLint("StaticFieldLeak")
+    private static final KeyboardLoader sInstance = new KeyboardLoader();
 
-    public static KeyboardSwitcher getInstance() {
+    public static KeyboardLoader getInstance() {
         return sInstance;
     }
 
-    private KeyboardSwitcher() {
+    private KeyboardLoader() {
         // Intentional empty constructor for singleton.
     }
 
@@ -99,30 +99,25 @@ public final class KeyboardSwitcher implements KeyboardState.SwitchActions {
     }
 
     public void loadKeyboard(final EditorInfo editorInfo, final SettingsValues settingsValues,
-            final int currentAutoCapsState, final int currentRecapitalizeState) {
-        final KeyboardLayoutSet.Builder builder = new KeyboardLayoutSet.Builder(
-                mThemeContext, editorInfo);
+            final int currentAutoCapsState, final int currentRecapitalizeState)
+
+    {
+        final KeyboardLayoutSet.Builder builder = new KeyboardLayoutSet.Builder(mThemeContext, editorInfo);
         final Resources res = mThemeContext.getResources();
+
         final int keyboardWidth = mLatinIME.getMaxWidth();
         final int keyboardHeight = ResourceUtils.getKeyboardHeight(res, settingsValues);
-        builder.setKeyboardTheme(mKeyboardTheme.mThemeId);
         builder.setKeyboardGeometry(keyboardWidth, keyboardHeight);
+
+        builder.setKeyboardTheme(mKeyboardTheme.mThemeId);
         builder.setSubtype(mRichImm.getCurrentSubtype());
-        builder.setLanguageSwitchKeyEnabled(mLatinIME.shouldShowLanguageSwitchKey());
-        builder.setShowSpecialChars(!settingsValues.mHideSpecialChars);
-        builder.setShowNumberRow(settingsValues.mShowNumberRow);
+
         mKeyboardLayoutSet = builder.build();
         try {
             mState.onLoadKeyboard(currentAutoCapsState, currentRecapitalizeState);
             mKeyboardTextsSet.setLocale(mRichImm.getCurrentSubtypeLocale(), mThemeContext);
         } catch (KeyboardLayoutSetException e) {
             Log.w(TAG, "loading keyboard failed: " + e.mKeyboardId, e.getCause());
-        }
-    }
-
-    public void saveKeyboardState() {
-        if (getKeyboard() != null) {
-            mState.onSaveKeyboardState();
         }
     }
 
@@ -135,25 +130,12 @@ public final class KeyboardSwitcher implements KeyboardState.SwitchActions {
     private void setKeyboard(
             final int keyboardId,
             final KeyboardSwitchState toggleState) {
+
         final SettingsValues currentSettingsValues = Settings.getInstance().getCurrent();
         setMainKeyboardFrame(currentSettingsValues, toggleState);
-        // TODO: pass this object to setKeyboard instead of getting the current values.
-        final MainKeyboardView keyboardView = mKeyboardView;
-        final Keyboard oldKeyboard = keyboardView.getKeyboard();
-        final Keyboard newKeyboard = mKeyboardLayoutSet.getKeyboard(keyboardId);
-        keyboardView.setKeyboard(newKeyboard);
-        keyboardView.updateShortcutKey(mRichImm.isShortcutImeReady());
-        final boolean subtypeChanged = (oldKeyboard == null)
-                || !newKeyboard.mId.mSubtype.equals(oldKeyboard.mId.mSubtype);
-        final int languageOnSpacebarFormatType = LanguageOnSpacebarUtils
-                .getLanguageOnSpacebarFormatType(newKeyboard.mId.mSubtype);
-    }
 
-    public Keyboard getKeyboard() {
-        if (mKeyboardView != null) {
-            return mKeyboardView.getKeyboard();
-        }
-        return null;
+        final Keyboard newKeyboard = mKeyboardLayoutSet.getKeyboard(keyboardId);
+        mKeyboardView.setKeyboard(newKeyboard);
     }
 
     // TODO: Remove this method. Come up with a more comprehensive way to reset the keyboard layout
@@ -362,11 +344,11 @@ public final class KeyboardSwitcher implements KeyboardState.SwitchActions {
 
         updateKeyboardThemeAndContextThemeWrapper(
                 mLatinIME, KeyboardTheme.getKeyboardTheme(mLatinIME /* context */), uiMode);
-        mCurrentInputView = (InputView)LayoutInflater.from(mThemeContext).inflate(
+        InputView mCurrentInputView = (InputView) LayoutInflater.from(mThemeContext).inflate(
                 R.layout.input_view, null);
         mMainKeyboardFrame = mCurrentInputView.findViewById(R.id.main_keyboard_frame);
 
-        mKeyboardView = (MainKeyboardView) mCurrentInputView.findViewById(R.id.keyboard_view);
+        mKeyboardView = mCurrentInputView.findViewById(R.id.keyboard_view);
         mKeyboardView.setKeyboardActionListener(mLatinIME);
         return mCurrentInputView;
     }
