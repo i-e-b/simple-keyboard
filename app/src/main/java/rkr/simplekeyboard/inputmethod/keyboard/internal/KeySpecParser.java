@@ -39,7 +39,6 @@ import static rkr.simplekeyboard.inputmethod.latin.common.Constants.CODE_UNSPECI
  * - Code point presented by hexadecimal string prefixed with "0x"
  * - Code reference represented by (!code/code_name), see {@link KeyboardCodesSet}.
  * Special character, comma ',' backslash '\', and bar '|' can be escaped by '\' character.
- * Note that the '\' is also parsed by XML parser and {@link MoreKeySpec#splitKeySpecs(String)}
  * as well.
  */
 // TODO: Rename to KeySpec and make this class to the key specification object.

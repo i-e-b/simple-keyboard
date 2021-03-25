@@ -238,8 +238,6 @@
         <!-- Width of the key, in the proportion of keyboard width.
              If the value is fillRight, the actual key width will be determined to fill out the
              area up to the right edge of the keyboard. -->
-        <!-- This should be aligned with
-             {@link rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardRow#KEYWIDTH_FILL_RIGHT}. -->
         <attr name="keyWidth" format="fraction|enum">
             <enum name="fillRight" value="-1" />
         </attr>

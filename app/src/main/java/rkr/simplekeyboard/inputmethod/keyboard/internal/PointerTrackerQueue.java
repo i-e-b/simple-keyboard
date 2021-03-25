@@ -25,8 +25,6 @@ public final class PointerTrackerQueue {
     private static final boolean DEBUG = false;
 
     public interface Element {
-        boolean isModifier();
-        boolean isInDraggingFinger();
         void onPhantomUpEvent(long eventTime);
         void cancelTrackingForAction();
     }
@@ -99,15 +97,7 @@ public final class PointerTrackerQueue {
                 if (element == pointer) {
                     break; // Stop releasing elements.
                 }
-                if (!element.isModifier()) {
-                    element.onPhantomUpEvent(eventTime);
-                    continue; // Remove this element from the expandableArray.
-                }
-                if (newIndex != index) {
-                    // Shift this element toward the beginning of the expandableArray.
-                    expandableArray.set(newIndex, element);
-                }
-                newIndex++;
+                element.onPhantomUpEvent(eventTime);
             }
             // Shift rest of the expandableArray.
             int count = 0;
@@ -165,37 +155,6 @@ public final class PointerTrackerQueue {
                 newIndex++;
             }
             mArraySize = newIndex;
-        }
-    }
-
-    public boolean hasModifierKeyOlderThan(final Element pointer) {
-        synchronized (mExpandableArrayOfActivePointers) {
-            final ArrayList<Element> expandableArray = mExpandableArrayOfActivePointers;
-            final int arraySize = mArraySize;
-            for (int index = 0; index < arraySize; index++) {
-                final Element element = expandableArray.get(index);
-                if (element == pointer) {
-                    return false; // Stop searching modifier key.
-                }
-                if (element.isModifier()) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
-    public boolean isAnyInDraggingFinger() {
-        synchronized (mExpandableArrayOfActivePointers) {
-            final ArrayList<Element> expandableArray = mExpandableArrayOfActivePointers;
-            final int arraySize = mArraySize;
-            for (int index = 0; index < arraySize; index++) {
-                final Element element = expandableArray.get(index);
-                if (element.isInDraggingFinger()) {
-                    return true;
-                }
-            }
-            return false;
         }
     }
 

@@ -19,7 +19,6 @@ package rkr.simplekeyboard.inputmethod.keyboard.internal;
 import android.os.Message;
 import android.view.ViewConfiguration;
 
-import rkr.simplekeyboard.inputmethod.keyboard.Key;
 import rkr.simplekeyboard.inputmethod.keyboard.PointerTracker;
 import rkr.simplekeyboard.inputmethod.latin.common.Constants;
 import rkr.simplekeyboard.inputmethod.latin.utils.LeakGuardHandlerWrapper;
@@ -67,12 +66,6 @@ public final class TimerHandler extends LeakGuardHandlerWrapper<DrawingProxy>
     @Override
     public void startKeyRepeatTimerOf(final PointerTracker tracker, final int repeatCount,
             final int delay) {
-        final Key key = tracker.getKey();
-        if (key == null || delay == 0) {
-            return;
-        }
-        sendMessageDelayed(
-                obtainMessage(MSG_REPEAT_KEY, key.getCode(), repeatCount, tracker), delay);
     }
 
     private void cancelKeyRepeatTimerOf(final PointerTracker tracker) {
@@ -90,15 +83,7 @@ public final class TimerHandler extends LeakGuardHandlerWrapper<DrawingProxy>
 
     @Override
     public void startLongPressTimerOf(final PointerTracker tracker, final int delay) {
-        final Key key = tracker.getKey();
-        if (key == null) {
-            return;
-        }
-        // Use a separate message id for long pressing shift key, because long press shift key
-        // timers should be canceled when other key is pressed.
-        final int messageId = (key.getCode() == Constants.CODE_SHIFT)
-                ? MSG_LONGPRESS_SHIFT_KEY : MSG_LONGPRESS_KEY;
-        sendMessageDelayed(obtainMessage(messageId, tracker), delay);
+
     }
 
     @Override
@@ -115,36 +100,6 @@ public final class TimerHandler extends LeakGuardHandlerWrapper<DrawingProxy>
     public void cancelLongPressTimers() {
         removeMessages(MSG_LONGPRESS_KEY);
         removeMessages(MSG_LONGPRESS_SHIFT_KEY);
-    }
-
-    @Override
-    public void startTypingStateTimer(final Key typedKey) {
-        if (typedKey.isModifier() || typedKey.altCodeWhileTyping()) {
-            return;
-        }
-
-        final boolean isTyping = isTypingState();
-        removeMessages(MSG_TYPING_STATE_EXPIRED);
-        final DrawingProxy drawingProxy = getOwnerInstance();
-        if (drawingProxy == null) {
-            return;
-        }
-
-        // When user hits the space or the enter key, just cancel the while-typing timer.
-        final int typedCode = typedKey.getCode();
-        if (typedCode == Constants.CODE_SPACE || typedCode == Constants.CODE_ENTER) {
-            if (isTyping) {
-                drawingProxy.startWhileTypingAnimation(DrawingProxy.FADE_IN);
-            }
-            return;
-        }
-
-        sendMessageDelayed(
-                obtainMessage(MSG_TYPING_STATE_EXPIRED), mIgnoreAltCodeKeyTimeout);
-        if (isTyping) {
-            return;
-        }
-        drawingProxy.startWhileTypingAnimation(DrawingProxy.FADE_OUT);
     }
 
     @Override
@@ -189,14 +144,4 @@ public final class TimerHandler extends LeakGuardHandlerWrapper<DrawingProxy>
         removeMessages(MSG_UPDATE_BATCH_INPUT);
     }
 
-    public void postDismissKeyPreview(final Key key, final long delay) {
-        sendMessageDelayed(obtainMessage(MSG_DISMISS_KEY_PREVIEW, key), delay);
-    }
-
-    public void cancelAllMessages() {
-        cancelAllKeyTimers();
-        cancelAllUpdateBatchInputTimers();
-        removeMessages(MSG_DISMISS_KEY_PREVIEW);
-        removeMessages(MSG_DISMISS_GESTURE_FLOATING_PREVIEW_TEXT);
-    }
 }

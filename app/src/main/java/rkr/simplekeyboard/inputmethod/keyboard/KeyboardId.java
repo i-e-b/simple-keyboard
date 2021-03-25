@@ -53,33 +53,13 @@ public final class KeyboardId {
     public static final int ELEMENT_PHONE_SYMBOLS = 8;
     public static final int ELEMENT_NUMBER = 9;
 
-    public final RichInputMethodSubtype mSubtype;
-    public final int mThemeId;
-    public final int mWidth;
-    public final int mHeight;
-    public final int mMode;
     public final int mElementId;
-    public final EditorInfo mEditorInfo;
-    public final boolean mLanguageSwitchKeyEnabled;
-    public final String mCustomActionLabel;
-    public final boolean mShowMoreKeys;
-    public final boolean mShowNumberRow;
+
 
     private final int mHashCode;
 
-    public KeyboardId(final int elementId, final KeyboardLayoutSet.Params params) {
-        mSubtype = params.mSubtype;
-        mThemeId = params.mKeyboardThemeId;
-        mWidth = params.mKeyboardWidth;
-        mHeight = params.mKeyboardHeight;
-        mMode = params.mMode;
+    public KeyboardId(final int elementId) {
         mElementId = elementId;
-        mEditorInfo = params.mEditorInfo;
-        mLanguageSwitchKeyEnabled = params.mLanguageSwitchKeyEnabled;
-        mCustomActionLabel = (mEditorInfo.actionLabel != null)
-                ? mEditorInfo.actionLabel.toString() : null;
-        mShowMoreKeys = params.mShowMoreKeys;
-        mShowNumberRow = params.mShowNumberRow;
 
         mHashCode = computeHashCode(this);
     }
@@ -87,18 +67,11 @@ public final class KeyboardId {
     private static int computeHashCode(final KeyboardId id) {
         return Arrays.hashCode(new Object[] {
                 id.mElementId,
-                id.mMode,
-                id.mWidth,
-                id.mHeight,
                 id.passwordInput(),
-                id.mLanguageSwitchKeyEnabled,
                 id.isMultiLine(),
                 id.imeAction(),
-                id.mCustomActionLabel,
                 id.navigateNext(),
                 id.navigatePrevious(),
-                id.mSubtype,
-                id.mThemeId
         });
     }
 
@@ -106,18 +79,11 @@ public final class KeyboardId {
         if (other == this)
             return true;
         return other.mElementId == mElementId
-                && other.mMode == mMode
-                && other.mWidth == mWidth
-                && other.mHeight == mHeight
                 && other.passwordInput() == passwordInput()
-                && other.mLanguageSwitchKeyEnabled == mLanguageSwitchKeyEnabled
                 && other.isMultiLine() == isMultiLine()
                 && other.imeAction() == imeAction()
-                && TextUtils.equals(other.mCustomActionLabel, mCustomActionLabel)
                 && other.navigateNext() == navigateNext()
-                && other.navigatePrevious() == navigatePrevious()
-                && other.mSubtype.equals(mSubtype)
-                && other.mThemeId == mThemeId;
+                && other.navigatePrevious() == navigatePrevious();
     }
 
     private static boolean isAlphabetKeyboard(final int elementId) {
@@ -129,31 +95,29 @@ public final class KeyboardId {
     }
 
     public boolean navigateNext() {
-        return (mEditorInfo.imeOptions & EditorInfo.IME_FLAG_NAVIGATE_NEXT) != 0
+        return (EditorInfo.IME_FLAG_NAVIGATE_NEXT) != 0
                 || imeAction() == EditorInfo.IME_ACTION_NEXT;
     }
 
     public boolean navigatePrevious() {
-        return (mEditorInfo.imeOptions & EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS) != 0
+        return (EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS) != 0
                 || imeAction() == EditorInfo.IME_ACTION_PREVIOUS;
     }
 
     public boolean passwordInput() {
-        final int inputType = mEditorInfo.inputType;
-        return InputTypeUtils.isPasswordInputType(inputType)
-                || InputTypeUtils.isVisiblePasswordInputType(inputType);
+        return false;
     }
 
     public boolean isMultiLine() {
-        return (mEditorInfo.inputType & InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0;
+        return true;
     }
 
     public int imeAction() {
-        return InputTypeUtils.getImeOptionsActionIdFromEditorInfo(mEditorInfo);
+        return 0;
     }
 
     public Locale getLocale() {
-        return mSubtype.getLocale();
+        return null;
     }
 
     @Override
@@ -168,20 +132,7 @@ public final class KeyboardId {
 
     @Override
     public String toString() {
-        return String.format(Locale.ROOT, "[%s %s:%s %dx%d %s %s%s%s%s%s%s %s]",
-                elementIdToName(mElementId),
-                mSubtype.getLocale(),
-                mSubtype.getExtraValueOf(KEYBOARD_LAYOUT_SET),
-                mWidth, mHeight,
-                modeName(mMode),
-                actionName(imeAction()),
-                (navigateNext() ? " navigateNext" : ""),
-                (navigatePrevious() ? " navigatePrevious" : ""),
-                (passwordInput() ? " passwordInput" : ""),
-                (mLanguageSwitchKeyEnabled ? " languageSwitchKeyEnabled" : ""),
-                (isMultiLine() ? " isMultiLine" : ""),
-                KeyboardTheme.getKeyboardThemeName(mThemeId)
-        );
+        return "Defunct";
     }
 
     public static boolean equivalentEditorInfoForKeyboard(final EditorInfo a, final EditorInfo b) {

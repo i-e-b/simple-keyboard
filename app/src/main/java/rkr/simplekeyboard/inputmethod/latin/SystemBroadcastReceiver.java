@@ -21,11 +21,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import rkr.simplekeyboard.inputmethod.keyboard.KeyboardLayoutSet;
-
 /**
  * When the system locale has been changed, {@link Intent#ACTION_LOCALE_CHANGED} is received by
- * this receiver and the {@link KeyboardLayoutSet}'s cache is cleared.
  */
 public final class SystemBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = SystemBroadcastReceiver.class.getSimpleName();
@@ -35,7 +32,6 @@ public final class SystemBroadcastReceiver extends BroadcastReceiver {
         final String intentAction = intent.getAction();
         if (Intent.ACTION_LOCALE_CHANGED.equals(intentAction)) {
             Log.i(TAG, "System locale changed");
-            KeyboardLayoutSet.onSystemLocaleChanged();
         }
     }
 }

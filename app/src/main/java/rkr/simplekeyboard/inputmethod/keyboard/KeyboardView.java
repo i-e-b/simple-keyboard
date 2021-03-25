@@ -37,50 +37,14 @@ import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyVisualAttributes;
 import rkr.simplekeyboard.inputmethod.latin.settings.Settings;
 
 /**
- * A view that renders a virtual {@link Keyboard}.
- *
- * @attr ref R.styleable#KeyboardView_keyBackground
- * @attr ref R.styleable#KeyboardView_functionalKeyBackground
- * @attr ref R.styleable#KeyboardView_spacebarBackground
- * @attr ref R.styleable#KeyboardView_spacebarIconWidthRatio
- * @attr ref R.styleable#Keyboard_Key_keyLabelFlags
- * @attr ref R.styleable#KeyboardView_keyHintLetterPadding
- * @attr ref R.styleable#KeyboardView_keyShiftedLetterHintPadding
- * @attr ref R.styleable#KeyboardView_keyTextShadowRadius
- * @attr ref R.styleable#KeyboardView_verticalCorrection
- * @attr ref R.styleable#Keyboard_Key_keyTypeface
- * @attr ref R.styleable#Keyboard_Key_keyLetterSize
- * @attr ref R.styleable#Keyboard_Key_keyLabelSize
- * @attr ref R.styleable#Keyboard_Key_keyLargeLetterRatio
- * @attr ref R.styleable#Keyboard_Key_keyLargeLabelRatio
- * @attr ref R.styleable#Keyboard_Key_keyHintLetterRatio
- * @attr ref R.styleable#Keyboard_Key_keyShiftedLetterHintRatio
- * @attr ref R.styleable#Keyboard_Key_keyHintLabelRatio
- * @attr ref R.styleable#Keyboard_Key_keyLabelOffCenterRatio
- * @attr ref R.styleable#Keyboard_Key_keyHintLabelOffCenterRatio
- * @attr ref R.styleable#Keyboard_Key_keyPreviewTextRatio
- * @attr ref R.styleable#Keyboard_Key_keyTextColor
- * @attr ref R.styleable#Keyboard_Key_keyTextColorDisabled
- * @attr ref R.styleable#Keyboard_Key_keyTextShadowColor
- * @attr ref R.styleable#Keyboard_Key_keyHintLetterColor
- * @attr ref R.styleable#Keyboard_Key_keyHintLabelColor
- * @attr ref R.styleable#Keyboard_Key_keyShiftedLetterHintInactivatedColor
- * @attr ref R.styleable#Keyboard_Key_keyShiftedLetterHintActivatedColor
- * @attr ref R.styleable#Keyboard_Key_keyPreviewTextColor
+ * A view that renders a virtual keyboard
  */
 public class KeyboardView extends View {
-    // XML attributes
-    private final KeyVisualAttributes mKeyVisualAttributes;
-    private final float mVerticalCorrection;
-    private final Drawable mKeyBackground;
-    private final Rect mKeyBackgroundPadding = new Rect();
     public int mCustomColor = 0;
 
     protected static boolean sIsBeingPressed = false;
 
     // Main keyboard
-    // TODO: Consider having a dummy keyboard object to make this @NonNull
-    private Keyboard mKeyboard;
     private final KeyDrawParams mKeyDrawParams = new KeyDrawParams();
 
     // Drawing
@@ -95,66 +59,19 @@ public class KeyboardView extends View {
 
         final TypedArray keyboardViewAttr = context.obtainStyledAttributes(attrs,
                 R.styleable.KeyboardView, defStyle, R.style.KeyboardView);
-        mKeyBackground = keyboardViewAttr.getDrawable(R.styleable.KeyboardView_keyBackground);
-        mKeyBackground.getPadding(mKeyBackgroundPadding);
-        final Drawable functionalKeyBackground = keyboardViewAttr.getDrawable(
-                R.styleable.KeyboardView_functionalKeyBackground);
-        final Drawable spacebarBackground = keyboardViewAttr.getDrawable(
-                R.styleable.KeyboardView_spacebarBackground);
-        mVerticalCorrection = keyboardViewAttr.getDimension(
-                R.styleable.KeyboardView_verticalCorrection, 0.0f);
         keyboardViewAttr.recycle();
 
         final TypedArray keyAttr = context.obtainStyledAttributes(attrs,
                 R.styleable.Keyboard_Key, defStyle, R.style.KeyboardView);
-        mKeyVisualAttributes = KeyVisualAttributes.newInstance(keyAttr);
         keyAttr.recycle();
 
         mPaint.setAntiAlias(true);
-    }
-
-    /**
-     * Attaches a keyboard to this view. The keyboard can be switched at any time and the
-     * view will re-layout itself to accommodate the keyboard.
-     * @see Keyboard
-     * @see #getKeyboard()
-     * @param keyboard the keyboard to display in this view
-     */
-    public void setKeyboard(final Keyboard keyboard) {
-        mKeyboard = keyboard;
-        final int keyHeight = keyboard.mMostCommonKeyHeight;
-        mKeyDrawParams.updateParams(keyHeight, mKeyVisualAttributes);
-        mKeyDrawParams.updateParams(keyHeight, keyboard.mKeyVisualAttributes);
-        final SharedPreferences prefs = PreferenceManagerCompat.getDeviceSharedPreferences(getContext());
-        mCustomColor = Settings.readKeyboardColor(prefs, getContext());
-        invalidateAllKeys();
         requestLayout();
-    }
-
-    /**
-     * Returns the current keyboard being displayed by this view.
-     * @return the currently attached keyboard
-     * @see #setKeyboard(Keyboard)
-     */
-    public Keyboard getKeyboard() {
-        return mKeyboard;
-    }
-
-    protected float getVerticalCorrection() {
-        return mVerticalCorrection;
     }
 
     @Override
     protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
-        final Keyboard keyboard = getKeyboard();
-        if (keyboard == null) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-            return;
-        }
-        // The main keyboard expands to the entire this {@link KeyboardView}.
-        final int width = keyboard.mOccupiedWidth + getPaddingLeft() + getPaddingRight();
-        final int height = keyboard.mOccupiedHeight + getPaddingTop() + getPaddingBottom();
-        setMeasuredDimension(width, height);
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
     @Override
@@ -181,8 +98,8 @@ public class KeyboardView extends View {
         int yZero = 0;
         int oneThirdWidth = width / 3;
         int oneThirdHeight = height / 3;
-        int twoThirdWidth = oneThirdWidth *2;
-        int twoThirdHeight = oneThirdHeight*2;
+        int twoThirdWidth = oneThirdWidth * 2;
+        int twoThirdHeight = oneThirdHeight * 2;
 
         int ninthWidth = width / 9;
         int ninthHeight = height / 9;
@@ -190,14 +107,14 @@ public class KeyboardView extends View {
         final Paint paint = mPaint;
         setBackgroundColor(mCustomColor);
 
-        paint.setARGB(255, 255, 255,255);
+        paint.setARGB(255, 255, 255, 255);
         canvas.drawRect(0, 0, width, height, paint);
 
-        paint.setARGB(255, 127, 255,127);
+        paint.setARGB(255, 127, 255, 127);
         canvas.drawCircle(mLastTouchX, mLastTouchY, 50, paint);
 
         // Major lines
-        paint.setARGB(255, 0, 0,64);
+        paint.setARGB(255, 0, 0, 64);
         canvas.drawLine(xZero, oneThirdHeight, width, oneThirdHeight, paint);
         canvas.drawLine(xZero, twoThirdHeight, width, twoThirdHeight, paint);
 
@@ -207,7 +124,7 @@ public class KeyboardView extends View {
         paint.setTypeface(Typeface.MONOSPACE);
         char[][] layout = KeyboardLayout.CurrentLayout();
 
-        if(!sIsBeingPressed) {
+        if (!sIsBeingPressed) {
             DrawZoomedOutView(canvas, height, width, fontDiv, xZero, yZero, ninthWidth, ninthHeight, paint, layout);
         } else {
             DrawZoomedInView(canvas, fontDiv, oneThirdWidth, oneThirdHeight, paint, layout);
@@ -219,26 +136,25 @@ public class KeyboardView extends View {
         int qx = KeyboardLayout.sQuadrantX;
         int qy = KeyboardLayout.sQuadrantY;
 
-        paint.setARGB(255, 63, 63,127);
+        paint.setARGB(255, 63, 63, 127);
         float bigDiv = fontDiv * 3;
         paint.setTextSize(bigDiv);
 
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 3; x++) {
-                String desc = KeyboardLayout.Visualise(layout[y+qy][x+qx]);
+                String desc = KeyboardLayout.Visualise(layout[y + qy][x + qx]);
 
                 if (desc.length() > 1) {
-                    paint.setARGB(255, 127, 127,127);
+                    paint.setARGB(255, 127, 127, 127);
                     paint.setTextSize(bigDiv * 0.7f);
-                }
-                else {
-                    paint.setARGB(255, 63, 63,127);
+                } else {
+                    paint.setARGB(255, 63, 63, 127);
                     paint.setTextSize(bigDiv);
                 }
 
                 float sw = paint.measureText(desc);
                 float offs = (oneThirdWidth / 2.0f) - (sw / 2.0f);
-                canvas.drawText(desc,x*oneThirdWidth + offs, (bigDiv*0.8f)+(y*oneThirdHeight), paint);
+                canvas.drawText(desc, x * oneThirdWidth + offs, (bigDiv * 0.8f) + (y * oneThirdHeight), paint);
             }
         }
     }
@@ -257,28 +173,18 @@ public class KeyboardView extends View {
             for (int x = 0; x < 9; x++) {
                 String desc = KeyboardLayout.Visualise(layout[y][x]);
                 if (desc.length() > 1) {
-                    paint.setARGB(255, 127, 127,127);
+                    paint.setARGB(255, 127, 127, 127);
                     paint.setTextSize(fontDiv * 0.6f);
-                }
-                else {
-                    paint.setARGB(255, 63, 63,127);
+                } else {
+                    paint.setARGB(255, 63, 63, 127);
                     paint.setTextSize(fontDiv);
                 }
 
                 float sw = paint.measureText(desc);
                 float offs = (ninthWidth / 2.0f) - (sw / 2.0f);
-                canvas.drawText(desc,x*ninthWidth + offs, (fontDiv*0.8f)+(y*ninthHeight), paint);
+                canvas.drawText(desc, x * ninthWidth + offs, (fontDiv * 0.8f) + (y * ninthHeight), paint);
             }
         }
-    }
-
-    /**
-     * Requests a redraw of the entire keyboard. Calling {@link #invalidate} is not sufficient
-     * because the keyboard renders the keys to an off-screen buffer and an invalidate() only
-     * draws the cached buffer.
-     */
-    public void invalidateAllKeys() {
-        invalidate();
     }
 
     @Override
@@ -286,6 +192,4 @@ public class KeyboardView extends View {
         super.onDetachedFromWindow();
     }
 
-    public void deallocateMemory() {
-    }
 }

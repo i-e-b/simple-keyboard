@@ -16,10 +16,6 @@
 
 package rkr.simplekeyboard.inputmethod.keyboard.internal;
 
-import rkr.simplekeyboard.inputmethod.keyboard.Key;
-import rkr.simplekeyboard.inputmethod.keyboard.MoreKeysPanel;
-import rkr.simplekeyboard.inputmethod.keyboard.PointerTracker;
-
 public interface DrawingProxy {
     /**
      * Cause the entire drawing proxy to be invalidated
