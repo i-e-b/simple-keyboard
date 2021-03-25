@@ -26,7 +26,6 @@ import android.view.MotionEvent;
 import java.util.ArrayList;
 
 import rkr.simplekeyboard.inputmethod.R;
-import rkr.simplekeyboard.inputmethod.keyboard.internal.BogusMoveEventDetector;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.DrawingProxy;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.PointerTrackerQueue;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.TimerProxy;
@@ -34,7 +33,6 @@ import rkr.simplekeyboard.inputmethod.latin.common.Constants;
 import rkr.simplekeyboard.inputmethod.latin.common.CoordinateUtils;
 import rkr.simplekeyboard.inputmethod.latin.define.DebugFlags;
 import rkr.simplekeyboard.inputmethod.latin.settings.Settings;
-import rkr.simplekeyboard.inputmethod.latin.utils.DebugLogUtils;
 
 public final class PointerTracker implements PointerTrackerQueue.Element {
     private static final String TAG = PointerTracker.class.getSimpleName();
@@ -86,16 +84,9 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
     // when new {@link Keyboard} is set by {@link #setKeyDetector(KeyDetector)}.
     private KeyDetector mKeyDetector = new KeyDetector();
     private Keyboard mKeyboard;
-    private final BogusMoveEventDetector mBogusMoveEventDetector = new BogusMoveEventDetector();
-
-    // The position and time at which first down event occurred.
-    private int[] mDownCoordinates = CoordinateUtils.newInstance();
 
     // The current key where this pointer is.
     private Key mCurrentKey = null;
-    // The position where the current key was recognized for the first time.
-    private int mKeyX;
-    private int mKeyY;
 
     // Last pointer position.
     private int mLastX;
@@ -129,7 +120,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         sParams = new PointerTrackerParams(mainKeyboardViewAttr);
 
         final Resources res = mainKeyboardViewAttr.getResources();
-        BogusMoveEventDetector.init(res);
 
         sTimerProxy = timerProxy;
         sDrawingProxy = drawingProxy;
@@ -268,16 +258,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         }
         mKeyDetector = keyDetector;
         mKeyboard = keyboard;
-        // Mark that keyboard layout has been changed.
-        mKeyboardLayoutHasBeenChanged = true;
-        final int keyPaddedWidth = mKeyboard.mMostCommonKeyWidth
-                + Math.round(mKeyboard.mHorizontalGap);
-        final int keyPaddedHeight = mKeyboard.mMostCommonKeyHeight
-                + Math.round(mKeyboard.mVerticalGap);
-        // Keep {@link #mCurrentKey} that comes from previous keyboard. The key preview of
-        // {@link #mCurrentKey} will be dismissed by {@setReleasedKeyGraphics(Key)} via
-        // {@link onMoveEventInternal(int,int,long)} or {@link #onUpEventInternal(int,int,long)}.
-        mBogusMoveEventDetector.setKeyboardGeometry(keyPaddedWidth, keyPaddedHeight);
     }
 
     @Override
@@ -523,7 +503,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         final int nextRepeatCount = repeatCount + 1;
         startKeyRepeatTimer(nextRepeatCount);
         callListenerOnPressAndCheckKeyboardLayoutChange(key, repeatCount);
-        callListenerOnCodeInput(key, code, mKeyX, mKeyY, true /* isKeyRepeat */);
+        callListenerOnCodeInput(key, code, -1, -1, true /* isKeyRepeat */);
     }
 
     private void startKeyRepeatTimer(final int repeatCount) {
