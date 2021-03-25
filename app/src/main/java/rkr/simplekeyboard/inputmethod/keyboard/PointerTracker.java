@@ -111,9 +111,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
     // true if this pointer is no longer triggering any action because it has been canceled.
     private boolean mIsTrackingForActionDisabled;
 
-    // the more keys panel currently being shown. equals null if no panel is active.
-    private MoreKeysPanel mMoreKeysPanel;
-
     private static final int MULTIPLIER_FOR_LONG_PRESS_TIMEOUT_IN_SLIDING_INPUT = 3;
     // true if this pointer is in the dragging finger mode.
     boolean mIsInDraggingFinger;

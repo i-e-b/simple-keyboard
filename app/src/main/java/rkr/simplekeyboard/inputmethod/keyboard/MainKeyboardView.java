@@ -73,7 +73,6 @@ import rkr.simplekeyboard.inputmethod.latin.utils.TypefaceUtils;
  * @attr ref R.styleable#MainKeyboardView_keyPreviewHeight
  * @attr ref R.styleable#MainKeyboardView_keyPreviewLingerTimeout
  * @attr ref R.styleable#MainKeyboardView_keyPreviewDismissAnimator
- * @attr ref R.styleable#MainKeyboardView_moreKeysKeyboardLayout
  * @attr ref R.styleable#MainKeyboardView_backgroundDimAlpha
  * @attr ref R.styleable#MainKeyboardView_showMoreKeysKeyboardAtTouchPoint
  * @attr ref R.styleable#MainKeyboardView_gestureFloatingPreviewTextLingerTimeout
@@ -116,7 +115,6 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
 
     // More keys keyboard
     private final Paint mBackgroundDimAlphaPaint = new Paint();
-    private final View mMoreKeysKeyboardContainer;
     private final WeakHashMap<Key, Keyboard> mMoreKeysKeyboardCache = new WeakHashMap<>();
 
     private final KeyDetector mKeyDetector;
@@ -173,15 +171,11 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
         mKeyPreviewDrawParams = new KeyPreviewDrawParams(mainKeyboardViewAttr);
         mKeyPreviewChoreographer = new KeyPreviewChoreographer(mKeyPreviewDrawParams);
 
-        final int moreKeysKeyboardLayoutId = mainKeyboardViewAttr.getResourceId(
-                R.styleable.MainKeyboardView_moreKeysKeyboardLayout, 0);
-
         mainKeyboardViewAttr.recycle();
 
         mDrawingPreviewPlacerView = drawingPreviewPlacerView;
 
         final LayoutInflater inflater = LayoutInflater.from(getContext());
-        mMoreKeysKeyboardContainer = inflater.inflate(moreKeysKeyboardLayoutId, null);
         mLanguageOnSpacebarFadeoutAnimator = loadObjectAnimator(
                 languageOnSpacebarFadeoutAnimatorResId, this);
         mAltCodeKeyWhileTypingFadeoutAnimator = loadObjectAnimator(
