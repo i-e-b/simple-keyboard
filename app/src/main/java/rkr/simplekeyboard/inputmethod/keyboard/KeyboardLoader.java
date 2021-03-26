@@ -26,7 +26,6 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 
 import rkr.simplekeyboard.inputmethod.R;
-import rkr.simplekeyboard.inputmethod.event.Event;
 import rkr.simplekeyboard.inputmethod.keyboard.KeyboardLayoutSet.KeyboardLayoutSetException;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardParams;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardTextsSet;
@@ -47,7 +46,7 @@ public final class KeyboardLoader {
     private RichInputMethodManager mRichImm;
 
     private KeyboardLayoutSet mKeyboardLayoutSet;
-    // TODO: The following {@link KeyboardTextsSet} should be in {@link KeyboardLayoutSet}.
+
     private final KeyboardTextsSet mKeyboardTextsSet = new KeyboardTextsSet();
 
     private KeyboardTheme mKeyboardTheme;
@@ -93,9 +92,7 @@ public final class KeyboardLoader {
         return false;
     }
 
-    public void loadKeyboard(final EditorInfo editorInfo, final SettingsValues settingsValues,
-            final int currentAutoCapsState, final int currentRecapitalizeState)
-
+    public void loadKeyboard(final EditorInfo editorInfo, final SettingsValues settingsValues)
     {
         final KeyboardLayoutSet.Builder builder = new KeyboardLayoutSet.Builder(mThemeContext, editorInfo);
         final Resources res = mThemeContext.getResources();
@@ -109,8 +106,7 @@ public final class KeyboardLoader {
 
         mKeyboardLayoutSet = builder.build();
         try {
-            // TODO: pull this up from the switcher
-            setKeyboard(KeyboardId.ELEMENT_ALPHABET, KeyboardSwitchState.OTHER);
+            setKeyboard();
             mKeyboardTextsSet.setLocale(mRichImm.getCurrentSubtypeLocale(), mThemeContext);
         } catch (KeyboardLayoutSetException e) {
             Log.w(TAG, "loading keyboard failed: " + e.mKeyboardId, e.getCause());
@@ -123,38 +119,27 @@ public final class KeyboardLoader {
         }
     }
 
-    private void setKeyboard(
-            final int keyboardId,
-            final KeyboardSwitchState toggleState) {
-
+    private void setKeyboard() {
         final SettingsValues currentSettingsValues = Settings.getInstance().getCurrent();
-        setMainKeyboardFrame(currentSettingsValues, toggleState);
+        setMainKeyboardFrame(currentSettingsValues);
 
-        final KeyboardParams newKeyboard = mKeyboardLayoutSet.getKeyboard(keyboardId);
+        final KeyboardParams newKeyboard = mKeyboardLayoutSet.getKeyboard(KeyboardId.ELEMENT_ALPHABET);
         mKeyboardView.setKeyboard(newKeyboard);
     }
 
     public void resetKeyboard() {
-        // TODO: pull this up from the switcher
-        setKeyboard(KeyboardId.ELEMENT_ALPHABET, KeyboardSwitchState.OTHER);
+        setKeyboard();
     }
 
-    public boolean isImeSuppressedByHardwareKeyboard(
-            final SettingsValues settingsValues,
-            final KeyboardSwitchState toggleState) {
-        return settingsValues.mHasHardwareKeyboard && toggleState == KeyboardSwitchState.HIDDEN;
+    public boolean isImeSuppressedByHardwareKeyboard(final SettingsValues settingsValues) {
+        return settingsValues.mHasHardwareKeyboard;
     }
 
-    private void setMainKeyboardFrame(
-            final SettingsValues settingsValues,
-            final KeyboardSwitchState toggleState) {
-        final int visibility =  isImeSuppressedByHardwareKeyboard(settingsValues, toggleState)
-                ? View.GONE : View.VISIBLE;
-        mKeyboardView.setVisibility(visibility);
-        // The visibility of {@link #mKeyboardView} must be aligned with {@link #MainKeyboardFrame}.
-        // @see #getVisibleKeyboardView() and
-        // @see LatinIME#onComputeInset(android.inputmethodservice.InputMethodService.Insets)
-        mMainKeyboardFrame.setVisibility(visibility);
+    private void setMainKeyboardFrame(final SettingsValues settingsValues) {
+        // TODO: we fake this so the IME is not hidden in the debugger
+        //final int visibility =  isImeSuppressedByHardwareKeyboard(settingsValues) ? View.GONE : View.VISIBLE;
+        mKeyboardView.setVisibility(View.VISIBLE);
+        mMainKeyboardFrame.setVisibility(View.VISIBLE);
     }
 
     public enum KeyboardSwitchState {
@@ -167,18 +152,6 @@ public final class KeyboardLoader {
         KeyboardSwitchState(int keyboardId) {
             mKeyboardId = keyboardId;
         }
-    }
-
-    public KeyboardSwitchState getKeyboardSwitchState() {
-        boolean hidden = mKeyboardLayoutSet == null
-                || mKeyboardView == null
-                || !mKeyboardView.isShown();
-        if (hidden) {
-            return KeyboardSwitchState.HIDDEN;
-        } else if (isShowingKeyboardId(KeyboardId.ELEMENT_SYMBOLS_SHIFTED)) {
-            return KeyboardSwitchState.SYMBOLS_SHIFTED;
-        }
-        return KeyboardSwitchState.OTHER;
     }
 
     public boolean isShowingKeyboardId(int... keyboardIds) {
