@@ -24,7 +24,6 @@ import android.os.Build;
 import android.os.Bundle;
 
 import rkr.simplekeyboard.inputmethod.R;
-import rkr.simplekeyboard.inputmethod.keyboard.KeyboardLayoutSet;
 import rkr.simplekeyboard.inputmethod.keyboard.KeyboardTheme;
 import rkr.simplekeyboard.inputmethod.latin.AudioAndHapticFeedbackManager;
 
@@ -69,10 +68,6 @@ public final class AdvancedSettingsFragment extends SubScreenFragment {
 
     @Override
     public void onSharedPreferenceChanged(final SharedPreferences prefs, final String key) {
-        if (key.equals(Settings.PREF_HIDE_SPECIAL_CHARS) ||
-                key.equals(Settings.PREF_SHOW_NUMBER_ROW))
-            KeyboardLayoutSet.onKeyboardThemeChanged();
-
         refreshEnablingsOfSettings();
     }
 

@@ -16,10 +16,8 @@
 
 package rkr.simplekeyboard.inputmethod.keyboard.internal;
 
-import rkr.simplekeyboard.inputmethod.keyboard.KeyboardId;
-
 public class KeyboardParams {
-    public KeyboardId mId;
+    public int mId;
 
     /** Total height and width of the keyboard, including padding and keys */
     public int mOccupiedHeight;

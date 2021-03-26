@@ -26,7 +26,7 @@ public class KeyboardLayout {
             {'r',nul,nul,  nul,'u',nul,  nul,nul,'s'},
             {'.',nul,nul,  nul,SYM,nul,  nul,nul,','},
 
-            {'\'',nul,nul, ARL,RET,ARR,  '"',nul,nul},
+            {'\'',nul,nul, ARL,RET,ARR,  nul,nul,'"'},
             {'i','k',nul,  NUM,' ',CAP,  nul,'w','a'},
             {'p',nul,nul,  ARU,BAK,ARD,  nul,nul,'l'},
 

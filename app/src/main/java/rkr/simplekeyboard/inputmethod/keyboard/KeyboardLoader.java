@@ -26,8 +26,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 
 import rkr.simplekeyboard.inputmethod.R;
-import rkr.simplekeyboard.inputmethod.keyboard.KeyboardLayoutSet.KeyboardLayoutSetException;
-import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardParams;
+import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardDefaultSettings;
 import rkr.simplekeyboard.inputmethod.latin.InputView;
 import rkr.simplekeyboard.inputmethod.latin.LatinIME;
 import rkr.simplekeyboard.inputmethod.latin.RichInputMethodManager;
@@ -43,12 +42,6 @@ public final class KeyboardLoader {
     private MainKeyboardView mKeyboardView;
     private LatinIME mLatinIME;
     private RichInputMethodManager mRichImm;
-
-    private KeyboardLayoutSet mKeyboardLayoutSet;
-
-
-    private KeyboardTheme mKeyboardTheme;
-    private Context mThemeContext;
 
     @SuppressLint("StaticFieldLeak")
     private static final KeyboardLoader sInstance = new KeyboardLoader();
@@ -71,43 +64,13 @@ public final class KeyboardLoader {
     }
 
     public void updateKeyboardTheme(final int uiMode) {
-        final boolean themeUpdated = updateKeyboardThemeAndContextThemeWrapper(
-                mLatinIME, KeyboardTheme.getKeyboardTheme(mLatinIME), uiMode);
-        if (themeUpdated && mKeyboardView != null) {
-            mLatinIME.setInputView(onCreateInputView(uiMode));
-        }
-    }
-
-    private boolean updateKeyboardThemeAndContextThemeWrapper(final Context context,
-            final KeyboardTheme keyboardTheme, final int uiMode) {
-        if (mThemeContext == null || !keyboardTheme.equals(mKeyboardTheme) || mCurrentUiMode != uiMode) {
-            mKeyboardTheme = keyboardTheme;
-            mCurrentUiMode = uiMode;
-            mThemeContext = new ContextThemeWrapper(context, keyboardTheme.mStyleId);
-            KeyboardLayoutSet.onKeyboardThemeChanged();
-            return true;
-        }
-        return false;
+        // TODO: do something with this
     }
 
     public void loadKeyboard(final EditorInfo editorInfo, final SettingsValues settingsValues)
     {
-        final KeyboardLayoutSet.Builder builder = new KeyboardLayoutSet.Builder(mThemeContext, editorInfo);
-        final Resources res = mThemeContext.getResources();
-
         final int keyboardWidth = mLatinIME.getMaxWidth();
-        final int keyboardHeight = ResourceUtils.getKeyboardHeight(res, settingsValues);
-        builder.setKeyboardGeometry(keyboardWidth, keyboardHeight);
-
-        builder.setKeyboardTheme(mKeyboardTheme.mThemeId);
-        builder.setSubtype(mRichImm.getCurrentSubtype());
-
-        mKeyboardLayoutSet = builder.build();
-        try {
-            setKeyboard();
-        } catch (KeyboardLayoutSetException e) {
-            Log.w(TAG, "loading keyboard failed: " + e.mKeyboardId, e.getCause());
-        }
+        setKeyboard();
     }
 
     public void onHideWindow() {
@@ -119,9 +82,7 @@ public final class KeyboardLoader {
     private void setKeyboard() {
         final SettingsValues currentSettingsValues = Settings.getInstance().getCurrent();
         setMainKeyboardFrame(currentSettingsValues);
-
-        final KeyboardParams newKeyboard = mKeyboardLayoutSet.getKeyboard(KeyboardId.ELEMENT_ALPHABET);
-        mKeyboardView.setKeyboard(newKeyboard);
+        mKeyboardView.setKeyboard(KeyboardDefaultSettings.Defaults());
     }
 
     public void resetKeyboard() {
@@ -137,31 +98,6 @@ public final class KeyboardLoader {
         //final int visibility =  isImeSuppressedByHardwareKeyboard(settingsValues) ? View.GONE : View.VISIBLE;
         mKeyboardView.setVisibility(View.VISIBLE);
         mMainKeyboardFrame.setVisibility(View.VISIBLE);
-    }
-
-    public enum KeyboardSwitchState {
-        HIDDEN(-1),
-        SYMBOLS_SHIFTED(KeyboardId.ELEMENT_SYMBOLS_SHIFTED),
-        OTHER(-1);
-
-        final int mKeyboardId;
-
-        KeyboardSwitchState(int keyboardId) {
-            mKeyboardId = keyboardId;
-        }
-    }
-
-    public boolean isShowingKeyboardId(int... keyboardIds) {
-        if (mKeyboardView == null || !mKeyboardView.isShown()) {
-            return false;
-        }
-        int activeKeyboardId = mKeyboardView.getKeyboard().mId.mElementId;
-        for (int keyboardId : keyboardIds) {
-            if (activeKeyboardId == keyboardId) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public View getVisibleKeyboardView() {
@@ -184,9 +120,11 @@ public final class KeyboardLoader {
             mKeyboardView.closing();
         }
 
-        updateKeyboardThemeAndContextThemeWrapper(
-                mLatinIME, KeyboardTheme.getKeyboardTheme(mLatinIME /* context */), uiMode);
-        InputView mCurrentInputView = (InputView) LayoutInflater.from(mThemeContext).inflate(
+        //mLatinIME.getBaseContext()
+        //mMainKeyboardFrame.getContext();
+        Context ctx = new ContextThemeWrapper(mLatinIME, KeyboardTheme.DEFAULT_THEME_ID);
+
+        InputView mCurrentInputView = (InputView) LayoutInflater.from(ctx).inflate(
                 R.layout.input_view, null);
         mMainKeyboardFrame = mCurrentInputView.findViewById(R.id.main_keyboard_frame);
 

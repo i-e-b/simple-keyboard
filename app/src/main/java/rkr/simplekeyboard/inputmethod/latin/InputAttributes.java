@@ -44,10 +44,11 @@ public final class InputAttributes {
     public InputAttributes(final EditorInfo editorInfo, final boolean isFullscreenMode) {
         mTargetApplicationPackageName = null != editorInfo ? editorInfo.packageName : null;
         final int inputType = null != editorInfo ? editorInfo.inputType : 0;
-        final int inputClass = inputType & InputType.TYPE_MASK_CLASS;
+        int inputClass = InputType.TYPE_CLASS_TEXT;//inputType & InputType.TYPE_MASK_CLASS;
         mInputType = inputType;
         mIsPasswordField = InputTypeUtils.isPasswordInputType(inputType)
                 || InputTypeUtils.isVisiblePasswordInputType(inputType);
+        /*
         if (inputClass != InputType.TYPE_CLASS_TEXT) {
             // If we are not looking at a TYPE_CLASS_TEXT field, the following strange
             // cases may arise, so we do a couple sanity checks for them. If it's a
@@ -69,6 +70,8 @@ public final class InputAttributes {
             mShouldInsertSpacesAutomatically = false;
             return;
         }
+
+         */
         // inputClass == InputType.TYPE_CLASS_TEXT
         final int variation = inputType & InputType.TYPE_MASK_VARIATION;
         final boolean flagNoSuggestions =

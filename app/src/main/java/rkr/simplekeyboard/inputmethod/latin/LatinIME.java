@@ -33,7 +33,6 @@ import android.os.Debug;
 import android.os.IBinder;
 import android.os.Message;
 import android.text.InputType;
-import android.text.TextUtils;
 import android.util.Log;
 import android.util.PrintWriterPrinter;
 import android.util.Printer;
@@ -59,7 +58,6 @@ import rkr.simplekeyboard.inputmethod.compat.ViewOutlineProviderCompatUtils.Inse
 import rkr.simplekeyboard.inputmethod.event.Event;
 import rkr.simplekeyboard.inputmethod.event.InputTransaction;
 import rkr.simplekeyboard.inputmethod.keyboard.KeyboardActionListener;
-import rkr.simplekeyboard.inputmethod.keyboard.KeyboardId;
 import rkr.simplekeyboard.inputmethod.keyboard.KeyboardLoader;
 import rkr.simplekeyboard.inputmethod.keyboard.MainKeyboardView;
 import rkr.simplekeyboard.inputmethod.latin.common.Constants;
@@ -243,8 +241,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         }
 
         public void onStartInputView(final EditorInfo editorInfo, final boolean restarting) {
-            if (hasMessages(MSG_PENDING_IMS_CALLBACK)
-                    && KeyboardId.equivalentEditorInfoForKeyboard(editorInfo, mAppliedEditorInfo)) {
+            if (hasMessages(MSG_PENDING_IMS_CALLBACK)) {
                 // Typically this is the second onStartInputView after orientation changed.
                 resetPendingImsCallback();
             } else {
@@ -378,7 +375,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
             loadSettings();
         }
 
-        mKeyboardSwitcher.updateKeyboardTheme(conf.uiMode);
+        MainKeyboardView.updateTheme(conf.uiMode);
 
         super.onConfigurationChanged(conf);
     }
@@ -455,6 +452,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         mRichImm.refreshSubtypeCaches();
         final KeyboardLoader switcher = mKeyboardSwitcher;
         switcher.updateKeyboardTheme(getResources().getConfiguration().uiMode);
+
         final MainKeyboardView mainKeyboardView = switcher.getMainKeyboardView();
         // If we are starting input in a different text field from before, we'll have to reload
         // settings, so currentSettingsValues can't be final.

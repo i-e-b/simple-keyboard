@@ -128,6 +128,10 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
         mKeyboardActionListener = KeyboardActionListener.EMPTY_LISTENER;
     }
 
+    public static void updateTheme(int uiMode) {
+        // TODO: something with this
+    }
+
     private ObjectAnimator loadObjectAnimator(final int resId, final Object target) {
         if (resId == 0) {
             // TODO: Stop returning null.
