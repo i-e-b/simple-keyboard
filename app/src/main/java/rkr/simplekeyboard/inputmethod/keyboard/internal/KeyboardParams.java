@@ -30,7 +30,7 @@ import rkr.simplekeyboard.inputmethod.latin.common.Constants;
 public class KeyboardParams {
     public KeyboardId mId;
 
-    /** Total height and width of the keyboard, including the paddings and keys */
+    /** Total height and width of the keyboard, including padding and keys */
     public int mOccupiedHeight;
     public int mOccupiedWidth;
 
@@ -78,65 +78,12 @@ public class KeyboardParams {
         public int compare(final Key lhs, final Key rhs) {
             if (lhs.getY() < rhs.getY()) return -1;
             if (lhs.getY() > rhs.getY()) return 1;
-            if (lhs.getX() < rhs.getX()) return -1;
-            if (lhs.getX() > rhs.getX()) return 1;
-            return 0;
+            return Integer.compare(lhs.getX(), rhs.getX());
         }
     };
-
-    public KeyboardParams() {
-        this(UniqueKeysCache.NO_CACHE);
-    }
 
     public KeyboardParams(final UniqueKeysCache keysCache) {
         mUniqueKeysCache = keysCache;
     }
 
-    public void onAddKey(final Key newKey) {
-        final Key key = mUniqueKeysCache.getUniqueKey(newKey);
-        final boolean isSpacer = key.isSpacer();
-        if (isSpacer && key.getWidth() == 0) {
-            // Ignore zero width {@link Spacer}.
-            return;
-        }
-        mSortedKeys.add(key);
-        if (isSpacer) {
-            return;
-        }
-        updateHistogram(key);
-        if (key.getCode() == Constants.CODE_SHIFT) {
-            mShiftKeys.add(key);
-        }
-        if (key.altCodeWhileTyping()) {
-            mAltCodeKeysWhileTyping.add(key);
-        }
-    }
-
-    private int mMaxHeightCount = 0;
-    private int mMaxWidthCount = 0;
-    private final SparseIntArray mHeightHistogram = new SparseIntArray();
-    private final SparseIntArray mWidthHistogram = new SparseIntArray();
-
-    private static int updateHistogramCounter(final SparseIntArray histogram, final int key) {
-        final int index = histogram.indexOfKey(key);
-        final int count = (index >= 0 ? histogram.get(key) : 0) + 1;
-        histogram.put(key, count);
-        return count;
-    }
-
-    private void updateHistogram(final Key key) {
-        final int height = Math.round(key.getDefinedHeight());
-        final int heightCount = updateHistogramCounter(mHeightHistogram, height);
-        if (heightCount > mMaxHeightCount) {
-            mMaxHeightCount = heightCount;
-            mMostCommonKeyHeight = height;
-        }
-
-        final int width = Math.round(key.getDefinedWidth());
-        final int widthCount = updateHistogramCounter(mWidthHistogram, width);
-        if (widthCount > mMaxWidthCount) {
-            mMaxWidthCount = widthCount;
-            mMostCommonKeyWidth = width;
-        }
-    }
 }

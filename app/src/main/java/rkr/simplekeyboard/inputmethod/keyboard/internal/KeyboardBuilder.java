@@ -741,7 +741,6 @@ public class KeyboardBuilder<KP extends KeyboardParams> {
     }
 
     private void endKey(final Key key, final KeyboardRow row) {
-        mParams.onAddKey(key);
         if (mPreviousKeyInRow != null && !mPreviousKeyInRow.isSpacer()) {
             // Make the last key span the gap so there isn't un-clickable space. The current key's
             // hitbox left edge is based on the previous key, so this will make the gap between
