@@ -143,20 +143,6 @@ public final class KeyboardLoader implements KeyboardState.SwitchActions {
         mState.onLoadKeyboard();
     }
 
-    public void onPressKey(final int code, final boolean isSinglePointer,
-            final int currentAutoCapsState, final int currentRecapitalizeState) {
-        mState.onPressKey(code, isSinglePointer, currentAutoCapsState, currentRecapitalizeState);
-    }
-
-    public void onReleaseKey(final int code, final boolean withSliding,
-            final int currentAutoCapsState, final int currentRecapitalizeState) {
-        mState.onReleaseKey(code, withSliding, currentAutoCapsState, currentRecapitalizeState);
-    }
-
-    public void onFinishSlidingInput(final int currentAutoCapsState,
-            final int currentRecapitalizeState) {
-    }
-
     // Implements {@link KeyboardState.SwitchActions}.
     @Override
     public void initialiseKeyboard() {
@@ -217,40 +203,6 @@ public final class KeyboardLoader implements KeyboardState.SwitchActions {
                     + " recapitalizeMode=" + RecapitalizeStatus.modeToString(recapitalizeMode));
         }
         mState.onUpdateShiftState(autoCapsFlags, recapitalizeMode);
-    }
-
-    // Implements {@link KeyboardState.SwitchActions}.
-    @Override
-    public void startDoubleTapShiftKeyTimer() {
-        if (DEBUG_TIMER_ACTION) {
-            Log.d(TAG, "startDoubleTapShiftKeyTimer");
-        }
-        final MainKeyboardView keyboardView = getMainKeyboardView();
-        if (keyboardView != null) {
-            keyboardView.startDoubleTapShiftKeyTimer();
-        }
-    }
-
-    // Implements {@link KeyboardState.SwitchActions}.
-    @Override
-    public void cancelDoubleTapShiftKeyTimer() {
-        if (DEBUG_TIMER_ACTION) {
-            Log.d(TAG, "setAlphabetKeyboard");
-        }
-        final MainKeyboardView keyboardView = getMainKeyboardView();
-        if (keyboardView != null) {
-            keyboardView.cancelDoubleTapShiftKeyTimer();
-        }
-    }
-
-    // Implements {@link KeyboardState.SwitchActions}.
-    @Override
-    public boolean isInDoubleTapShiftKeyTimeout() {
-        if (DEBUG_TIMER_ACTION) {
-            Log.d(TAG, "isInDoubleTapShiftKeyTimeout");
-        }
-        final MainKeyboardView keyboardView = getMainKeyboardView();
-        return keyboardView != null && keyboardView.isInDoubleTapShiftKeyTimeout();
     }
 
     /**

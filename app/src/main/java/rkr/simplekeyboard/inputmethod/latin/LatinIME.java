@@ -758,41 +758,6 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         mSubtypeState.switchSubtype(token, mRichImm);
     }
 
-    // TODO: Instead of checking for alphabetic keyboard here, separate keycodes for
-    // alphabetic shift and shift while in symbol layout and get rid of this method.
-    private int getCodePointForKeyboard(final int codePoint) {
-        return codePoint;
-    }
-
-
-    // This method is public for testability of LatinIME, but also in the future it should
-    // completely replace #onCodeInput.
-    public void onEvent(final Event event) {
-        if (Constants.CODE_SHORTCUT == event.mKeyCode) {
-            mRichImm.switchToShortcutIme(this);
-        }
-        final InputTransaction completeInputTransaction =
-                mInputLogic.onCodeInput(mSettings.getCurrent(), event);
-        updateStateAfterInputTransaction(completeInputTransaction);
-        mKeyboardSwitcher.onEvent(event, getCurrentAutoCapsState(), getCurrentRecapitalizeState());
-    }
-
-    // A helper method to split the code point and the key code. Ultimately, they should not be
-    // squashed into the same variable, and this method should be removed.
-    // public for testing, as we don't want to copy the same logic into test code
-    public static Event createSoftwareKeypressEvent(final int keyCodeOrCodePoint, final int keyX,
-             final int keyY, final boolean isKeyRepeat) {
-        final int keyCode;
-        final int codePoint;
-        if (keyCodeOrCodePoint <= 0) {
-            keyCode = keyCodeOrCodePoint;
-            codePoint = Event.NOT_A_CODE_POINT;
-        } else {
-            keyCode = Event.NOT_A_KEY_CODE;
-            codePoint = keyCodeOrCodePoint;
-        }
-        return Event.createSoftwareKeypressEvent(codePoint, keyCode, keyX, keyY, isKeyRepeat);
-    }
 
     // Called from PointerTracker through the KeyboardActionListener interface
     @Override
