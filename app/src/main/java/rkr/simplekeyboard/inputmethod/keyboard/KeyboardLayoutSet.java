@@ -168,8 +168,7 @@ public final class KeyboardLayoutSet {
             return cachedKeyboard;
         }
 
-        final KeyboardBuilder<KeyboardParams> builder =
-                new KeyboardBuilder<>(mContext, new KeyboardParams(sUniqueKeysCache));
+        final KeyboardBuilder<KeyboardParams> builder = new KeyboardBuilder<>(mContext, new KeyboardParams());
         sUniqueKeysCache.setEnabled(id.isAlphabetKeyboard());
         builder.setAllowRedundantMoreKes(elementParams.mAllowRedundantMoreKeys);
         final int keyboardXmlId = elementParams.mKeyboardXmlId;

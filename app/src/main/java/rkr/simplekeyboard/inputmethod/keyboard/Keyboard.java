@@ -16,11 +16,8 @@
 
 package rkr.simplekeyboard.inputmethod.keyboard;
 
-import android.util.SparseArray;
-
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyVisualAttributes;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardParams;
-import rkr.simplekeyboard.inputmethod.latin.common.Constants;
 
 /**
  * Loads an XML description of a keyboard and stores the attributes of the keys. A keyboard
@@ -61,9 +58,6 @@ public class Keyboard {
     public final int mMostCommonKeyHeight;
     public final int mMostCommonKeyWidth;
 
-
-    private final SparseArray<Key> mKeyCache = new SparseArray<>();
-
     public Keyboard(final KeyboardParams params) {
         mId = params.mId;
         mOccupiedHeight = params.mOccupiedHeight;
@@ -74,25 +68,5 @@ public class Keyboard {
         mBottomPadding = params.mBottomPadding;
         mVerticalGap = params.mVerticalGap;
         mHorizontalGap = params.mHorizontalGap;
-    }
-
-    public Key getKey(final int code) {
-        if (code == Constants.CODE_UNSPECIFIED) {
-            return null;
-        }
-        synchronized (mKeyCache) {
-            final int index = mKeyCache.indexOfKey(code);
-            if (index >= 0) {
-                return mKeyCache.valueAt(index);
-            }
-
-            mKeyCache.put(code, null);
-            return null;
-        }
-    }
-
-    @Override
-    public String toString() {
-        return mId.toString();
     }
 }

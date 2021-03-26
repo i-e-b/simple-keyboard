@@ -195,13 +195,12 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
      * @see #getKeyboard()
      * @param keyboard the keyboard to display in this view
      */
+
     @Override
     public void setKeyboard(final Keyboard keyboard) {
         // Remove any pending messages, except dismissing preview and key repeat.
         mTimerHandler.cancelLongPressTimers();
         super.setKeyboard(keyboard);
-        //mKeyDetector.setKeyboard(keyboard, -getPaddingLeft(), -getPaddingTop() + getVerticalCorrection());
-        //PointerTracker.setKeyDetector(mKeyDetector);
     }
 
     private void installPreviewPlacerView() {
@@ -299,18 +298,6 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
     }
 
     public void onHideWindow() {
-    }
-
-    public void updateShortcutKey(final boolean available) {
-        final Keyboard keyboard = getKeyboard();
-        if (keyboard == null) {
-            return;
-        }
-        final Key shortcutKey = keyboard.getKey(Constants.CODE_SHORTCUT);
-        if (shortcutKey == null) {
-            return;
-        }
-        shortcutKey.setEnabled(available);
     }
 
 }

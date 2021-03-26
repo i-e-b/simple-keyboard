@@ -66,7 +66,6 @@ import rkr.simplekeyboard.inputmethod.latin.settings.Settings;
  */
 public class KeyboardView extends View {
     // XML attributes
-    private final KeyVisualAttributes mKeyVisualAttributes;
     private final float mVerticalCorrection;
     private final Drawable mKeyBackground;
     private final Rect mKeyBackgroundPadding = new Rect();
@@ -92,17 +91,12 @@ public class KeyboardView extends View {
                 R.styleable.KeyboardView, defStyle, R.style.KeyboardView);
         mKeyBackground = keyboardViewAttr.getDrawable(R.styleable.KeyboardView_keyBackground);
         mKeyBackground.getPadding(mKeyBackgroundPadding);
-        final Drawable functionalKeyBackground = keyboardViewAttr.getDrawable(
-                R.styleable.KeyboardView_functionalKeyBackground);
-        final Drawable spacebarBackground = keyboardViewAttr.getDrawable(
-                R.styleable.KeyboardView_spacebarBackground);
         mVerticalCorrection = keyboardViewAttr.getDimension(
                 R.styleable.KeyboardView_verticalCorrection, 0.0f);
         keyboardViewAttr.recycle();
 
         final TypedArray keyAttr = context.obtainStyledAttributes(attrs,
                 R.styleable.Keyboard_Key, defStyle, R.style.KeyboardView);
-        mKeyVisualAttributes = KeyVisualAttributes.newInstance(keyAttr);
         keyAttr.recycle();
 
         mPaint.setAntiAlias(true);
