@@ -445,6 +445,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     }
 
     void onStartInputViewInternal(final EditorInfo editorInfo, final boolean restarting) {
+        // TODO: I've broken this, so resizing on rotation isn't working. Fix it.
         super.onStartInputView(editorInfo, restarting);
 
         // Switch to the null consumer to handle cases leading to early exit below, for which we
@@ -528,10 +529,8 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
                 !currentSettingsValues.hasSameOrientation(getResources().getConfiguration())) {
             loadSettings();
         }
-        if (isDifferentTextField) {
+        if (isDifferentTextField || needToCallLoadKeyboardLater) {
             mainKeyboardView.closing();
-            currentSettingsValues = mSettings.getCurrent();
-
             switcher.loadKeyboard();
         } else if (restarting) {
             switcher.resetKeyboard();

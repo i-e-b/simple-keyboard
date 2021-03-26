@@ -44,7 +44,7 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
     private final ObjectAnimator mAltCodeKeyWhileTypingFadeoutAnimator;
     private final ObjectAnimator mAltCodeKeyWhileTypingFadeinAnimator;
 
-    private final NonDistinctMultitouchHelper mNonDistinctMultitouchHelper; // TODO: this is the touch point handler
+    private final NonDistinctMultitouchHelper mNonDistinctMultitouchHelper;
 
     private final TimerHandler mTimerHandler;
 
