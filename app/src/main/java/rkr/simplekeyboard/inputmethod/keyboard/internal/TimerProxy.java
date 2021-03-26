@@ -16,16 +16,9 @@
 
 package rkr.simplekeyboard.inputmethod.keyboard.internal;
 
-import rkr.simplekeyboard.inputmethod.keyboard.Key;
 import rkr.simplekeyboard.inputmethod.keyboard.PointerTracker;
 
 public interface TimerProxy {
-    /**
-     * Start a timer to detect if a user is typing keys.
-     * @param typedKey the key that is typed.
-     */
-    void startTypingStateTimer(Key typedKey);
-
     /**
      * Check if a user is key typing.
      * @return true if a user is in typing.

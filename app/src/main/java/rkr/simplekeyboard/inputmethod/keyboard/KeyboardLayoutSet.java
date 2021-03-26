@@ -36,7 +36,6 @@ import java.util.HashMap;
 import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardBuilder;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardParams;
-import rkr.simplekeyboard.inputmethod.keyboard.internal.UniqueKeysCache;
 import rkr.simplekeyboard.inputmethod.latin.RichInputMethodSubtype;
 import rkr.simplekeyboard.inputmethod.latin.utils.InputTypeUtils;
 import rkr.simplekeyboard.inputmethod.latin.utils.XmlParseUtils;
@@ -69,7 +68,6 @@ public final class KeyboardLayoutSet {
     // them from disappearing from sKeyboardCache.
     private static final HashMap<KeyboardId, SoftReference<KeyboardParams>> sKeyboardCache =
             new HashMap<>();
-    private static final UniqueKeysCache sUniqueKeysCache = UniqueKeysCache.newInstance();
 
     @SuppressWarnings("serial")
     public static final class KeyboardLayoutSetException extends RuntimeException {
@@ -114,7 +112,6 @@ public final class KeyboardLayoutSet {
 
     private static void clearKeyboardCache() {
         sKeyboardCache.clear();
-        sUniqueKeysCache.clear();
     }
 
     KeyboardLayoutSet(final Context context, final Params params) {
@@ -169,7 +166,6 @@ public final class KeyboardLayoutSet {
         }
 
         final KeyboardBuilder<KeyboardParams> builder = new KeyboardBuilder<>(mContext, new KeyboardParams());
-        sUniqueKeysCache.setEnabled(id.isAlphabetKeyboard());
         builder.setAllowRedundantMoreKes(elementParams.mAllowRedundantMoreKeys);
         final int keyboardXmlId = elementParams.mKeyboardXmlId;
         builder.load(keyboardXmlId, id);

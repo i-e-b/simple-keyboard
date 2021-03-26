@@ -26,12 +26,10 @@ import org.xmlpull.v1.XmlPullParser;
 import java.util.ArrayDeque;
 
 import rkr.simplekeyboard.inputmethod.R;
-import rkr.simplekeyboard.inputmethod.keyboard.Key;
 import rkr.simplekeyboard.inputmethod.latin.utils.ResourceUtils;
 
 /**
  * Container for keys in the keyboard. All keys in a row are at the same Y-coordinate.
- * Some of the key size defaults can be overridden per row from what the {@link Keyboard}
  * defines.
  */
 public final class KeyboardRow {
@@ -93,8 +91,7 @@ public final class KeyboardRow {
             mDefaultKeyPaddedWidth = ResourceUtils.getFraction(keyAttr,
                     R.styleable.Keyboard_Key_keyWidth, keyboardWidth, defaultKeyPaddedWidth);
             mDefaultKeyLabelFlags = keyAttr.getInt(R.styleable.Keyboard_Key_keyLabelFlags, 0);
-            mDefaultBackgroundType = keyAttr.getInt(R.styleable.Keyboard_Key_backgroundType,
-                    Key.BACKGROUND_TYPE_NORMAL);
+            mDefaultBackgroundType = keyAttr.getInt(R.styleable.Keyboard_Key_backgroundType,1);
         }
 
         /**

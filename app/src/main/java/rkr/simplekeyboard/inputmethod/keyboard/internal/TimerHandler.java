@@ -19,7 +19,6 @@ package rkr.simplekeyboard.inputmethod.keyboard.internal;
 import android.os.Message;
 import android.view.ViewConfiguration;
 
-import rkr.simplekeyboard.inputmethod.keyboard.Key;
 import rkr.simplekeyboard.inputmethod.keyboard.PointerTracker;
 import rkr.simplekeyboard.inputmethod.latin.common.Constants;
 import rkr.simplekeyboard.inputmethod.latin.utils.LeakGuardHandlerWrapper;
@@ -102,36 +101,6 @@ public final class TimerHandler extends LeakGuardHandlerWrapper<DrawingProxy>
     }
 
     @Override
-    public void startTypingStateTimer(final Key typedKey) {
-        if (typedKey.isModifier() || typedKey.altCodeWhileTyping()) {
-            return;
-        }
-
-        final boolean isTyping = isTypingState();
-        removeMessages(MSG_TYPING_STATE_EXPIRED);
-        final DrawingProxy drawingProxy = getOwnerInstance();
-        if (drawingProxy == null) {
-            return;
-        }
-
-        // When user hits the space or the enter key, just cancel the while-typing timer.
-        final int typedCode = typedKey.getCode();
-        if (typedCode == Constants.CODE_SPACE || typedCode == Constants.CODE_ENTER) {
-            if (isTyping) {
-                drawingProxy.startWhileTypingAnimation(DrawingProxy.FADE_IN);
-            }
-            return;
-        }
-
-        sendMessageDelayed(
-                obtainMessage(MSG_TYPING_STATE_EXPIRED), mIgnoreAltCodeKeyTimeout);
-        if (isTyping) {
-            return;
-        }
-        drawingProxy.startWhileTypingAnimation(DrawingProxy.FADE_OUT);
-    }
-
-    @Override
     public boolean isTypingState() {
         return hasMessages(MSG_TYPING_STATE_EXPIRED);
     }
@@ -171,10 +140,6 @@ public final class TimerHandler extends LeakGuardHandlerWrapper<DrawingProxy>
     @Override
     public void cancelAllUpdateBatchInputTimers() {
         removeMessages(MSG_UPDATE_BATCH_INPUT);
-    }
-
-    public void postDismissKeyPreview(final Key key, final long delay) {
-        sendMessageDelayed(obtainMessage(MSG_DISMISS_KEY_PREVIEW, key), delay);
     }
 
     public void cancelAllMessages() {

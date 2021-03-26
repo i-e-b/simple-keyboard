@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
@@ -30,17 +29,14 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Locale;
 
 import rkr.simplekeyboard.inputmethod.R;
-import rkr.simplekeyboard.inputmethod.keyboard.Key;
 import rkr.simplekeyboard.inputmethod.keyboard.KeyboardId;
 import rkr.simplekeyboard.inputmethod.keyboard.KeyboardTheme;
 import rkr.simplekeyboard.inputmethod.latin.common.StringUtils;
 import rkr.simplekeyboard.inputmethod.latin.utils.ResourceUtils;
 import rkr.simplekeyboard.inputmethod.latin.utils.XmlParseUtils;
-import rkr.simplekeyboard.inputmethod.latin.utils.XmlParseUtils.ParseException;
 
 /**
  * Keyboard Building helper.
@@ -137,8 +133,6 @@ public class KeyboardBuilder<KP extends KeyboardParams> {
     protected final Resources mResources;
 
     private float mCurrentY = 0;
-    private KeyboardRow mCurrentRow = null;
-    private Key mPreviousKeyInRow = null;
     private boolean mKeyboardDefined = false;
 
     public KeyboardBuilder(final Context context, final KP params) {
@@ -216,7 +210,6 @@ public class KeyboardBuilder<KP extends KeyboardParams> {
                         }
                         mKeyboardDefined = true;
                         parseKeyboardAttributes(parser);
-                        startKeyboard();
                     }
                     parseKeyboardContent(parser, skip);
                 } else if (TAG_SWITCH.equals(tag)) {
@@ -300,10 +293,6 @@ public class KeyboardBuilder<KP extends KeyboardParams> {
                 final String tag = parser.getName();
                 if (TAG_ROW.equals(tag)) {
                     final KeyboardRow row = parseRowAttributes(parser);
-                    if (DEBUG) startTag("<%s>%s", TAG_ROW, skip ? " skipped" : "");
-                    if (!skip) {
-                        startRow(row);
-                    }
                     parseRowContent(parser, row, skip);
                 } else if (TAG_INCLUDE.equals(tag)) {
                     parseIncludeKeyboardContent(parser, skip);
@@ -318,7 +307,6 @@ public class KeyboardBuilder<KP extends KeyboardParams> {
                 final String tag = parser.getName();
                 if (DEBUG) endTag("</%s>", tag);
                 if (TAG_KEYBOARD.equals(tag)) {
-                    endKeyboard();
                     return;
                 }
                 if (TAG_CASE.equals(tag) || TAG_DEFAULT.equals(tag) || TAG_MERGE.equals(tag)) {
@@ -369,9 +357,6 @@ public class KeyboardBuilder<KP extends KeyboardParams> {
                 final String tag = parser.getName();
                 if (DEBUG) endTag("</%s>", tag);
                 if (TAG_ROW.equals(tag)) {
-                    if (!skip) {
-                        endRow(row);
-                    }
                     return;
                 }
                 if (TAG_CASE.equals(tag) || TAG_DEFAULT.equals(tag) || TAG_MERGE.equals(tag)) {
@@ -392,10 +377,8 @@ public class KeyboardBuilder<KP extends KeyboardParams> {
         final TypedArray keyAttr = mResources.obtainAttributes(
                 Xml.asAttributeSet(parser), R.styleable.Keyboard_Key);
         final String keySpec = "";
-        final Key key = new Key(keySpec, keyAttr,  mParams, row);
         keyAttr.recycle();
         XmlParseUtils.checkEndTag(TAG_KEY, parser);
-        endKey(key, row);
     }
 
     private void parseSpacer(final XmlPullParser parser, final KeyboardRow row, final boolean skip)
@@ -407,11 +390,9 @@ public class KeyboardBuilder<KP extends KeyboardParams> {
         }
         final TypedArray keyAttr = mResources.obtainAttributes(
                 Xml.asAttributeSet(parser), R.styleable.Keyboard_Key);
-        final Key spacer = new Key.Spacer(keyAttr, mParams, row);
         keyAttr.recycle();
         if (DEBUG) startEndTag("<%s />", TAG_SPACER);
         XmlParseUtils.checkEndTag(TAG_SPACER, parser);
-        endKey(spacer, row);
     }
 
     private void parseIncludeKeyboardContent(final XmlPullParser parser, final boolean skip)
@@ -705,43 +686,4 @@ public class KeyboardBuilder<KP extends KeyboardParams> {
         XmlParseUtils.checkEndTag(TAG_KEY_STYLE, parser);
     }
 
-    private void startKeyboard() {
-
-    }
-
-    private void startRow(final KeyboardRow row) {
-        mCurrentRow = row;
-        mPreviousKeyInRow = null;
-    }
-
-    private void endRow(final KeyboardRow row) {
-        if (mCurrentRow == null) {
-            throw new RuntimeException("orphan end row tag");
-        }
-        if (mPreviousKeyInRow != null && !mPreviousKeyInRow.isSpacer()) {
-            setKeyHitboxRightEdge(mPreviousKeyInRow, mParams.mOccupiedWidth);
-            mPreviousKeyInRow = null;
-        }
-        mCurrentY += row.getRowHeight();
-        mCurrentRow = null;
-    }
-
-    private void endKey(final Key key, final KeyboardRow row) {
-        if (mPreviousKeyInRow != null && !mPreviousKeyInRow.isSpacer()) {
-            // Make the last key span the gap so there isn't un-clickable space. The current key's
-            // hitbox left edge is based on the previous key, so this will make the gap between
-            // them split evenly.
-            setKeyHitboxRightEdge(mPreviousKeyInRow, row.getKeyX() - row.getKeyLeftPadding());
-        }
-        mPreviousKeyInRow = key;
-    }
-
-    private void setKeyHitboxRightEdge(final Key key, final float xPos) {
-        final int keyRight = key.getX() + key.getWidth();
-        final float padding = xPos - keyRight;
-        key.setHitboxRightEdge(Math.round(padding) + keyRight);
-    }
-
-    private void endKeyboard() {
-    }
 }
