@@ -29,18 +29,15 @@ import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.event.Event;
 import rkr.simplekeyboard.inputmethod.keyboard.KeyboardLayoutSet.KeyboardLayoutSetException;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardParams;
-import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardState;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardTextsSet;
 import rkr.simplekeyboard.inputmethod.latin.InputView;
 import rkr.simplekeyboard.inputmethod.latin.LatinIME;
 import rkr.simplekeyboard.inputmethod.latin.RichInputMethodManager;
 import rkr.simplekeyboard.inputmethod.latin.settings.Settings;
 import rkr.simplekeyboard.inputmethod.latin.settings.SettingsValues;
-import rkr.simplekeyboard.inputmethod.latin.utils.CapsModeUtils;
-import rkr.simplekeyboard.inputmethod.latin.utils.RecapitalizeStatus;
 import rkr.simplekeyboard.inputmethod.latin.utils.ResourceUtils;
 
-public final class KeyboardLoader implements KeyboardState.SwitchActions {
+public final class KeyboardLoader {
     private static final String TAG = KeyboardLoader.class.getSimpleName();
 
     private int mCurrentUiMode;
@@ -48,8 +45,6 @@ public final class KeyboardLoader implements KeyboardState.SwitchActions {
     private MainKeyboardView mKeyboardView;
     private LatinIME mLatinIME;
     private RichInputMethodManager mRichImm;
-
-    private KeyboardState mState;
 
     private KeyboardLayoutSet mKeyboardLayoutSet;
     // TODO: The following {@link KeyboardTextsSet} should be in {@link KeyboardLayoutSet}.
@@ -76,7 +71,6 @@ public final class KeyboardLoader implements KeyboardState.SwitchActions {
     private void initInternal(final LatinIME latinIme) {
         mLatinIME = latinIme;
         mRichImm = RichInputMethodManager.getInstance();
-        mState = new KeyboardState(this);
     }
 
     public void updateKeyboardTheme(final int uiMode) {
@@ -145,15 +139,6 @@ public final class KeyboardLoader implements KeyboardState.SwitchActions {
         setKeyboard(KeyboardId.ELEMENT_ALPHABET, KeyboardSwitchState.OTHER);
     }
 
-    // Implements {@link KeyboardState.SwitchActions}.
-    @Override
-    public void initialiseKeyboard() {
-        if (DEBUG_ACTION) {
-            Log.d(TAG, "setAlphabetKeyboard");
-        }
-        setKeyboard(KeyboardId.ELEMENT_ALPHABET, KeyboardSwitchState.OTHER);
-    }
-
     public boolean isImeSuppressedByHardwareKeyboard(
             final SettingsValues settingsValues,
             final KeyboardSwitchState toggleState) {
@@ -194,14 +179,6 @@ public final class KeyboardLoader implements KeyboardState.SwitchActions {
             return KeyboardSwitchState.SYMBOLS_SHIFTED;
         }
         return KeyboardSwitchState.OTHER;
-    }
-
-    /**
-     * Updates state machine to figure out when to automatically switch back to the previous mode.
-     */
-    public void onEvent(final Event event, final int currentAutoCapsState,
-            final int currentRecapitalizeState) {
-        mState.onEvent(event, currentAutoCapsState, currentRecapitalizeState);
     }
 
     public boolean isShowingKeyboardId(int... keyboardIds) {
