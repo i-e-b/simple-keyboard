@@ -28,7 +28,6 @@ import android.view.inputmethod.EditorInfo;
 import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.keyboard.KeyboardLayoutSet.KeyboardLayoutSetException;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardParams;
-import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardTextsSet;
 import rkr.simplekeyboard.inputmethod.latin.InputView;
 import rkr.simplekeyboard.inputmethod.latin.LatinIME;
 import rkr.simplekeyboard.inputmethod.latin.RichInputMethodManager;
@@ -47,7 +46,6 @@ public final class KeyboardLoader {
 
     private KeyboardLayoutSet mKeyboardLayoutSet;
 
-    private final KeyboardTextsSet mKeyboardTextsSet = new KeyboardTextsSet();
 
     private KeyboardTheme mKeyboardTheme;
     private Context mThemeContext;
@@ -107,7 +105,6 @@ public final class KeyboardLoader {
         mKeyboardLayoutSet = builder.build();
         try {
             setKeyboard();
-            mKeyboardTextsSet.setLocale(mRichImm.getCurrentSubtypeLocale(), mThemeContext);
         } catch (KeyboardLayoutSetException e) {
             Log.w(TAG, "loading keyboard failed: " + e.mKeyboardId, e.getCause());
         }

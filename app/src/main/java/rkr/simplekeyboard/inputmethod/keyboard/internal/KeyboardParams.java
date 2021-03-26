@@ -50,13 +50,8 @@ public class KeyboardParams {
     public int mGridHeight;
 
     public final KeyboardIconsSet mIconsSet = new KeyboardIconsSet();
-    public final KeyboardTextsSet mTextsSet = new KeyboardTextsSet();
-    public final KeyStylesSet mKeyStyles = new KeyStylesSet(mTextsSet);
 
     public boolean mAllowRedundantMoreKeys;
-
-    public int mMostCommonKeyHeight = 0;
-    public int mMostCommonKeyWidth = 0;
 
     public KeyboardParams() {}
 

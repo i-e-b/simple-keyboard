@@ -286,7 +286,6 @@ public class KeyboardBuilder<KP extends KeyboardParams> {
                     R.styleable.Keyboard_Key_maxMoreKeysColumn, 5);
 
             params.mIconsSet.loadIcons(keyboardAttr);
-            params.mTextsSet.setLocale(params.mId.getLocale(), mContext);
         } finally {
             keyAttr.recycle();
             keyboardAttr.recycle();
@@ -392,17 +391,9 @@ public class KeyboardBuilder<KP extends KeyboardParams> {
         }
         final TypedArray keyAttr = mResources.obtainAttributes(
                 Xml.asAttributeSet(parser), R.styleable.Keyboard_Key);
-        final KeyStyle keyStyle = mParams.mKeyStyles.getKeyStyle(keyAttr, parser);
-        final String keySpec = keyStyle.getString(keyAttr, R.styleable.Keyboard_Key_keySpec);
-        if (TextUtils.isEmpty(keySpec)) {
-            throw new ParseException("Empty keySpec", parser);
-        }
-        final Key key = new Key(keySpec, keyAttr, keyStyle, mParams, row);
+        final String keySpec = "";
+        final Key key = new Key(keySpec, keyAttr,  mParams, row);
         keyAttr.recycle();
-        if (DEBUG) {
-            startEndTag("<%s%s %s moreKeys=%s />", TAG_KEY, (key.isEnabled() ? "" : " disabled"),
-                    key, Arrays.toString(key.getMoreKeys()));
-        }
         XmlParseUtils.checkEndTag(TAG_KEY, parser);
         endKey(key, row);
     }
@@ -416,8 +407,7 @@ public class KeyboardBuilder<KP extends KeyboardParams> {
         }
         final TypedArray keyAttr = mResources.obtainAttributes(
                 Xml.asAttributeSet(parser), R.styleable.Keyboard_Key);
-        final KeyStyle keyStyle = mParams.mKeyStyles.getKeyStyle(keyAttr, parser);
-        final Key spacer = new Key.Spacer(keyAttr, keyStyle, mParams, row);
+        final Key spacer = new Key.Spacer(keyAttr, mParams, row);
         keyAttr.recycle();
         if (DEBUG) startEndTag("<%s />", TAG_SPACER);
         XmlParseUtils.checkEndTag(TAG_SPACER, parser);
@@ -707,9 +697,6 @@ public class KeyboardBuilder<KP extends KeyboardParams> {
                 startEndTag("<%s styleName=%s />%s", TAG_KEY_STYLE,
                         keyStyleAttr.getString(R.styleable.Keyboard_KeyStyle_styleName),
                         skip ? " skipped" : "");
-            }
-            if (!skip) {
-                mParams.mKeyStyles.parseKeyStyleAttributes(keyStyleAttr, keyAttrs, parser);
             }
         } finally {
             keyStyleAttr.recycle();
