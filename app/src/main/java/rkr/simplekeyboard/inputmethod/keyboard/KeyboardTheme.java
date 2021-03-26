@@ -31,23 +31,10 @@ public final class KeyboardTheme {
 
     // These should be aligned with Keyboard.themeId and Keyboard.Case.keyboardTheme
     // attributes' values in attrs.xml.
-    public static final int THEME_ID_LIGHT_BORDER = 1;
-    public static final int THEME_ID_DARK_BORDER = 2;
     public static final int THEME_ID_LIGHT = 3;
-    public static final int THEME_ID_DARK = 4;
     public static final int THEME_ID_SYSTEM = 5;
     public static final int THEME_ID_SYSTEM_BORDER = 6;
     public static final int DEFAULT_THEME_ID = THEME_ID_LIGHT;
-
-    /* package private for testing */
-    static final KeyboardTheme[] KEYBOARD_THEMES = {
-        new KeyboardTheme(THEME_ID_LIGHT, "LXXLight", R.style.KeyboardTheme_LXX_Light),
-        new KeyboardTheme(THEME_ID_DARK, "LXXDark", R.style.KeyboardTheme_LXX_Dark),
-        new KeyboardTheme(THEME_ID_LIGHT_BORDER, "LXXLightBorder", R.style.KeyboardTheme_LXX_Light_Border),
-        new KeyboardTheme(THEME_ID_DARK_BORDER, "LXXDarkBorder", R.style.KeyboardTheme_LXX_Dark_Border),
-        new KeyboardTheme(THEME_ID_SYSTEM, "LXXSystem", R.style.KeyboardTheme_LXX_System),
-        new KeyboardTheme(THEME_ID_SYSTEM_BORDER, "LXXSystemBorder", R.style.KeyboardTheme_LXX_System_Border),
-    };
 
     public final int mThemeId;
     public final int mStyleId;
@@ -74,12 +61,6 @@ public final class KeyboardTheme {
 
     /* package private for testing */
     static KeyboardTheme searchKeyboardThemeById(final int themeId) {
-        // TODO: This search algorithm isn't optimal if there are many themes.
-        for (final KeyboardTheme theme : KEYBOARD_THEMES) {
-            if (theme.mThemeId == themeId) {
-                return theme;
-            }
-        }
         return null;
     }
 

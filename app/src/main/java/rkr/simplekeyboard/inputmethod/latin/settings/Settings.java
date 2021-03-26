@@ -240,15 +240,6 @@ public final class Settings implements SharedPreferences.OnSharedPreferenceChang
     }
 
     public static int readKeyboardDefaultColor(final Context context) {
-        final int[] keyboardThemeColors = context.getResources().getIntArray(R.array.keyboard_theme_colors);
-        final int[] keyboardThemeIds = context.getResources().getIntArray(R.array.keyboard_theme_ids);
-        final int themeId = KeyboardTheme.getKeyboardTheme(context).mThemeId;
-        for (int index = 0; index < keyboardThemeIds.length; index++) {
-            if (themeId == keyboardThemeIds[index]) {
-                return keyboardThemeColors[index];
-            }
-        }
-
         return Color.LTGRAY;
     }
 
