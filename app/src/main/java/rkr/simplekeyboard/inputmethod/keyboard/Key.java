@@ -23,12 +23,9 @@ import android.text.TextUtils;
 import java.util.Arrays;
 import java.util.Locale;
 
-import rkr.simplekeyboard.inputmethod.R;
-import rkr.simplekeyboard.inputmethod.keyboard.internal.KeySpecParser;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyVisualAttributes;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardParams;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardRow;
-import rkr.simplekeyboard.inputmethod.keyboard.internal.MoreKeySpec;
 import rkr.simplekeyboard.inputmethod.latin.common.Constants;
 import rkr.simplekeyboard.inputmethod.latin.common.StringUtils;
 
@@ -47,12 +44,7 @@ public class Key implements Comparable<Key> {
     private final int mCode = 0;
 
     /** Label to display */
-    private final String mLabel;
     private static final int LABEL_FLAGS_PRESERVE_CASE = 0x10000;
-    private static final int LABEL_FLAGS_FROM_CUSTOM_ACTION_LABEL = 0x40000;
-
-    /** Icon to display instead of a label. Icon takes precedence over a label */
-    private final int mIconId;
 
     /** Width of the key, excluding the padding */
     private final int mWidth;
@@ -148,11 +140,9 @@ public class Key implements Comparable<Key> {
         mHeight = Math.round(y + height) - mY;
         mDefinedWidth = width;
         mDefinedHeight = height;
-        mLabel = label;
         mOptionalAttributes = OptionalAttributes.newInstance(outputText, CODE_UNSPECIFIED,
                 ICON_UNDEFINED);
         mEnabled = (code != CODE_UNSPECIFIED);
-        mIconId = iconId;
         mKeyVisualAttributes = null;
 
         mHashCode = computeHashCode(this);
@@ -193,26 +183,6 @@ public class Key implements Comparable<Key> {
         mHeight = Math.round(keyBottom) - mY;
 
 
-        final boolean needsToUpcase = false;
-        final Locale localeForUpcasing = params.mId.getLocale();
-
-        mIconId = 0;//KeySpecParser.getIconId(keySpec);
-
-        final int code = 0;//KeySpecParser.getCode(keySpec);
-        if ((LABEL_FLAGS_FROM_CUSTOM_ACTION_LABEL) != 0) {
-            mLabel = params.mId.mCustomActionLabel;
-        } else if (code >= Character.MIN_SUPPLEMENTARY_CODE_POINT) {
-            // This is a workaround to have a key that has a supplementary code point in its label.
-            // Because we can put a string in resource neither as a XML entity of a supplementary
-            // code point nor as a surrogate pair.
-            mLabel = new StringBuilder().appendCodePoint(code).toString();
-        } else {
-            final String label = "x";//KeySpecParser.getLabel(keySpec);
-            mLabel = needsToUpcase
-                    ? StringUtils.toTitleCaseOfKeyLabel(label, localeForUpcasing)
-                    : label;
-        }
-
         mOptionalAttributes = OptionalAttributes.newInstance("", 0, 0);
         mKeyVisualAttributes = KeyVisualAttributes.newInstance(keyAttr);
         mHashCode = computeHashCode(this);
@@ -220,8 +190,6 @@ public class Key implements Comparable<Key> {
 
     private Key(final Key key) {
         // Final attributes.
-        mLabel = key.mLabel;
-        mIconId = key.mIconId;
         mWidth = key.mWidth;
         mHeight = key.mHeight;
         mDefinedWidth = key.mDefinedWidth;
@@ -257,8 +225,6 @@ public class Key implements Comparable<Key> {
                 key.mWidth,
                 key.mHeight,
                 key.mCode,
-                key.mLabel,
-                key.mIconId,
                 key.getOutputText(),
                 // Key can be distinguishable without the following members.
                 // key.mOptionalAttributes.mAltCode,
@@ -277,8 +243,6 @@ public class Key implements Comparable<Key> {
                 && o.mWidth == mWidth
                 && o.mHeight == mHeight
                 && o.mCode == mCode
-                && TextUtils.equals(o.mLabel, mLabel)
-                && o.mIconId == mIconId
                 && TextUtils.equals(o.getOutputText(), getOutputText());
     }
 
@@ -314,10 +278,6 @@ public class Key implements Comparable<Key> {
 
     public int getCode() {
         return mCode;
-    }
-
-    public String getLabel() {
-        return mLabel;
     }
 
     public void setHitboxRightEdge(final int right) {
