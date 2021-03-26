@@ -324,7 +324,7 @@ public class RichInputMethodManager {
     }
 
     public void onSubtypeChanged(final InputMethodSubtype newSubtype) {
-        updateCurrentSubtype(newSubtype);
+        updateCurrentSubtype();
         updateShortcutIme();
         if (DEBUG) {
             Log.w(TAG, "onSubtypeChanged: " + mCurrentRichInputMethodSubtype.getNameForLogging());
@@ -482,7 +482,7 @@ public class RichInputMethodManager {
 
     public void refreshSubtypeCaches() {
         mInputMethodInfoCache.clear();
-        updateCurrentSubtype(mImmService.getCurrentInputMethodSubtype());
+        updateCurrentSubtype();
         updateShortcutIme();
     }
 
@@ -496,8 +496,8 @@ public class RichInputMethodManager {
         return mImmService.shouldOfferSwitchingToNextInputMethod(binder);
     }
 
-    private void updateCurrentSubtype(final InputMethodSubtype subtype) {
-        mCurrentRichInputMethodSubtype = RichInputMethodSubtype.getRichInputMethodSubtype(subtype);
+    private void updateCurrentSubtype() {
+        mCurrentRichInputMethodSubtype = RichInputMethodSubtype.getRichInputMethodSubtype();
     }
 
     private void updateShortcutIme() {

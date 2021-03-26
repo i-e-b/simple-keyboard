@@ -28,6 +28,7 @@ import android.view.inputmethod.EditorInfo;
 import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.event.Event;
 import rkr.simplekeyboard.inputmethod.keyboard.KeyboardLayoutSet.KeyboardLayoutSetException;
+import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardParams;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardState;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardTextsSet;
 import rkr.simplekeyboard.inputmethod.latin.InputView;
@@ -114,7 +115,7 @@ public final class KeyboardLoader implements KeyboardState.SwitchActions {
 
         mKeyboardLayoutSet = builder.build();
         try {
-            mState.onLoadKeyboard(currentAutoCapsState, currentRecapitalizeState);
+            mState.onLoadKeyboard();
             mKeyboardTextsSet.setLocale(mRichImm.getCurrentSubtypeLocale(), mThemeContext);
         } catch (KeyboardLayoutSetException e) {
             Log.w(TAG, "loading keyboard failed: " + e.mKeyboardId, e.getCause());
@@ -134,15 +135,12 @@ public final class KeyboardLoader implements KeyboardState.SwitchActions {
         final SettingsValues currentSettingsValues = Settings.getInstance().getCurrent();
         setMainKeyboardFrame(currentSettingsValues, toggleState);
 
-        final Keyboard newKeyboard = mKeyboardLayoutSet.getKeyboard(keyboardId);
+        final KeyboardParams newKeyboard = mKeyboardLayoutSet.getKeyboard(keyboardId);
         mKeyboardView.setKeyboard(newKeyboard);
     }
 
-    // TODO: Remove this method. Come up with a more comprehensive way to reset the keyboard layout
-    // when a keyboard layout set doesn't get reloaded in LatinIME.onStartInputViewInternal().
-    public void resetKeyboardStateToAlphabet(final int currentAutoCapsState,
-            final int currentRecapitalizeState) {
-        mState.onResetKeyboardStateToAlphabet(currentAutoCapsState, currentRecapitalizeState);
+    public void resetKeyboard() {
+        mState.onLoadKeyboard();
     }
 
     public void onPressKey(final int code, final boolean isSinglePointer,
@@ -157,61 +155,15 @@ public final class KeyboardLoader implements KeyboardState.SwitchActions {
 
     public void onFinishSlidingInput(final int currentAutoCapsState,
             final int currentRecapitalizeState) {
-        mState.onFinishSlidingInput(currentAutoCapsState, currentRecapitalizeState);
     }
 
     // Implements {@link KeyboardState.SwitchActions}.
     @Override
-    public void setAlphabetKeyboard() {
+    public void initialiseKeyboard() {
         if (DEBUG_ACTION) {
             Log.d(TAG, "setAlphabetKeyboard");
         }
         setKeyboard(KeyboardId.ELEMENT_ALPHABET, KeyboardSwitchState.OTHER);
-    }
-
-    // Implements {@link KeyboardState.SwitchActions}.
-    @Override
-    public void setAlphabetManualShiftedKeyboard() {
-        if (DEBUG_ACTION) {
-            Log.d(TAG, "setAlphabetManualShiftedKeyboard");
-        }
-        setKeyboard(KeyboardId.ELEMENT_ALPHABET_MANUAL_SHIFTED, KeyboardSwitchState.OTHER);
-    }
-
-    // Implements {@link KeyboardState.SwitchActions}.
-    @Override
-    public void setAlphabetAutomaticShiftedKeyboard() {
-        if (DEBUG_ACTION) {
-            Log.d(TAG, "setAlphabetAutomaticShiftedKeyboard");
-        }
-        setKeyboard(KeyboardId.ELEMENT_ALPHABET_AUTOMATIC_SHIFTED, KeyboardSwitchState.OTHER);
-    }
-
-    // Implements {@link KeyboardState.SwitchActions}.
-    @Override
-    public void setAlphabetShiftLockedKeyboard() {
-        if (DEBUG_ACTION) {
-            Log.d(TAG, "setAlphabetShiftLockedKeyboard");
-        }
-        setKeyboard(KeyboardId.ELEMENT_ALPHABET_SHIFT_LOCKED, KeyboardSwitchState.OTHER);
-    }
-
-    // Implements {@link KeyboardState.SwitchActions}.
-    @Override
-    public void setSymbolsKeyboard() {
-        if (DEBUG_ACTION) {
-            Log.d(TAG, "setSymbolsKeyboard");
-        }
-        setKeyboard(KeyboardId.ELEMENT_SYMBOLS, KeyboardSwitchState.OTHER);
-    }
-
-    // Implements {@link KeyboardState.SwitchActions}.
-    @Override
-    public void setSymbolsShiftedKeyboard() {
-        if (DEBUG_ACTION) {
-            Log.d(TAG, "setSymbolsShiftedKeyboard");
-        }
-        setKeyboard(KeyboardId.ELEMENT_SYMBOLS_SHIFTED, KeyboardSwitchState.SYMBOLS_SHIFTED);
     }
 
     public boolean isImeSuppressedByHardwareKeyboard(

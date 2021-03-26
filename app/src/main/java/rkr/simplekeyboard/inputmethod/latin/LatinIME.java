@@ -544,8 +544,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         } else if (restarting) {
             // TODO: Come up with a more comprehensive way to reset the keyboard layout when
             // a keyboard layout set doesn't get reloaded in this method.
-            switcher.resetKeyboardStateToAlphabet(getCurrentAutoCapsState(),
-                    getCurrentRecapitalizeState());
+            switcher.resetKeyboard();
             // In apps like Talk, we come here when the text is sent and the field gets emptied and
             // we need to re-evaluate the shift state, but not the whole layout which would be
             // disruptive.
@@ -736,59 +735,8 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     }
 
     @Override
-    public boolean onCustomRequest(final int requestCode) {
-        if (isShowingOptionDialog()) return false;
-        switch (requestCode) {
-            case Constants.CUSTOM_CODE_SHOW_INPUT_METHOD_PICKER:
-                if (mRichImm.hasMultipleEnabledIMEsOrSubtypes(true /* include aux subtypes */)) {
-                    mRichImm.getInputMethodManager().showInputMethodPicker();
-                    return true;
-                }
-                return false;
-        }
-        return false;
-    }
-
-    @Override
-    public void onMovePointer(int steps) {
-        if (mInputLogic.mConnection.hasCursorPosition()) {
-            if (TextUtils.getLayoutDirectionFromLocale(mSettings.getCurrent().mLocale) == View.LAYOUT_DIRECTION_RTL)
-                steps = -steps;
-
-            final int end = mInputLogic.mConnection.getExpectedSelectionEnd() + steps;
-            final int start = mInputLogic.mConnection.hasSelection() ? mInputLogic.mConnection.getExpectedSelectionStart() : end;
-            mInputLogic.mConnection.setSelection(start, end);
-        } else {
-            for (; steps < 0; steps++)
-                mInputLogic.sendDownUpKeyEvent(KeyEvent.KEYCODE_DPAD_LEFT);
-            for (; steps > 0; steps--)
-                mInputLogic.sendDownUpKeyEvent(KeyEvent.KEYCODE_DPAD_RIGHT);
-        }
-    }
-
-    @Override
     public void SendKeyEvent(KeyEvent keyEvent){
         mInputLogic.mConnection.sendKeyEvent(keyEvent);
-    }
-
-    @Override
-    public void onMoveDeletePointer(int steps) {
-        if (mInputLogic.mConnection.hasCursorPosition()) {
-            final int end = mInputLogic.mConnection.getExpectedSelectionEnd();
-            final int start = mInputLogic.mConnection.getExpectedSelectionStart() + steps;
-            if (start > end)
-                return;
-            mInputLogic.mConnection.setSelection(start, end);
-        } else {
-            for (; steps < 0; steps++)
-                mInputLogic.sendDownUpKeyEvent(KeyEvent.KEYCODE_DEL);
-        }
-    }
-
-    @Override
-    public void onUpWithDeletePointerActive() {
-        if (mInputLogic.mConnection.hasSelection())
-            mInputLogic.sendDownUpKeyEvent(KeyEvent.KEYCODE_DEL);
     }
 
     private boolean isShowingOptionDialog() {
@@ -816,23 +764,6 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         return codePoint;
     }
 
-    // Implementation of {@link KeyboardActionListener}.
-    @Override
-    public void onCodeInput(final int codePoint, final int x, final int y,
-            final boolean isKeyRepeat) {
-        // TODO: this processing does not belong inside LatinIME, the caller should be doing this.
-        final MainKeyboardView mainKeyboardView = mKeyboardSwitcher.getMainKeyboardView();
-        // x and y include some padding, but everything down the line (especially native
-        // code) needs the coordinates in the keyboard frame.
-        // TODO: We should reconsider which coordinate system should be used to represent
-        // keyboard event. Also we should pull this up -- LatinIME has no business doing
-        // this transformation, it should be done already before calling onEvent.
-        final int keyX = mainKeyboardView.getKeyX(x);
-        final int keyY = mainKeyboardView.getKeyY(y);
-        final Event event = createSoftwareKeypressEvent(getCodePointForKeyboard(codePoint),
-                keyX, keyY, isKeyRepeat);
-        onEvent(event);
-    }
 
     // This method is public for testability of LatinIME, but also in the future it should
     // completely replace #onCodeInput.
@@ -872,14 +803,6 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
                 mInputLogic.onTextInput(mSettings.getCurrent(), event);
         updateStateAfterInputTransaction(completeInputTransaction);
         mKeyboardSwitcher.onEvent(event, getCurrentAutoCapsState(), getCurrentRecapitalizeState());
-    }
-
-    // Called from PointerTracker through the KeyboardActionListener interface
-    @Override
-    public void onFinishSlidingInput() {
-        // User finished sliding input.
-        mKeyboardSwitcher.onFinishSlidingInput(getCurrentAutoCapsState(),
-                getCurrentRecapitalizeState());
     }
 
     private void loadKeyboard() {
@@ -936,24 +859,6 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
             feedbackManager.performHapticFeedback(keyboardView);
         }
         feedbackManager.performAudioFeedback(code);
-    }
-
-    // Callback of the {@link KeyboardActionListener}. This is called when a key is depressed;
-    // release matching call is {@link #onReleaseKey(int,boolean)} below.
-    @Override
-    public void onPressKey(final int primaryCode, final int repeatCount,
-            final boolean isSinglePointer) {
-        mKeyboardSwitcher.onPressKey(primaryCode, isSinglePointer, getCurrentAutoCapsState(),
-                getCurrentRecapitalizeState());
-        hapticAndAudioFeedback(primaryCode, repeatCount);
-    }
-
-    // Callback of the {@link KeyboardActionListener}. This is called when a key is released;
-    // press matching call is {@link #onPressKey(int,int,boolean)} above.
-    @Override
-    public void onReleaseKey(final int primaryCode, final boolean withSliding) {
-        mKeyboardSwitcher.onReleaseKey(primaryCode, withSliding, getCurrentAutoCapsState(),
-                getCurrentRecapitalizeState());
     }
 
     // receive ringer mode change.

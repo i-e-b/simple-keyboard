@@ -29,6 +29,7 @@ import android.view.ViewGroup;
 
 import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.DrawingProxy;
+import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardParams;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.NonDistinctMultitouchHelper;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.TimerHandler;
 import rkr.simplekeyboard.inputmethod.latin.common.Constants;
@@ -197,7 +198,7 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
      */
 
     @Override
-    public void setKeyboard(final Keyboard keyboard) {
+    public void setKeyboard(final KeyboardParams keyboard) {
         // Remove any pending messages, except dismissing preview and key repeat.
         mTimerHandler.cancelLongPressTimers();
         super.setKeyboard(keyboard);

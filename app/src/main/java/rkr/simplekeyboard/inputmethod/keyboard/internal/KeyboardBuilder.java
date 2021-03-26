@@ -35,7 +35,6 @@ import java.util.Locale;
 
 import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.keyboard.Key;
-import rkr.simplekeyboard.inputmethod.keyboard.Keyboard;
 import rkr.simplekeyboard.inputmethod.keyboard.KeyboardId;
 import rkr.simplekeyboard.inputmethod.keyboard.KeyboardTheme;
 import rkr.simplekeyboard.inputmethod.latin.common.StringUtils;
@@ -177,8 +176,8 @@ public class KeyboardBuilder<KP extends KeyboardParams> {
         return this;
     }
 
-    public Keyboard build() {
-        return new Keyboard(mParams);
+    public KeyboardParams build() {
+        return mParams;
     }
 
     private int mIndent;

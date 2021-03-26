@@ -30,10 +30,11 @@ import android.view.View;
 import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.compat.PreferenceManagerCompat;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyVisualAttributes;
+import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardParams;
 import rkr.simplekeyboard.inputmethod.latin.settings.Settings;
 
 /**
- * A view that renders a virtual {@link Keyboard}.
+ * A view that renders a virtual {@link KeyboardParams}.
  *
  * @attr ref R.styleable#KeyboardView_keyBackground
  * @attr ref R.styleable#KeyboardView_functionalKeyBackground
@@ -74,8 +75,7 @@ public class KeyboardView extends View {
     protected static boolean sIsBeingPressed = false;
 
     // Main keyboard
-    // TODO: Consider having a dummy keyboard object to make this @NonNull
-    private Keyboard mKeyboard;
+    private KeyboardParams mKeyboard;
 
     // Drawing
     private final Paint mPaint = new Paint();
@@ -105,11 +105,11 @@ public class KeyboardView extends View {
     /**
      * Attaches a keyboard to this view. The keyboard can be switched at any time and the
      * view will re-layout itself to accommodate the keyboard.
-     * @see Keyboard
+     * @see KeyboardParams
      * @see #getKeyboard()
      * @param keyboard the keyboard to display in this view
      */
-    public void setKeyboard(final Keyboard keyboard) {
+    public void setKeyboard(final KeyboardParams keyboard) {
         mKeyboard = keyboard;
         final SharedPreferences prefs = PreferenceManagerCompat.getDeviceSharedPreferences(getContext());
         mCustomColor = Settings.readKeyboardColor(prefs, getContext());
@@ -120,9 +120,9 @@ public class KeyboardView extends View {
     /**
      * Returns the current keyboard being displayed by this view.
      * @return the currently attached keyboard
-     * @see #setKeyboard(Keyboard)
+     * @see #setKeyboard(KeyboardParams)
      */
-    public Keyboard getKeyboard() {
+    public KeyboardParams getKeyboard() {
         return mKeyboard;
     }
 
@@ -132,7 +132,7 @@ public class KeyboardView extends View {
 
     @Override
     protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
-        final Keyboard keyboard = getKeyboard();
+        final KeyboardParams keyboard = getKeyboard();
         if (keyboard == null) {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
             return;

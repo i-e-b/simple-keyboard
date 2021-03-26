@@ -127,25 +127,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         mPointerId = id;
     }
 
-    // Note that we need primaryCode argument because the keyboard may be in shifted state and the
-    // primaryCode is different from {@link Key#mKeyCode}.
-    private void callListenerOnRelease(final Key key, final int primaryCode,
-            final boolean withSliding) {
-        // See the comment at {@link #callListenerOnPressAndCheckKeyboardLayoutChange(Key}}.
-        final boolean ignoreModifierKey = mIsInDraggingFinger && key.isModifier();
-        if (DEBUG_LISTENER) {
-            Log.d(TAG, String.format("[%d] onRelease  : %s%s%s%s", mPointerId,
-                    Constants.printableCode(primaryCode),
-                    withSliding ? " sliding" : "", ignoreModifierKey ? " ignoreModifier" : "",
-                    key.isEnabled() ?  "": " disabled"));
-        }
-        if (ignoreModifierKey) {
-            return;
-        }
-        if (key.isEnabled()) {
-            sListener.onReleaseKey(primaryCode, withSliding);
-        }
-    }
 
     @Override
     public boolean isInDraggingFinger() {

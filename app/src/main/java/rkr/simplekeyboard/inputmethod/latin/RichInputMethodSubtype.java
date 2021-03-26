@@ -124,10 +124,9 @@ public class RichInputMethodSubtype {
         return SubtypeLocaleUtils.getKeyboardLayoutSetName(mSubtype);
     }
 
-    public static RichInputMethodSubtype getRichInputMethodSubtype(InputMethodSubtype subtype) {
-        if (subtype == null) {
-            subtype = AdditionalSubtypeUtils.createAdditionalSubtype("en_US", SubtypeLocaleUtils.QWERTY);
-        }
-        return new RichInputMethodSubtype(subtype);
+    public static RichInputMethodSubtype getRichInputMethodSubtype() {
+        return new RichInputMethodSubtype(
+            AdditionalSubtypeUtils.createAdditionalSubtype("en_US", SubtypeLocaleUtils.QWERTY)
+        );
     }
 }

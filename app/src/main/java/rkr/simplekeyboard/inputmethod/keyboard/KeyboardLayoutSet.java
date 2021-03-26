@@ -67,7 +67,7 @@ public final class KeyboardLayoutSet {
     // By construction of soft references, anything that is also referenced somewhere else
     // will stay in the cache. So we forcibly keep some references in an array to prevent
     // them from disappearing from sKeyboardCache.
-    private static final HashMap<KeyboardId, SoftReference<Keyboard>> sKeyboardCache =
+    private static final HashMap<KeyboardId, SoftReference<KeyboardParams>> sKeyboardCache =
             new HashMap<>();
     private static final UniqueKeysCache sUniqueKeysCache = UniqueKeysCache.newInstance();
 
@@ -122,7 +122,7 @@ public final class KeyboardLayoutSet {
         mParams = params;
     }
 
-    public Keyboard getKeyboard(final int baseKeyboardLayoutSetElementId) {
+    public KeyboardParams getKeyboard(final int baseKeyboardLayoutSetElementId) {
         final int keyboardLayoutSetElementId;
         switch (mParams.mMode) {
         case KeyboardId.MODE_PHONE:
@@ -158,9 +158,9 @@ public final class KeyboardLayoutSet {
         return getKeyboard(elementParams, id);
     }
 
-    private Keyboard getKeyboard(final ElementParams elementParams, final KeyboardId id) {
-        final SoftReference<Keyboard> ref = sKeyboardCache.get(id);
-        final Keyboard cachedKeyboard = (ref == null) ? null : ref.get();
+    private KeyboardParams getKeyboard(final ElementParams elementParams, final KeyboardId id) {
+        final SoftReference<KeyboardParams> ref = sKeyboardCache.get(id);
+        final KeyboardParams cachedKeyboard = (ref == null) ? null : ref.get();
         if (cachedKeyboard != null) {
             if (DEBUG_CACHE) {
                 Log.d(TAG, "keyboard cache size=" + sKeyboardCache.size() + ": HIT  id=" + id);
@@ -173,7 +173,7 @@ public final class KeyboardLayoutSet {
         builder.setAllowRedundantMoreKes(elementParams.mAllowRedundantMoreKeys);
         final int keyboardXmlId = elementParams.mKeyboardXmlId;
         builder.load(keyboardXmlId, id);
-        final Keyboard keyboard = builder.build();
+        final KeyboardParams keyboard = builder.build();
         sKeyboardCache.put(id, new SoftReference<>(keyboard));
 
         if (DEBUG_CACHE) {
@@ -231,6 +231,7 @@ public final class KeyboardLayoutSet {
             } catch (final IOException | XmlPullParserException e) {
                 throw new RuntimeException(e.getMessage() + " in " + mParams.mKeyboardLayoutSetName, e);
             }
+            // TODO: drop most of the XML junk and pass it straight in
             return new KeyboardLayoutSet(mContext, mParams);
         }
 
