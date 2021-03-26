@@ -140,8 +140,6 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
             final KeyboardLoader switcher = latinIme.mKeyboardSwitcher;
             switch (msg.what) {
             case MSG_UPDATE_SHIFT_STATE:
-                switcher.requestUpdatingShiftState(latinIme.getCurrentAutoCapsState(),
-                        latinIme.getCurrentRecapitalizeState());
                 break;
             case MSG_RESET_CACHES:
                 final SettingsValues settingsValues = latinIme.mSettings.getCurrent();
@@ -542,15 +540,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
             switcher.loadKeyboard(editorInfo, currentSettingsValues, getCurrentAutoCapsState(),
                     getCurrentRecapitalizeState());
         } else if (restarting) {
-            // TODO: Come up with a more comprehensive way to reset the keyboard layout when
-            // a keyboard layout set doesn't get reloaded in this method.
             switcher.resetKeyboard();
-            // In apps like Talk, we come here when the text is sent and the field gets emptied and
-            // we need to re-evaluate the shift state, but not the whole layout which would be
-            // disruptive.
-            // Space state must be updated before calling updateShiftState
-            switcher.requestUpdatingShiftState(getCurrentAutoCapsState(),
-                    getCurrentRecapitalizeState());
         }
 
         if (TRACE) Debug.startMethodTracing("/data/trace/latinime");
@@ -606,10 +596,8 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         // not attempt recorrection. This is true even with a hardware keyboard connected: if the
         // view is not displayed we have no means of showing suggestions anyway, and if it is then
         // we want to show suggestions anyway.
-        if (isInputViewShown()
-                && mInputLogic.onUpdateSelection(newSelStart, newSelEnd)) {
-            mKeyboardSwitcher.requestUpdatingShiftState(getCurrentAutoCapsState(),
-                    getCurrentRecapitalizeState());
+        if (isInputViewShown()){
+            mInputLogic.onUpdateSelection(newSelStart, newSelEnd);
         }
     }
 
@@ -797,8 +785,6 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
             mHandler.postUpdateShiftState();
             break;
         case InputTransaction.SHIFT_UPDATE_NOW:
-            mKeyboardSwitcher.requestUpdatingShiftState(getCurrentAutoCapsState(),
-                    getCurrentRecapitalizeState());
             break;
         default: // SHIFT_NO_UPDATE
         }

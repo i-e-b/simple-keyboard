@@ -115,7 +115,8 @@ public final class KeyboardLoader implements KeyboardState.SwitchActions {
 
         mKeyboardLayoutSet = builder.build();
         try {
-            mState.onLoadKeyboard();
+            // TODO: pull this up from the switcher
+            setKeyboard(KeyboardId.ELEMENT_ALPHABET, KeyboardSwitchState.OTHER);
             mKeyboardTextsSet.setLocale(mRichImm.getCurrentSubtypeLocale(), mThemeContext);
         } catch (KeyboardLayoutSetException e) {
             Log.w(TAG, "loading keyboard failed: " + e.mKeyboardId, e.getCause());
@@ -140,7 +141,8 @@ public final class KeyboardLoader implements KeyboardState.SwitchActions {
     }
 
     public void resetKeyboard() {
-        mState.onLoadKeyboard();
+        // TODO: pull this up from the switcher
+        setKeyboard(KeyboardId.ELEMENT_ALPHABET, KeyboardSwitchState.OTHER);
     }
 
     // Implements {@link KeyboardState.SwitchActions}.
@@ -192,17 +194,6 @@ public final class KeyboardLoader implements KeyboardState.SwitchActions {
             return KeyboardSwitchState.SYMBOLS_SHIFTED;
         }
         return KeyboardSwitchState.OTHER;
-    }
-
-    // Future method for requesting an updating to the shift state.
-    @Override
-    public void requestUpdatingShiftState(final int autoCapsFlags, final int recapitalizeMode) {
-        if (DEBUG_ACTION) {
-            Log.d(TAG, "requestUpdatingShiftState: "
-                    + " autoCapsFlags=" + CapsModeUtils.flagsToString(autoCapsFlags)
-                    + " recapitalizeMode=" + RecapitalizeStatus.modeToString(recapitalizeMode));
-        }
-        mState.onUpdateShiftState(autoCapsFlags, recapitalizeMode);
     }
 
     /**

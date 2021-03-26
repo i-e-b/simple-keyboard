@@ -33,19 +33,10 @@ import rkr.simplekeyboard.inputmethod.latin.utils.RecapitalizeStatus;
 public final class KeyboardState {
     private static final String TAG = KeyboardState.class.getSimpleName();
     private static final boolean DEBUG_EVENT = false;
-    private static final boolean DEBUG_INTERNAL_ACTION = false;
 
     public interface SwitchActions {
         boolean DEBUG_ACTION = false;
-
         void initialiseKeyboard();
-
-        /**
-         * Request to call back {@link KeyboardState#onUpdateShiftState(int, int)}.
-         */
-        void requestUpdatingShiftState(final int autoCapsFlags, final int recapitalizeMode);
-
-        boolean DEBUG_TIMER_ACTION = false;
     }
 
     private final SwitchActions mSwitchActions;
@@ -68,20 +59,8 @@ public final class KeyboardState {
     }
 
     public void onLoadKeyboard() {
-        mSwitchActions.initialiseKeyboard();
+        //mSwitchActions.initialiseKeyboard();
     }
-
-    // Constants for {@link SavedKeyboardState#mShiftMode} and {@link #setShifted(int)}.
-    private static final int UNSHIFT = 0;
-    private static final int MANUAL_SHIFT = 1;
-    private static final int AUTOMATIC_SHIFT = 2;
-
-    public void onUpdateShiftState(final int autoCapsFlags, final int recapitalizeMode) {
-        if (DEBUG_EVENT) {
-            Log.d(TAG, "onUpdateShiftState: " + stateToString(autoCapsFlags, recapitalizeMode));
-        }
-    }
-
 
     public void onEvent(final Event event, final int autoCapsFlags, final int recapitalizeMode) {
         final int code = event.isFunctionalKeyEvent() ? event.mKeyCode : event.mCodePoint;
