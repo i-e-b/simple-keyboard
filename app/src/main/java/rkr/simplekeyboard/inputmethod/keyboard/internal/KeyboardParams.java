@@ -34,23 +34,28 @@ public class KeyboardParams {
     public float mLeftPadding;
     public float mRightPadding;
 
-    public KeyVisualAttributes mKeyVisualAttributes;
-
     public float mDefaultRowHeight;
     public float mDefaultKeyPaddedWidth;
     public float mHorizontalGap;
     public float mVerticalGap;
 
-    public int mMoreKeysTemplate;
-    public int mMaxMoreKeysKeyboardColumn;
-
-    public int mGridWidth;
-    public int mGridHeight;
-
-    public final KeyboardIconsSet mIconsSet = new KeyboardIconsSet();
-
-    public boolean mAllowRedundantMoreKeys;
-
     public KeyboardParams() {}
+
+
+    public static KeyboardParams Defaults() {
+        KeyboardParams x = new KeyboardParams();
+        x.mBaseHeight = 680;
+        x.mBaseWidth = 1080;
+        x.mBottomPadding = 15.5f;
+        x.mHorizontalGap = 19;
+        x.mId = 0;
+        x.mLeftPadding = 9.5f;
+        x.mOccupiedHeight = 667;
+        x.mOccupiedWidth = 1080;
+        x.mRightPadding = 9.5f;
+        x.mTopPadding = 15.5f;
+        x.mVerticalGap = 46;
+        return x;
+    }
 
 }

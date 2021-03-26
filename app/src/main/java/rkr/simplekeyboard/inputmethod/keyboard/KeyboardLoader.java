@@ -18,21 +18,17 @@ package rkr.simplekeyboard.inputmethod.keyboard;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.Resources;
-import android.util.Log;
-import android.view.ContextThemeWrapper;
+import android.content.ContextWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 
 import rkr.simplekeyboard.inputmethod.R;
-import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardDefaultSettings;
+import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardParams;
 import rkr.simplekeyboard.inputmethod.latin.InputView;
 import rkr.simplekeyboard.inputmethod.latin.LatinIME;
 import rkr.simplekeyboard.inputmethod.latin.RichInputMethodManager;
 import rkr.simplekeyboard.inputmethod.latin.settings.Settings;
 import rkr.simplekeyboard.inputmethod.latin.settings.SettingsValues;
-import rkr.simplekeyboard.inputmethod.latin.utils.ResourceUtils;
 
 public final class KeyboardLoader {
     private static final String TAG = KeyboardLoader.class.getSimpleName();
@@ -67,7 +63,7 @@ public final class KeyboardLoader {
         // TODO: do something with this
     }
 
-    public void loadKeyboard(final EditorInfo editorInfo, final SettingsValues settingsValues)
+    public void loadKeyboard()
     {
         final int keyboardWidth = mLatinIME.getMaxWidth();
         setKeyboard();
@@ -82,7 +78,7 @@ public final class KeyboardLoader {
     private void setKeyboard() {
         final SettingsValues currentSettingsValues = Settings.getInstance().getCurrent();
         setMainKeyboardFrame(currentSettingsValues);
-        mKeyboardView.setKeyboard(KeyboardDefaultSettings.Defaults());
+        mKeyboardView.setKeyboard(KeyboardParams.Defaults());
     }
 
     public void resetKeyboard() {
@@ -120,9 +116,7 @@ public final class KeyboardLoader {
             mKeyboardView.closing();
         }
 
-        //mLatinIME.getBaseContext()
-        //mMainKeyboardFrame.getContext();
-        Context ctx = new ContextThemeWrapper(mLatinIME, KeyboardTheme.DEFAULT_THEME_ID);
+        Context ctx = new ContextWrapper(mLatinIME);
 
         InputView mCurrentInputView = (InputView) LayoutInflater.from(ctx).inflate(
                 R.layout.input_view, null);

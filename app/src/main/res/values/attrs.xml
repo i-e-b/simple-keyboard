@@ -133,8 +133,6 @@
         <attr name="bonusHeight" format="fraction" />
         <!-- More keys keyboard layout template -->
         <attr name="moreKeysTemplate" format="reference" />
-        <!-- Icon set for key top and key preview. These should be aligned with
-             {@link rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardIconsSet#NAMES_AND_ATTR_IDS} -->
         <attr name="iconShiftKey" format="reference" />
         <attr name="iconDeleteKey" format="reference" />
         <attr name="iconSettingsKey" format="reference" />
@@ -238,8 +236,6 @@
         <!-- Width of the key, in the proportion of keyboard width.
              If the value is fillRight, the actual key width will be determined to fill out the
              area up to the right edge of the keyboard. -->
-        <!-- This should be aligned with
-             {@link rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardRow#KEYWIDTH_FILL_RIGHT}. -->
         <attr name="keyWidth" format="fraction|enum">
             <enum name="fillRight" value="-1" />
         </attr>

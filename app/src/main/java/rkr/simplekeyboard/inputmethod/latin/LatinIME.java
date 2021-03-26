@@ -146,7 +146,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
                         msg.arg2 /* remainingTries */, this /* handler */)) {
                     // If we were able to reset the caches, then we can reload the keyboard.
                     // Otherwise, we'll do it when we can.
-                    latinIme.mKeyboardSwitcher.loadKeyboard(latinIme.getCurrentInputEditorInfo(), settingsValues);
+                    latinIme.mKeyboardSwitcher.loadKeyboard();
                 }
                 break;
             case MSG_WAIT_FOR_DICTIONARY_LOAD:
@@ -532,7 +532,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
             mainKeyboardView.closing();
             currentSettingsValues = mSettings.getCurrent();
 
-            switcher.loadKeyboard(editorInfo, currentSettingsValues);
+            switcher.loadKeyboard();
         } else if (restarting) {
             switcher.resetKeyboard();
         }
@@ -761,7 +761,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         loadSettings();
         if (mKeyboardSwitcher.getMainKeyboardView() != null) {
             // Reload keyboard because the current language has been changed.
-            mKeyboardSwitcher.loadKeyboard(getCurrentInputEditorInfo(), mSettings.getCurrent());
+            mKeyboardSwitcher.loadKeyboard();
         }
     }
 

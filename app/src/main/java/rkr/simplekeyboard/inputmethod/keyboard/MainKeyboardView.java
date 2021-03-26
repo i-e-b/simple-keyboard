@@ -36,47 +36,9 @@ import rkr.simplekeyboard.inputmethod.latin.common.Constants;
 
 /**
  * A view that is responsible for detecting key presses and touch movements.
- *
- * @attr ref R.styleable#MainKeyboardView_languageOnSpacebarTextRatio
- * @attr ref R.styleable#MainKeyboardView_languageOnSpacebarTextColor
- * @attr ref R.styleable#MainKeyboardView_languageOnSpacebarFinalAlpha
- * @attr ref R.styleable#MainKeyboardView_languageOnSpacebarFadeoutAnimator
- * @attr ref R.styleable#MainKeyboardView_altCodeKeyWhileTypingFadeoutAnimator
- * @attr ref R.styleable#MainKeyboardView_altCodeKeyWhileTypingFadeinAnimator
- * @attr ref R.styleable#MainKeyboardView_keyHysteresisDistance
- * @attr ref R.styleable#MainKeyboardView_touchNoiseThresholdTime
- * @attr ref R.styleable#MainKeyboardView_touchNoiseThresholdDistance
- * @attr ref R.styleable#MainKeyboardView_keySelectionByDraggingFinger
- * @attr ref R.styleable#MainKeyboardView_keyRepeatStartTimeout
- * @attr ref R.styleable#MainKeyboardView_keyRepeatInterval
- * @attr ref R.styleable#MainKeyboardView_longPressKeyTimeout
- * @attr ref R.styleable#MainKeyboardView_longPressShiftKeyTimeout
- * @attr ref R.styleable#MainKeyboardView_ignoreAltCodeKeyTimeout
- * @attr ref R.styleable#MainKeyboardView_keyPreviewLayout
- * @attr ref R.styleable#MainKeyboardView_keyPreviewOffset
- * @attr ref R.styleable#MainKeyboardView_keyPreviewHeight
- * @attr ref R.styleable#MainKeyboardView_keyPreviewLingerTimeout
- * @attr ref R.styleable#MainKeyboardView_keyPreviewDismissAnimator
- * @attr ref R.styleable#MainKeyboardView_backgroundDimAlpha
- * @attr ref R.styleable#MainKeyboardView_showMoreKeysKeyboardAtTouchPoint
- * @attr ref R.styleable#MainKeyboardView_gestureFloatingPreviewTextLingerTimeout
- * @attr ref R.styleable#MainKeyboardView_gestureStaticTimeThresholdAfterFastTyping
- * @attr ref R.styleable#MainKeyboardView_gestureDetectFastMoveSpeedThreshold
- * @attr ref R.styleable#MainKeyboardView_gestureDynamicThresholdDecayDuration
- * @attr ref R.styleable#MainKeyboardView_gestureDynamicTimeThresholdFrom
- * @attr ref R.styleable#MainKeyboardView_gestureDynamicTimeThresholdTo
- * @attr ref R.styleable#MainKeyboardView_gestureDynamicDistanceThresholdFrom
- * @attr ref R.styleable#MainKeyboardView_gestureDynamicDistanceThresholdTo
- * @attr ref R.styleable#MainKeyboardView_gestureSamplingMinimumDistance
- * @attr ref R.styleable#MainKeyboardView_gestureRecognitionMinimumTime
- * @attr ref R.styleable#MainKeyboardView_gestureRecognitionSpeedThreshold
- * @attr ref R.styleable#MainKeyboardView_suppressKeyPreviewAfterBatchInputDuration
  */
 public final class MainKeyboardView extends KeyboardView implements DrawingProxy {
     private static final String TAG = MainKeyboardView.class.getSimpleName();
-
-    /** Listener for {@link KeyboardActionListener}. */
-    private KeyboardActionListener mKeyboardActionListener;
 
     // Stuff to draw altCodeWhileTyping keys.
     private final ObjectAnimator mAltCodeKeyWhileTypingFadeoutAnimator;
@@ -100,11 +62,6 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
                 R.styleable.MainKeyboardView_ignoreAltCodeKeyTimeout, 0);
         mTimerHandler = new TimerHandler(this, ignoreAltCodeKeyTimeout);
 
-        final float keyHysteresisDistance = mainKeyboardViewAttr.getDimension(
-                R.styleable.MainKeyboardView_keyHysteresisDistance, 0.0f);
-        final float keyHysteresisDistanceForSlidingModifier = mainKeyboardViewAttr.getDimension(
-                R.styleable.MainKeyboardView_keyHysteresisDistanceForSlidingModifier, 0.0f);
-
         PointerTracker.init(mainKeyboardViewAttr, mTimerHandler, this /* DrawingProxy */);
 
         final boolean hasDistinctMultitouch = context.getPackageManager()
@@ -124,8 +81,6 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
                 altCodeKeyWhileTypingFadeoutAnimatorResId, this);
         mAltCodeKeyWhileTypingFadeinAnimator = loadObjectAnimator(
                 altCodeKeyWhileTypingFadeinAnimatorResId, this);
-
-        mKeyboardActionListener = KeyboardActionListener.EMPTY_LISTENER;
     }
 
     public static void updateTheme(int uiMode) {
@@ -182,21 +137,12 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
     }
 
     public void setKeyboardActionListener(final KeyboardActionListener listener) {
-        mKeyboardActionListener = listener;
         PointerTracker.setKeyboardActionListener(listener);
-    }
-
-    public int getKeyX(final int x) {
-        return x;
-    }
-    public int getKeyY(final int y) {
-        return y;
     }
 
     /**
      * Attaches a keyboard to this view. The keyboard can be switched at any time and the
      * view will re-layout itself to accommodate the keyboard.
-     * @see Keyboard
      * @see #getKeyboard()
      * @param keyboard the keyboard to display in this view
      */
@@ -249,19 +195,6 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-    }
-
-
-    public void startDoubleTapShiftKeyTimer() {
-        mTimerHandler.startDoubleTapShiftKeyTimer();
-    }
-
-    public void cancelDoubleTapShiftKeyTimer() {
-        mTimerHandler.cancelDoubleTapShiftKeyTimer();
-    }
-
-    public boolean isInDoubleTapShiftKeyTimeout() {
-        return mTimerHandler.isInDoubleTapShiftKeyTimeout();
     }
 
     @Override
