@@ -30,6 +30,8 @@ import rkr.simplekeyboard.inputmethod.latin.RichInputMethodManager;
 import rkr.simplekeyboard.inputmethod.latin.settings.Settings;
 import rkr.simplekeyboard.inputmethod.latin.settings.SettingsValues;
 
+import static android.content.res.Configuration.*;
+
 public final class KeyboardLoader {
     private static final String TAG = KeyboardLoader.class.getSimpleName();
 
@@ -61,6 +63,12 @@ public final class KeyboardLoader {
 
     public void updateKeyboardTheme(final int uiMode) {
         // TODO: do something with this
+        //UI_MODE_NIGHT_UNDEFINED, UI_MODE_NIGHT_NO or UI_MODE_NIGHT_YES.
+        if ((uiMode & UI_MODE_NIGHT_YES) > 0){
+            mKeyboardView.SetNightMode();
+        } else if ((uiMode & UI_MODE_NIGHT_NO) > 0){
+            mKeyboardView.SetDayMode();
+        }
     }
 
     public void loadKeyboard()

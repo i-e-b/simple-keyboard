@@ -18,7 +18,6 @@ package rkr.simplekeyboard.inputmethod.keyboard;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
@@ -35,7 +34,6 @@ import rkr.simplekeyboard.inputmethod.latin.settings.Settings;
  */
 public class KeyboardView extends View {
     // XML attributes
-    private final float mVerticalCorrection;
     public int mCustomColor = 0;
 
     protected static boolean sIsBeingPressed = false;
@@ -45,6 +43,7 @@ public class KeyboardView extends View {
 
     // Drawing
     private final Paint mPaint = new Paint();
+    private boolean mDarkColors = false;
 
     public KeyboardView(final Context context, final AttributeSet attrs) {
         this(context, attrs, R.attr.keyboardViewStyle);
@@ -52,17 +51,6 @@ public class KeyboardView extends View {
 
     public KeyboardView(final Context context, final AttributeSet attrs, final int defStyle) {
         super(context, attrs, defStyle);
-
-        final TypedArray keyboardViewAttr = context.obtainStyledAttributes(attrs,
-                R.styleable.KeyboardView, defStyle, R.style.KeyboardView);
-
-        mVerticalCorrection = keyboardViewAttr.getDimension(
-                R.styleable.KeyboardView_verticalCorrection, 0.0f);
-        keyboardViewAttr.recycle();
-
-        final TypedArray keyAttr = context.obtainStyledAttributes(attrs,
-                R.styleable.Keyboard_Key, defStyle, R.style.KeyboardView);
-        keyAttr.recycle();
 
         mPaint.setAntiAlias(true);
     }
@@ -89,10 +77,6 @@ public class KeyboardView extends View {
      */
     public KeyboardParams getKeyboard() {
         return mKeyboard;
-    }
-
-    protected float getVerticalCorrection() {
-        return mVerticalCorrection;
     }
 
     @Override
@@ -139,16 +123,26 @@ public class KeyboardView extends View {
         int ninthHeight = height / 9;
 
         final Paint paint = mPaint;
-        setBackgroundColor(mCustomColor);
 
-        paint.setARGB(255, 255, 255,255);
+        // Light colors
+        int backgroundColor = 0xFF_FF_FF_FF;
+        int touchHintColor = 0xFF_BB_FF_BB;
+        int majorLineColor = 0xFF_00_00_00;
+
+        if (mDarkColors){
+            backgroundColor = 0xFF_00_00_00;
+            touchHintColor = 0xFF_00_40_00;
+            majorLineColor = 0xFF_FF_FF_FF;
+        }
+
+        paint.setColor(backgroundColor);
         canvas.drawRect(0, 0, width, height, paint);
 
-        paint.setARGB(255, 127, 255,127);
+        paint.setColor(touchHintColor);
         canvas.drawCircle(mLastTouchX, mLastTouchY, 50, paint);
 
         // Major lines
-        paint.setARGB(255, 0, 0,64);
+        paint.setColor(majorLineColor);
         canvas.drawLine(xZero, oneThirdHeight, width, oneThirdHeight, paint);
         canvas.drawLine(xZero, twoThirdHeight, width, twoThirdHeight, paint);
 
@@ -166,11 +160,19 @@ public class KeyboardView extends View {
     }
 
     private void DrawZoomedInView(Canvas canvas, float fontDiv, int oneThirdWidth, int oneThirdHeight, Paint paint, char[][] layout) {
+        // Light colors
+        int mainFontColor = 0xFF_00_00_7F;
+        int modeFontColor = 0xFF_80_80_80;
+
+        if (mDarkColors){
+            mainFontColor = 0xFF_7F_7F_FF;
+            modeFontColor = 0xFF_80_80_80;
+        }
+
         // Draw zoomed view
         int qx = KeyboardLayout.sQuadrantX;
         int qy = KeyboardLayout.sQuadrantY;
 
-        paint.setARGB(255, 63, 63,127);
         float bigDiv = fontDiv * 3;
         paint.setTextSize(bigDiv);
 
@@ -179,24 +181,35 @@ public class KeyboardView extends View {
                 String desc = KeyboardLayout.Visualise(layout[y+qy][x+qx]);
 
                 if (desc.length() > 1) {
-                    paint.setARGB(255, 127, 127,127);
+                    paint.setColor(modeFontColor);
                     paint.setTextSize(bigDiv * 0.7f);
                 }
                 else {
-                    paint.setARGB(255, 63, 63,127);
+                    paint.setColor(mainFontColor);
                     paint.setTextSize(bigDiv);
                 }
 
                 float sw = paint.measureText(desc);
                 float offs = (oneThirdWidth / 2.0f) - (sw / 2.0f);
-                canvas.drawText(desc,x*oneThirdWidth + offs, (bigDiv*0.8f)+(y*oneThirdHeight), paint);
+                canvas.drawText(desc,x*oneThirdWidth + offs, (bigDiv*0.9f)+(y*oneThirdHeight), paint);
             }
         }
     }
 
     private void DrawZoomedOutView(Canvas canvas, int height, int width, float fontDiv, int xZero, int yZero, int ninthWidth, int ninthHeight, Paint paint, char[][] layout) {
+        // Light colors
+        int minorLineColor = 0xFF_A0_A0_A0;
+        int mainFontColor = 0xFF_00_00_7F;
+        int modeFontColor = 0xFF_80_80_80;
+
+        if (mDarkColors){
+            minorLineColor = 0xFF_80_80_80;
+            mainFontColor = 0xFF_7F_7F_FF;
+            modeFontColor = 0xFF_80_80_80;
+        }
+
         // Minor lines (pre-touch only)
-        paint.setARGB(255, 180, 180, 127);
+        paint.setColor(minorLineColor);
         for (int i = 1; i < 9; i++) {
             canvas.drawLine(xZero, ninthHeight * i, width, ninthHeight * i, paint);
             canvas.drawLine(ninthWidth * i, yZero, ninthWidth * i, height, paint);
@@ -208,17 +221,17 @@ public class KeyboardView extends View {
             for (int x = 0; x < 9; x++) {
                 String desc = KeyboardLayout.Visualise(layout[y][x]);
                 if (desc.length() > 1) {
-                    paint.setARGB(255, 127, 127,127);
+                    paint.setColor(modeFontColor);
                     paint.setTextSize(fontDiv * 0.6f);
                 }
                 else {
-                    paint.setARGB(255, 63, 63,127);
+                    paint.setColor(mainFontColor);
                     paint.setTextSize(fontDiv);
                 }
 
                 float sw = paint.measureText(desc);
                 float offs = (ninthWidth / 2.0f) - (sw / 2.0f);
-                canvas.drawText(desc,x*ninthWidth + offs, (fontDiv*0.8f)+(y*ninthHeight), paint);
+                canvas.drawText(desc,x*ninthWidth + offs, (fontDiv*0.9f)+(y*ninthHeight), paint);
             }
         }
     }
@@ -239,4 +252,7 @@ public class KeyboardView extends View {
 
     public void deallocateMemory() {
     }
+
+    public void SetNightMode() { mDarkColors = true; }
+    public void SetDayMode() { mDarkColors = false; }
 }
