@@ -26,7 +26,6 @@ public final class PointerTrackerQueue {
 
     public interface Element {
         boolean isModifier();
-        boolean isInDraggingFinger();
         void onPhantomUpEvent(long eventTime);
         void cancelTrackingForAction();
     }
@@ -168,46 +167,14 @@ public final class PointerTrackerQueue {
         }
     }
 
-    public boolean hasModifierKeyOlderThan(final Element pointer) {
-        synchronized (mExpandableArrayOfActivePointers) {
-            final ArrayList<Element> expandableArray = mExpandableArrayOfActivePointers;
-            final int arraySize = mArraySize;
-            for (int index = 0; index < arraySize; index++) {
-                final Element element = expandableArray.get(index);
-                if (element == pointer) {
-                    return false; // Stop searching modifier key.
-                }
-                if (element.isModifier()) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
-    public boolean isAnyInDraggingFinger() {
-        synchronized (mExpandableArrayOfActivePointers) {
-            final ArrayList<Element> expandableArray = mExpandableArrayOfActivePointers;
-            final int arraySize = mArraySize;
-            for (int index = 0; index < arraySize; index++) {
-                final Element element = expandableArray.get(index);
-                if (element.isInDraggingFinger()) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
     public void cancelAllPointerTrackers() {
         synchronized (mExpandableArrayOfActivePointers) {
             if (DEBUG) {
                 Log.d(TAG, "cancelAllPointerTracker: " + this);
             }
-            final ArrayList<Element> expandableArray = mExpandableArrayOfActivePointers;
             final int arraySize = mArraySize;
             for (int index = 0; index < arraySize; index++) {
-                final Element element = expandableArray.get(index);
+                final Element element = mExpandableArrayOfActivePointers.get(index);
                 element.cancelTrackingForAction();
             }
         }
@@ -217,10 +184,9 @@ public final class PointerTrackerQueue {
     public String toString() {
         synchronized (mExpandableArrayOfActivePointers) {
             final StringBuilder sb = new StringBuilder();
-            final ArrayList<Element> expandableArray = mExpandableArrayOfActivePointers;
             final int arraySize = mArraySize;
             for (int index = 0; index < arraySize; index++) {
-                final Element element = expandableArray.get(index);
+                final Element element = mExpandableArrayOfActivePointers.get(index);
                 if (sb.length() > 0) {
                     sb.append(" ");
                 }

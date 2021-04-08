@@ -32,12 +32,4 @@ public interface DrawingProxy {
      */
     void onKeyReleased();
 
-    /**
-     * Start a while-typing-animation.
-     * @param fadeInOrOut {@link #FADE_IN} starts while-typing-fade-in animation.
-     * {@link #FADE_OUT} starts while-typing-fade-out animation.
-     */
-    void startWhileTypingAnimation(int fadeInOrOut);
-    int FADE_IN = 0;
-    int FADE_OUT = 1;
 }

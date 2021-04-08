@@ -16,8 +16,7 @@
 
 package rkr.simplekeyboard.inputmethod.keyboard;
 
-import android.animation.AnimatorInflater;
-import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
@@ -31,8 +30,6 @@ import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.DrawingProxy;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardParams;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.NonDistinctMultitouchHelper;
-import rkr.simplekeyboard.inputmethod.keyboard.internal.TimerHandler;
-import rkr.simplekeyboard.inputmethod.latin.common.Constants;
 
 /**
  * A view that is responsible for detecting key presses and touch movements.
@@ -40,13 +37,7 @@ import rkr.simplekeyboard.inputmethod.latin.common.Constants;
 public final class MainKeyboardView extends KeyboardView implements DrawingProxy {
     private static final String TAG = MainKeyboardView.class.getSimpleName();
 
-    // Stuff to draw altCodeWhileTyping keys.
-    private final ObjectAnimator mAltCodeKeyWhileTypingFadeoutAnimator;
-    private final ObjectAnimator mAltCodeKeyWhileTypingFadeinAnimator;
-
     private final NonDistinctMultitouchHelper mNonDistinctMultitouchHelper;
-
-    private final TimerHandler mTimerHandler;
 
     public MainKeyboardView(final Context context, final AttributeSet attrs) {
         this(context, attrs, R.attr.mainKeyboardViewStyle);
@@ -58,82 +49,20 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
 
         final TypedArray mainKeyboardViewAttr = context.obtainStyledAttributes(
                 attrs, R.styleable.MainKeyboardView, defStyle, R.style.MainKeyboardView);
-        final int ignoreAltCodeKeyTimeout = mainKeyboardViewAttr.getInt(
-                R.styleable.MainKeyboardView_ignoreAltCodeKeyTimeout, 0);
-        mTimerHandler = new TimerHandler(this, ignoreAltCodeKeyTimeout);
 
-        PointerTracker.init(mainKeyboardViewAttr, mTimerHandler, this /* DrawingProxy */);
+        PointerTracker.init(mainKeyboardViewAttr, this /* DrawingProxy */);
 
         final boolean hasDistinctMultitouch = context.getPackageManager()
                 .hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH_DISTINCT);
         mNonDistinctMultitouchHelper = hasDistinctMultitouch ? null
                 : new NonDistinctMultitouchHelper();
 
-
-        final int altCodeKeyWhileTypingFadeoutAnimatorResId = mainKeyboardViewAttr.getResourceId(
-                R.styleable.MainKeyboardView_altCodeKeyWhileTypingFadeoutAnimator, 0);
-        final int altCodeKeyWhileTypingFadeinAnimatorResId = mainKeyboardViewAttr.getResourceId(
-                R.styleable.MainKeyboardView_altCodeKeyWhileTypingFadeinAnimator, 0);
-
         mainKeyboardViewAttr.recycle();
-
-        mAltCodeKeyWhileTypingFadeoutAnimator = loadObjectAnimator(
-                altCodeKeyWhileTypingFadeoutAnimatorResId, this);
-        mAltCodeKeyWhileTypingFadeinAnimator = loadObjectAnimator(
-                altCodeKeyWhileTypingFadeinAnimatorResId, this);
     }
 
     public static void updateTheme(int uiMode) {
+        System.out.print(uiMode);
         // TODO: something with this
-    }
-
-    private ObjectAnimator loadObjectAnimator(final int resId, final Object target) {
-        if (resId == 0) {
-            // TODO: Stop returning null.
-            return null;
-        }
-        final ObjectAnimator animator = (ObjectAnimator)AnimatorInflater.loadAnimator(
-                getContext(), resId);
-        if (animator != null) {
-            animator.setTarget(target);
-        }
-        return animator;
-    }
-
-    private static void cancelAndStartAnimators(final ObjectAnimator animatorToCancel,
-            final ObjectAnimator animatorToStart) {
-        if (animatorToCancel == null || animatorToStart == null) {
-            // TODO: Stop using null as a no-operation animator.
-            return;
-        }
-        float startFraction = 0.0f;
-        if (animatorToCancel.isStarted()) {
-            animatorToCancel.cancel();
-            startFraction = 1.0f - animatorToCancel.getAnimatedFraction();
-        }
-        final long startTime = (long)(animatorToStart.getDuration() * startFraction);
-        animatorToStart.start();
-        animatorToStart.setCurrentPlayTime(startTime);
-    }
-
-    // Implements {@link DrawingProxy#startWhileTypingAnimation(int)}.
-    /**
-     * Called when a while-typing-animation should be started.
-     * @param fadeInOrOut {@link DrawingProxy#FADE_IN} starts while-typing-fade-in animation.
-     * {@link DrawingProxy#FADE_OUT} starts while-typing-fade-out animation.
-     */
-    @Override
-    public void startWhileTypingAnimation(final int fadeInOrOut) {
-        switch (fadeInOrOut) {
-        case DrawingProxy.FADE_IN:
-            cancelAndStartAnimators(
-                    mAltCodeKeyWhileTypingFadeoutAnimator, mAltCodeKeyWhileTypingFadeinAnimator);
-            break;
-        case DrawingProxy.FADE_OUT:
-            cancelAndStartAnimators(
-                    mAltCodeKeyWhileTypingFadeinAnimator, mAltCodeKeyWhileTypingFadeoutAnimator);
-            break;
-        }
     }
 
     public void setKeyboardActionListener(final KeyboardActionListener listener) {
@@ -150,7 +79,6 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
     @Override
     public void setKeyboard(final KeyboardParams keyboard) {
         // Remove any pending messages, except dismissing preview and key repeat.
-        mTimerHandler.cancelLongPressTimers();
         super.setKeyboard(keyboard);
     }
 
@@ -160,11 +88,10 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
             Log.w(TAG, "Cannot find root view");
             return;
         }
-        final ViewGroup windowContentView = (ViewGroup)rootView.findViewById(android.R.id.content);
+        final ViewGroup windowContentView = rootView.findViewById(android.R.id.content);
         // Note: It'd be very weird if we get null by android.R.id.content.
         if (windowContentView == null) {
             Log.w(TAG, "Cannot find android.R.id.content view to add DrawingPreviewPlacerView");
-            return;
         }
     }
 
@@ -197,19 +124,15 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
         super.onDetachedFromWindow();
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
         if (getKeyboard() == null) {
             return false;
         }
         if (mNonDistinctMultitouchHelper != null) {
-            if (event.getPointerCount() > 1 && mTimerHandler.isInKeyRepeat()) {
-                // Key repeating timer will be canceled if 2 or more keys are in action.
-                mTimerHandler.cancelKeyRepeatTimers();
-            }
-
             // Non distinct multitouch screen support
-            mNonDistinctMultitouchHelper.processMotionEvent(event); // TODO: touch stuff
+            mNonDistinctMultitouchHelper.processMotionEvent(event);
             return true;
         }
         mLastTouchX = event.getAxisValue(0);
@@ -227,7 +150,6 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
     }
 
     public void cancelAllOngoingEvents() {
-        mTimerHandler.cancelAllMessages();
         PointerTracker.cancelAllPointerTrackers();
     }
 

@@ -27,7 +27,7 @@ public final class NonDistinctMultitouchHelper {
 
     private static final int MAIN_POINTER_TRACKER_ID = 0;
     private int mOldPointerCount = 1;
-    private int[] mLastCoords = CoordinateUtils.newInstance();
+    private final int[] mLastCoords = CoordinateUtils.newInstance();
 
     public void processMotionEvent(final MotionEvent me) {
         final int pointerCount = me.getPointerCount();
@@ -64,18 +64,12 @@ public final class NonDistinctMultitouchHelper {
             // Send an up event for the last pointer, be cause we can't trust the coordinates of
             // this multi-touch event.
             mainTracker.getLastCoordinates(mLastCoords);
-            final int x = CoordinateUtils.x(mLastCoords);
-            final int y = CoordinateUtils.y(mLastCoords);
-
             return;
         }
 
         // Multi-touch to single-touch transition.
         if (oldPointerCount == 2 && pointerCount == 1) {
-            // Send a down event for the latest pointer if the key is different from the previous
-            // key.
-            final int x = (int)me.getX(index);
-            final int y = (int)me.getY(index);
+            // Send a down event for the latest pointer if the key is different from the previous key.
             return;
         }
 

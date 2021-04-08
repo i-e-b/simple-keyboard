@@ -34,7 +34,6 @@ import static rkr.simplekeyboard.inputmethod.latin.common.Constants.Subtype.Extr
 /**
  * A helper class to deal with subtype locales.
   */
-// TODO: consolidate this into RichInputMethodSubtype
 public final class SubtypeLocaleUtils {
     static final String TAG = SubtypeLocaleUtils.class.getSimpleName();
 
@@ -79,7 +78,7 @@ public final class SubtypeLocaleUtils {
     // Note that this initialization method can be called multiple times.
     public static void init(final Context context) {
         synchronized (sInitializeLock) {
-            if (sInitialized == false) {
+            if (!sInitialized) {
                 initLocked(context);
                 sInitialized = true;
             }

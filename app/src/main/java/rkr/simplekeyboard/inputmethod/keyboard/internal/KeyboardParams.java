@@ -34,8 +34,6 @@ public class KeyboardParams {
     public float mLeftPadding;
     public float mRightPadding;
 
-    public float mDefaultRowHeight;
-    public float mDefaultKeyPaddedWidth;
     public float mHorizontalGap;
     public float mVerticalGap;
 

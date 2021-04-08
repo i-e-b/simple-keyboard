@@ -55,12 +55,8 @@ public class Event {
 
     // 0 is a valid code point, so we use -1 here.
     final public static int NOT_A_CODE_POINT = -1;
-    // -1 is a valid key code, so we use 0 here.
-    final public static int NOT_A_KEY_CODE = 0;
 
     final private static int FLAG_NONE = 0;
-    // This event is coming from a key repeat, software or hardware.
-    final private static int FLAG_REPEAT = 0x2;
     // This event has already been consumed.
     final private static int FLAG_CONSUMED = 0x4;
 
@@ -108,12 +104,6 @@ public class Event {
         mNextEvent = next;
     }
 
-    public static Event createSoftwareKeypressEvent(final int codePoint, final int keyCode,
-            final int x, final int y, final boolean isKeyRepeat) {
-        return new Event(EVENT_TYPE_INPUT_KEYPRESS, null, codePoint, keyCode, x, y,
-                isKeyRepeat ? FLAG_REPEAT : FLAG_NONE, null);
-    }
-
     /**
      * Creates an input event with a CharSequence. This is used by some software processes whose
      * output is a string, possibly with styling. Examples include press on a multi-character key,
@@ -126,17 +116,6 @@ public class Event {
         return new Event(EVENT_TYPE_SOFTWARE_GENERATED_STRING, text, NOT_A_CODE_POINT, keyCode,
                 Constants.NOT_A_COORDINATE, Constants.NOT_A_COORDINATE,
                 FLAG_NONE, null /* next */);
-    }
-
-    // Returns whether this is a function key like backspace, ctrl, settings... as opposed to keys
-    // that result in input like letters or space.
-    public boolean isFunctionalKeyEvent() {
-        // This logic may need to be refined in the future
-        return NOT_A_CODE_POINT == mCodePoint;
-    }
-
-    public boolean isKeyRepeat() {
-        return 0 != (FLAG_REPEAT & mFlags);
     }
 
     public boolean isConsumed() { return 0 != (FLAG_CONSUMED & mFlags); }

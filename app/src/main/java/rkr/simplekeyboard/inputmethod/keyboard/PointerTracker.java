@@ -16,7 +16,6 @@
 
 package rkr.simplekeyboard.inputmethod.keyboard;
 
-import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.SystemClock;
 import android.util.Log;
@@ -28,8 +27,6 @@ import java.util.ArrayList;
 import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.DrawingProxy;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.PointerTrackerQueue;
-import rkr.simplekeyboard.inputmethod.keyboard.internal.TimerProxy;
-import rkr.simplekeyboard.inputmethod.latin.common.Constants;
 import rkr.simplekeyboard.inputmethod.latin.common.CoordinateUtils;
 import rkr.simplekeyboard.inputmethod.latin.define.DebugFlags;
 
@@ -37,8 +34,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
     private static final String TAG = PointerTracker.class.getSimpleName();
     private static final boolean DEBUG_EVENT = false;
     private static final boolean DEBUG_MOVE_EVENT = false;
-    private static final boolean DEBUG_LISTENER = false;
-    private static boolean DEBUG_MODE = DebugFlags.DEBUG_ENABLED || DEBUG_EVENT;
+    private static final boolean DEBUG_MODE = DebugFlags.DEBUG_ENABLED || DEBUG_EVENT;
 
     public static int lastDrawTop, lastDrawLeft, lastDrawWidth, lastDrawHeight;
 
@@ -75,7 +71,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
     public final int mPointerId;
 
     private static DrawingProxy sDrawingProxy;
-    private static TimerProxy sTimerProxy;
     private static KeyboardActionListener sListener = KeyboardActionListener.EMPTY_LISTENER;
 
     // Last pointer position.
@@ -92,14 +87,10 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
     // so that further modifier keys should be ignored.
     boolean mIsInSlidingKeyInput;
 
-    // TODO: Add PointerTrackerFactory singleton and move some class static methods into it.
-    public static void init(final TypedArray mainKeyboardViewAttr, final TimerProxy timerProxy,
-            final DrawingProxy drawingProxy) {
+    public static void init(final TypedArray mainKeyboardViewAttr,
+                            final DrawingProxy drawingProxy) {
         sParams = new PointerTrackerParams(mainKeyboardViewAttr);
 
-        final Resources res = mainKeyboardViewAttr.getResources();
-
-        sTimerProxy = timerProxy;
         sDrawingProxy = drawingProxy;
     }
 
@@ -127,13 +118,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         mPointerId = id;
     }
 
-
-    @Override
-    public boolean isInDraggingFinger() {
-        return mIsInDraggingFinger;
-    }
-
-
     @Override
     public boolean isModifier() {
         return false;
@@ -152,7 +136,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
     }
 
     public void processMotionEvent(final MotionEvent me) {
-        // TODO: this is where we should handle down/up events and sending keys
         final int action = me.getActionMasked();
         final long eventTime = me.getEventTime();
         if (action == MotionEvent.ACTION_MOVE) {
@@ -232,7 +215,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
             printTouchEvent("onUpEvent  :", x, y, eventTime);
         }
 
-        sTimerProxy.cancelUpdateBatchInputTimer(this);
         sPointerTrackerQueue.releaseAllPointersOlderThan(this, eventTime);
 
         mLastX = x;
@@ -256,7 +238,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         }
 
         // clean up
-        sTimerProxy.cancelKeyTimersOf(this); // was in `onUpEventInternal`
         sPointerTrackerQueue.remove(this);
     }
 
@@ -268,12 +249,11 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         if (DEBUG_EVENT) {
             printTouchEvent("onPhntEvent:", mLastX, mLastY, eventTime);
         }
-        onUpEventInternal(mLastX, mLastY);
+        onUpEventInternal();
         cancelTrackingForAction();
     }
 
-    private void onUpEventInternal(final int x, final int y) {
-        sTimerProxy.cancelKeyTimersOf(this);
+    private void onUpEventInternal() {
         resetKeySelectionByDraggingFinger();
 
         // Release the last pressed key.
@@ -300,7 +280,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
     }
 
     private void onCancelEventInternal() {
-        sTimerProxy.cancelKeyTimersOf(this);
         resetKeySelectionByDraggingFinger();
     }
 
