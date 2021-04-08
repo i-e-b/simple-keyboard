@@ -72,7 +72,7 @@ import java.util.List;
                         return true;
                     }
                 });
-        prefScreen.addPreference(mSubtypeEnablerPreference);
+        //prefScreen.addPreference(mSubtypeEnablerPreference);
         updateSubtypeEnabler();
         return true;
     }

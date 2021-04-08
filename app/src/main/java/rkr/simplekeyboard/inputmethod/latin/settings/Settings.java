@@ -28,7 +28,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.compat.PreferenceManagerCompat;
-import rkr.simplekeyboard.inputmethod.keyboard.KeyboardTheme;
 import rkr.simplekeyboard.inputmethod.latin.AudioAndHapticFeedbackManager;
 import rkr.simplekeyboard.inputmethod.latin.InputAttributes;
 import rkr.simplekeyboard.inputmethod.latin.utils.AdditionalSubtypeUtils;
@@ -38,7 +37,6 @@ import rkr.simplekeyboard.inputmethod.latin.utils.RunInLocale;
 public final class Settings implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = Settings.class.getSimpleName();
     // Settings screens
-    public static final String SCREEN_THEME = "screen_theme";
     // In the same order as xml/prefs.xml
     public static final String PREF_AUTO_CAP = "auto_cap";
     public static final String PREF_VIBRATE_ON = "vibrate_on";
@@ -245,10 +243,6 @@ public final class Settings implements SharedPreferences.OnSharedPreferenceChang
 
     public static int readKeyboardColor(final SharedPreferences prefs, final Context context) {
         return prefs.getInt(PREF_KEYBOARD_COLOR, readKeyboardDefaultColor(context));
-    }
-
-    public static void removeKeyboardColor(final SharedPreferences prefs) {
-        prefs.edit().remove(PREF_KEYBOARD_COLOR).apply();
     }
 
     public static boolean readUseFullscreenMode(final Resources res) {

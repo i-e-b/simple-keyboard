@@ -42,7 +42,6 @@ public final class PreferencesSettingsFragment extends SubScreenFragment {
         super.onCreate(icicle);
         addPreferencesFromResource(R.xml.prefs_screen_preferences);
 
-        final Resources res = getResources();
         final Context context = getActivity();
 
         // When we are called from the Settings application but we are not already running, some
