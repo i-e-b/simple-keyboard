@@ -24,7 +24,7 @@ public class KeyboardLayout {
 
     private static final char[][] sLowerLetters = { // LET
             {'t','c',nul,  'q','h','j',  nul,'b','e'},
-            {'r',nul,nul,  nul,'u',nul,  nul,nul,'s'},
+            {'d',nul,nul,  nul,'u',nul,  nul,nul,'s'},
             {'.',nul,nul,  nul,SYM,nul,  nul,nul,','},
 
             {'\'',nul,nul, ARL,RET,ARR,  nul,nul,'"'},
@@ -33,11 +33,11 @@ public class KeyboardLayout {
 
             {nul,nul,nul,  nul,AC1,nul,  '@',nul,nul},
             {'x',':',nul,  '!','y','?',  nul,'/','z'},
-            {'o','v',nul,  'm','n','g',  nul,'f','d'},
+            {'o','v',nul,  'm','n','g',  nul,'f','r'},
     };
     private static final char[][] sUpperLetters = { // CAP
             {'T','C',nul,  'Q','H','J',  nul,'B','E'},
-            {'R',nul,nul,  nul,'U',nul,  nul,nul,'S'},
+            {'D',nul,nul,  nul,'U',nul,  nul,nul,'S'},
             {'.',nul,nul,  nul,SYM,nul,  nul,nul,','},
 
             {'\'',nul,nul, ARL,RET,ARR,  '"',nul,nul},
@@ -46,11 +46,11 @@ public class KeyboardLayout {
 
             {nul,nul,nul,  nul,AC1,nul,  '@',nul,nul},
             {'X',':',nul,  '!','Y','?',  nul,'/','Z'},
-            {'O','V',nul,  'M','N','G',  nul,'F','D'},
+            {'O','V',nul,  'M','N','G',  nul,'F','R'},
     };
     private static final char[][] sCapsLockLetters = { // LOK
             {'T','C',nul,  'Q','H','J',  nul,'B','E'},
-            {'R',nul,nul,  nul,'U',nul,  nul,nul,'S'},
+            {'D',nul,nul,  nul,'U',nul,  nul,nul,'S'},
             {'.',nul,nul,  nul,SYM,nul,  nul,nul,','},
 
             {'\'',nul,nul, ARL,RET,ARR,  '"',nul,nul},
@@ -59,7 +59,7 @@ public class KeyboardLayout {
 
             {nul,nul,nul,  nul,AC1,nul,  '@',nul,nul},
             {'X',':',nul,  '!','Y','?',  nul,'/','Z'},
-            {'O','V',nul,  'M','N','G',  nul,'F','D'},
+            {'O','V',nul,  'M','N','G',  nul,'F','R'},
     };
     private static final char[][] sNumeric = { // NUM
             {'1',nul,nul,  nul,'3',nul,  nul,'_','5'},
@@ -173,8 +173,6 @@ public class KeyboardLayout {
             case AC1: return "äŋç";
             case AC2: return "ÃΣØ";
             case BAK: return "⇦";
-
-            case ' ': return "⊵"; // space
 
             case ARD: return "↓";
             case ARU: return "↑";
