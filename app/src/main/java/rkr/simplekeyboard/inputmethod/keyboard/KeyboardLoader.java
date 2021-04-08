@@ -26,20 +26,15 @@ import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.KeyboardParams;
 import rkr.simplekeyboard.inputmethod.latin.InputView;
 import rkr.simplekeyboard.inputmethod.latin.LatinIME;
-import rkr.simplekeyboard.inputmethod.latin.RichInputMethodManager;
-import rkr.simplekeyboard.inputmethod.latin.settings.Settings;
 import rkr.simplekeyboard.inputmethod.latin.settings.SettingsValues;
 
-import static android.content.res.Configuration.*;
+import static android.content.res.Configuration.UI_MODE_NIGHT_NO;
+import static android.content.res.Configuration.UI_MODE_NIGHT_YES;
 
 public final class KeyboardLoader {
-    private static final String TAG = KeyboardLoader.class.getSimpleName();
-
-    private int mCurrentUiMode;
     private View mMainKeyboardFrame;
     private MainKeyboardView mKeyboardView;
     private LatinIME mLatinIME;
-    private RichInputMethodManager mRichImm;
 
     @SuppressLint("StaticFieldLeak")
     private static final KeyboardLoader sInstance = new KeyboardLoader();
@@ -58,12 +53,9 @@ public final class KeyboardLoader {
 
     private void initInternal(final LatinIME latinIme) {
         mLatinIME = latinIme;
-        mRichImm = RichInputMethodManager.getInstance();
     }
 
     public void updateKeyboardTheme(final int uiMode) {
-        // TODO: do something with this
-        //UI_MODE_NIGHT_UNDEFINED, UI_MODE_NIGHT_NO or UI_MODE_NIGHT_YES.
         if ((uiMode & UI_MODE_NIGHT_YES) > 0){
             mKeyboardView.SetNightMode();
         } else if ((uiMode & UI_MODE_NIGHT_NO) > 0){
@@ -73,7 +65,7 @@ public final class KeyboardLoader {
 
     public void loadKeyboard()
     {
-        final int keyboardWidth = mLatinIME.getMaxWidth();
+        mLatinIME.getMaxWidth();
         setKeyboard();
     }
 
@@ -84,8 +76,7 @@ public final class KeyboardLoader {
     }
 
     private void setKeyboard() {
-        final SettingsValues currentSettingsValues = Settings.getInstance().getCurrent();
-        setMainKeyboardFrame(currentSettingsValues);
+        setMainKeyboardFrame();
         mKeyboardView.setKeyboard(KeyboardParams.Defaults());
     }
 
@@ -97,7 +88,7 @@ public final class KeyboardLoader {
         return settingsValues.mHasHardwareKeyboard;
     }
 
-    private void setMainKeyboardFrame(final SettingsValues settingsValues) {
+    private void setMainKeyboardFrame() {
         // TODO: we fake this so the IME is not hidden in the debugger
         //final int visibility =  isImeSuppressedByHardwareKeyboard(settingsValues) ? View.GONE : View.VISIBLE;
         mKeyboardView.setVisibility(View.VISIBLE);
@@ -119,7 +110,7 @@ public final class KeyboardLoader {
         }
     }
 
-    public View onCreateInputView(final int uiMode) {
+    public View onCreateInputView() {
         if (mKeyboardView != null) {
             mKeyboardView.closing();
         }

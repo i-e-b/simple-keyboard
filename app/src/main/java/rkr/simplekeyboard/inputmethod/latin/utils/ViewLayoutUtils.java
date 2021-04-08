@@ -30,31 +30,6 @@ public final class ViewLayoutUtils {
         // This utility class is not publicly instantiable.
     }
 
-    public static MarginLayoutParams newLayoutParam(final ViewGroup placer, final int width,
-            final int height) {
-        if (placer instanceof FrameLayout) {
-            return new FrameLayout.LayoutParams(width, height);
-        } else if (placer instanceof RelativeLayout) {
-            return new RelativeLayout.LayoutParams(width, height);
-        } else if (placer == null) {
-            throw new NullPointerException("placer is null");
-        } else {
-            throw new IllegalArgumentException("placer is neither FrameLayout nor RelativeLayout: "
-                    + placer.getClass().getName());
-        }
-    }
-
-    public static void placeViewAt(final View view, final int x, final int y, final int w,
-            final int h) {
-        final ViewGroup.LayoutParams lp = view.getLayoutParams();
-        if (lp instanceof MarginLayoutParams) {
-            final MarginLayoutParams marginLayoutParams = (MarginLayoutParams)lp;
-            marginLayoutParams.width = w;
-            marginLayoutParams.height = h;
-            marginLayoutParams.setMargins(x, y, -50, 0);
-        }
-    }
-
     public static void updateLayoutHeightOf(final Window window, final int layoutHeight) {
         final WindowManager.LayoutParams params = window.getAttributes();
         if (params != null && params.height != layoutHeight) {

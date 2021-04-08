@@ -102,8 +102,7 @@ public final class SubtypeLocaleUtils {
 
         final String[] exceptionalLocaleInRootLocale = res.getStringArray(
                 R.array.subtype_locale_displayed_in_root_locale);
-        for (int i = 0; i < exceptionalLocaleInRootLocale.length; i++) {
-            final String localeString = exceptionalLocaleInRootLocale[i];
+        for (final String localeString : exceptionalLocaleInRootLocale) {
             final String resourceName = SUBTYPE_NAME_RESOURCE_IN_ROOT_LOCALE_PREFIX + localeString;
             final int resId = res.getIdentifier(resourceName, null, RESOURCE_PACKAGE_NAME);
             sExceptionalLocaleDisplayedInRootLocale.put(localeString, resId);
@@ -111,8 +110,7 @@ public final class SubtypeLocaleUtils {
 
         final String[] exceptionalLocales = res.getStringArray(
                 R.array.subtype_locale_exception_keys);
-        for (int i = 0; i < exceptionalLocales.length; i++) {
-            final String localeString = exceptionalLocales[i];
+        for (final String localeString : exceptionalLocales) {
             final String resourceName = SUBTYPE_NAME_RESOURCE_PREFIX + localeString;
             final int resId = res.getIdentifier(resourceName, null, RESOURCE_PACKAGE_NAME);
             sExceptionalLocaleToNameIdsMap.put(localeString, resId);
@@ -233,13 +231,6 @@ public final class SubtypeLocaleUtils {
         return getSubtypeDisplayNameInternal(subtype, displayLocale);
     }
 
-    public static String getSubtypeNameForLogging(final InputMethodSubtype subtype) {
-        if (subtype == null) {
-            return "<null subtype>";
-        }
-        return getSubtypeLocale(subtype) + "/" + getKeyboardLayoutSetName(subtype);
-    }
-
     private static String getSubtypeDisplayNameInternal(final InputMethodSubtype subtype,
             final Locale displayLocale) {
         final String replacementString = getReplacementString(subtype, displayLocale);
@@ -264,11 +255,6 @@ public final class SubtypeLocaleUtils {
         };
         return StringUtils.capitalizeFirstCodePoint(
                 getSubtypeName.runInLocale(sResources, displayLocale), displayLocale);
-    }
-
-    public static Locale getSubtypeLocale(final InputMethodSubtype subtype) {
-        final String localeString = subtype.getLocale();
-        return LocaleUtils.constructLocaleFromString(localeString);
     }
 
     public static String getKeyboardLayoutSetDisplayName(

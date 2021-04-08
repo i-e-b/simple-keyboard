@@ -27,8 +27,6 @@ import android.inputmethodservice.InputMethodService;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Debug;
-import android.os.IBinder;
-import android.os.LocaleList;
 import android.os.Message;
 import android.text.InputType;
 import android.util.Log;
@@ -44,7 +42,6 @@ import android.view.inputmethod.InputMethodSubtype;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import rkr.simplekeyboard.inputmethod.compat.PreferenceManagerCompat;
@@ -82,7 +79,6 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     private View mInputView;
     private InsetsUpdater mInsetsUpdater;
 
-    private RichInputMethodManager mRichImm;
     final KeyboardLoader mKeyboardSwitcher;
 
     private AlertDialog mOptionsDialog;
@@ -114,15 +110,13 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
             switch (msg.what) {
             case MSG_UPDATE_SHIFT_STATE:
             case MSG_RESET_CACHES:
+            case MSG_SWITCH_LANGUAGE_AUTOMATICALLY:
                 break;
             case MSG_WAIT_FOR_DICTIONARY_LOAD:
                 Log.i(TAG, "Timeout waiting for dictionary load");
                 break;
             case MSG_DEALLOCATE_MEMORY:
                 latinIme.deallocateMemory();
-                break;
-            case MSG_SWITCH_LANGUAGE_AUTOMATICALLY:
-                latinIme.switchLanguage((InputMethodSubtype)msg.obj);
                 break;
             }
         }
@@ -148,10 +142,6 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
 
         public boolean hasPendingDeallocateMemory() {
             return hasMessages(MSG_DEALLOCATE_MEMORY);
-        }
-
-        public void postSwitchLanguage(final InputMethodSubtype subtype) {
-            obtainMessage(MSG_SWITCH_LANGUAGE_AUTOMATICALLY, subtype).sendToTarget();
         }
 
         // Working variables for the following methods.
@@ -259,8 +249,6 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     public void onCreate() {
         Settings.init(this);
         DebugFlags.init(PreferenceManagerCompat.getDeviceSharedPreferences(this));
-        RichInputMethodManager.init(this);
-        mRichImm = RichInputMethodManager.getInstance();
         KeyboardLoader.init(this);
         AudioAndHapticFeedbackManager.init(this);
         super.onCreate();
@@ -276,10 +264,9 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     }
 
     private void loadSettings() {
-        final Locale locale = mRichImm.getCurrentSubtypeLocale();
         final EditorInfo editorInfo = getCurrentInputEditorInfo();
         final InputAttributes inputAttributes = new InputAttributes(editorInfo, isFullscreenMode());
-        mSettings.loadSettings(this, locale, inputAttributes);
+        mSettings.loadSettings(this, null, inputAttributes);
         final SettingsValues currentSettingsValues = mSettings.getCurrent();
         AudioAndHapticFeedbackManager.getInstance().onSettingsChanged(currentSettingsValues);
     }
@@ -312,7 +299,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
 
     @Override
     public View onCreateInputView() {
-        return mKeyboardSwitcher.onCreateInputView(getResources().getConfiguration().uiMode);
+        return mKeyboardSwitcher.onCreateInputView();
     }
 
     @Override
@@ -352,37 +339,13 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     public void onCurrentInputMethodSubtypeChanged(final InputMethodSubtype subtype) {
         // Note that the calling sequence of onCreate() and onCurrentInputMethodSubtypeChanged()
         // is not guaranteed. It may even be called at the same time on a different thread.
-        mRichImm.onSubtypeChanged();
         loadKeyboard();
     }
 
     void onStartInputInternal(final EditorInfo editorInfo, final boolean restarting) {
         super.onStartInput(editorInfo, restarting);
-
-        // If the primary hint language does not match the current subtype language, then try
-        // to switch to the primary hint language.
-        final Locale primaryHintLocale = getPrimaryHintLocale(editorInfo);
-        if (primaryHintLocale == null) {
-            return;
-        }
-        final InputMethodSubtype newSubtype = mRichImm.findSubtypeByLocale(primaryHintLocale);
-        if (newSubtype == null || newSubtype.equals(mRichImm.getCurrentSubtype().getRawSubtype())) {
-            return;
-        }
-        mHandler.postSwitchLanguage(newSubtype);
     }
 
-    public static Locale getPrimaryHintLocale(final EditorInfo editorInfo) {
-        if (editorInfo == null) {
-            return null;
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            LocaleList localeList = editorInfo.hintLocales;
-            if (localeList != null && !localeList.isEmpty())
-                return localeList.get(0);
-        }
-        return null;
-    }
 
     void onStartInputViewInternal(final EditorInfo editorInfo, final boolean restarting) {
         // TODO: I've broken this, so resizing on rotation isn't working. Fix it.
@@ -390,7 +353,6 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
 
         // Switch to the null consumer to handle cases leading to early exit below, for which we
         // also wouldn't be consuming gesture data.
-        mRichImm.refreshSubtypeCaches();
         final KeyboardLoader switcher = mKeyboardSwitcher;
         switcher.updateKeyboardTheme(getResources().getConfiguration().uiMode);
 
@@ -631,11 +593,6 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
 
     private boolean isShowingOptionDialog() {
         return mOptionsDialog != null && mOptionsDialog.isShowing();
-    }
-
-    public void switchLanguage(final InputMethodSubtype subtype) {
-        final IBinder token = getWindow().getWindow().getAttributes().token;
-        mRichImm.setInputMethodAndSubtype(token, subtype);
     }
 
     // Called from PointerTracker through the KeyboardActionListener interface

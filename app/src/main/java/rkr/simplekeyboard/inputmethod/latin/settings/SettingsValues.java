@@ -25,7 +25,6 @@ import java.util.Locale;
 
 import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.latin.InputAttributes;
-import rkr.simplekeyboard.inputmethod.latin.RichInputMethodManager;
 
 /**
  * When you call the constructor of this class, you may want to change the current system locale by
@@ -93,13 +92,6 @@ public class SettingsValues {
         mUseMatchingNavbarColor = Settings.readUseMatchingNavbarColor(prefs);
     }
 
-    public boolean isLanguageSwitchKeyEnabled() {
-        if (!mShowsLanguageSwitchKey) {
-            return false;
-        }
-        final RichInputMethodManager imm = RichInputMethodManager.getInstance();
-        return imm.hasMultipleEnabledIMEsOrSubtypes(false /* include aux subtypes */);
-    }
 
     public boolean isSameInputType(final EditorInfo editorInfo) {
         return mInputAttributes.isSameInputType(editorInfo);

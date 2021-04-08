@@ -17,18 +17,14 @@
 package rkr.simplekeyboard.inputmethod.latin;
 
 import android.text.InputType;
-import android.util.Log;
 import android.view.inputmethod.EditorInfo;
 
-import rkr.simplekeyboard.inputmethod.latin.common.StringUtils;
 import rkr.simplekeyboard.inputmethod.latin.utils.InputTypeUtils;
 
 /**
  * Class to hold attributes of the input field.
  */
 public final class InputAttributes {
-    private final String TAG = InputAttributes.class.getSimpleName();
-
     final public String mTargetApplicationPackageName;
     final public boolean mInputTypeNoAutoCorrect;
     final public boolean mIsPasswordField;
@@ -44,35 +40,10 @@ public final class InputAttributes {
     public InputAttributes(final EditorInfo editorInfo, final boolean isFullscreenMode) {
         mTargetApplicationPackageName = null != editorInfo ? editorInfo.packageName : null;
         final int inputType = null != editorInfo ? editorInfo.inputType : 0;
-        int inputClass = InputType.TYPE_CLASS_TEXT;//inputType & InputType.TYPE_MASK_CLASS;
         mInputType = inputType;
         mIsPasswordField = InputTypeUtils.isPasswordInputType(inputType)
                 || InputTypeUtils.isVisiblePasswordInputType(inputType);
-        /*
-        if (inputClass != InputType.TYPE_CLASS_TEXT) {
-            // If we are not looking at a TYPE_CLASS_TEXT field, the following strange
-            // cases may arise, so we do a couple sanity checks for them. If it's a
-            // TYPE_CLASS_TEXT field, these special cases cannot happen, by construction
-            // of the flags.
-            if (null == editorInfo) {
-                Log.w(TAG, "No editor info for this field. Bug?");
-            } else if (InputType.TYPE_NULL == inputType) {
-                // TODO: We should honor TYPE_NULL specification.
-                Log.i(TAG, "InputType.TYPE_NULL is specified");
-            } else if (inputClass == 0) {
-                // TODO: is this check still necessary?
-                Log.w(TAG, String.format("Unexpected input class: inputType=0x%08x"
-                        + " imeOptions=0x%08x", inputType, editorInfo.imeOptions));
-            }
-            mShouldShowSuggestions = false;
-            mInputTypeNoAutoCorrect = false;
-            mApplicationSpecifiedCompletionOn = false;
-            mShouldInsertSpacesAutomatically = false;
-            return;
-        }
 
-         */
-        // inputClass == InputType.TYPE_CLASS_TEXT
         final int variation = inputType & InputType.TYPE_MASK_VARIATION;
         final boolean flagNoSuggestions =
                 0 != (inputType & InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
@@ -107,10 +78,6 @@ public final class InputAttributes {
         mApplicationSpecifiedCompletionOn = flagAutoComplete && isFullscreenMode;
     }
 
-    public boolean isTypeNull() {
-        return InputType.TYPE_NULL == mInputType;
-    }
-
     public boolean isSameInputType(final EditorInfo editorInfo) {
         return editorInfo.inputType == mInputType;
     }
@@ -129,10 +96,4 @@ public final class InputAttributes {
                 mTargetApplicationPackageName);
     }
 
-    public static boolean inPrivateImeOptions(final String packageName, final String key,
-            final EditorInfo editorInfo) {
-        if (editorInfo == null) return false;
-        final String findingKey = (packageName != null) ? packageName + "." + key : key;
-        return StringUtils.containsInCommaSplittableText(findingKey, editorInfo.privateImeOptions);
-    }
 }

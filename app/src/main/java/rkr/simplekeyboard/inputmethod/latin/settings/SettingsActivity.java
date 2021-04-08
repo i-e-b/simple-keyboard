@@ -25,10 +25,12 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
 
+import java.util.List;
+
 import rkr.simplekeyboard.inputmethod.R;
-import rkr.simplekeyboard.inputmethod.latin.RichInputMethodManager;
 import rkr.simplekeyboard.inputmethod.latin.utils.FragmentUtils;
 
 public class SettingsActivity extends PreferenceActivity {
@@ -42,8 +44,15 @@ public class SettingsActivity extends PreferenceActivity {
         boolean enabled = false;
         try {
             InputMethodManager immService = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            RichInputMethodManager.InputMethodInfoCache inputMethodInfoCache = new RichInputMethodManager.InputMethodInfoCache(immService, getPackageName());
-            enabled = inputMethodInfoCache.isInputMethodOfThisImeEnabled();
+            List<InputMethodInfo> enabledList = immService.getEnabledInputMethodList();
+            String myPackageName = getPackageName();
+
+            for (int i=0; i < enabledList.size(); i++){
+                if (enabledList.get(i).getPackageName().equals(myPackageName)) {
+                    enabled=true;
+                    break;
+                }
+            }
         } catch (Exception e) {
             Log.e(TAG, "Exception in check if input method is enabled", e);
         }

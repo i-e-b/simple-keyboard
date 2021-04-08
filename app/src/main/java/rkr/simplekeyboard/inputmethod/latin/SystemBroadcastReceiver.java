@@ -23,7 +23,7 @@ import android.util.Log;
 
 /**
  * When the system locale has been changed, {@link Intent#ACTION_LOCALE_CHANGED} is received by
- * this receiver and the {@link KeyboardLayoutSet}'s cache is cleared.
+ * this receiver.
  */
 public final class SystemBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = SystemBroadcastReceiver.class.getSimpleName();

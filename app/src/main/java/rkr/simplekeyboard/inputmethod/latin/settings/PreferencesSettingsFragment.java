@@ -23,7 +23,6 @@ import android.os.Bundle;
 
 import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.latin.AudioAndHapticFeedbackManager;
-import rkr.simplekeyboard.inputmethod.latin.RichInputMethodManager;
 
 /**
  * "Preferences" settings sub screen.
@@ -42,12 +41,9 @@ public final class PreferencesSettingsFragment extends SubScreenFragment {
         super.onCreate(icicle);
         addPreferencesFromResource(R.xml.prefs_screen_preferences);
 
-        final Context context = getActivity();
-
         // When we are called from the Settings application but we are not already running, some
         // singleton and utility classes may not have been initialized.  We have to call
         // initialization method of these classes here. See {@link LatinIME#onCreate()}.
-        RichInputMethodManager.init(context);
 
         if (!AudioAndHapticFeedbackManager.getInstance().hasVibrator()) {
             removePreference(Settings.PREF_VIBRATE_ON);
