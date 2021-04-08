@@ -14,12 +14,13 @@ public class KeyboardLayout {
     public static final char ARD = '\uE004';
 
     // mode switches (private use chars above 0xE100)
-    public static final char SYM = '\uE101';
-    public static final char LET = '\uE102';
-    public static final char NUM = '\uE103';
-    public static final char CAP = '\uE104';
-    public static final char AC1 = '\uE105';
-    public static final char AC2 = '\uE106';
+    public static final char SYM = '\uE101'; // extra symbols
+    public static final char LET = '\uE102'; // lowercase letters
+    public static final char NUM = '\uE103'; // numbers and basic symbols
+    public static final char CAP = '\uE104'; // Single cap (then return to lowercase)
+    public static final char LOK = '\uE105'; // Lock caps
+    public static final char AC1 = '\uE106'; // Accents 1
+    public static final char AC2 = '\uE107'; // Accents 2
 
     private static final char[][] sLowerLetters = { // LET
             {'t','c',nul,  'q','h','j',  nul,'b','e'},
@@ -35,6 +36,19 @@ public class KeyboardLayout {
             {'o','v',nul,  'm','n','g',  nul,'f','d'},
     };
     private static final char[][] sUpperLetters = { // CAP
+            {'T','C',nul,  'Q','H','J',  nul,'B','E'},
+            {'R',nul,nul,  nul,'U',nul,  nul,nul,'S'},
+            {'.',nul,nul,  nul,SYM,nul,  nul,nul,','},
+
+            {'\'',nul,nul, ARL,RET,ARR,  '"',nul,nul},
+            {'I','K',nul,  NUM,' ',LOK,  nul,'W','A'},
+            {'P',nul,nul,  ARU,BAK,ARD,  nul,nul,'L'},
+
+            {nul,nul,nul,  nul,AC1,nul,  '@',nul,nul},
+            {'X',':',nul,  '!','Y','?',  nul,'/','Z'},
+            {'O','V',nul,  'M','N','G',  nul,'F','D'},
+    };
+    private static final char[][] sCapsLockLetters = { // LOK
             {'T','C',nul,  'Q','H','J',  nul,'B','E'},
             {'R',nul,nul,  nul,'U',nul,  nul,nul,'S'},
             {'.',nul,nul,  nul,SYM,nul,  nul,nul,','},
@@ -107,10 +121,10 @@ public class KeyboardLayout {
     private static char sCurrentMode = LET;
 
     public static char[][] CurrentLayout(){
-        // TODO: actual modes
         switch (sCurrentMode){
             case LET: return sLowerLetters;
             case CAP: return sUpperLetters;
+            case LOK: return sCapsLockLetters;
             case NUM: return sNumeric;
             case AC1: return sAccents1;
             case AC2: return sAccents2;
@@ -152,11 +166,12 @@ public class KeyboardLayout {
 
             case RET: return "↲";
             case SYM: return "∑$µ";
-            case CAP: return "ABC";
+            case CAP: return "Abc";
+            case LOK: return "ABC";
             case LET: return "abc";
             case NUM: return "123";
-            case AC1: return "Áßç";
-            case AC2: return "źΦω";
+            case AC1: return "äŋç";
+            case AC2: return "ÃΣØ";
             case BAK: return "⇦";
 
             case ' ': return "⊵"; // space
@@ -193,7 +208,11 @@ public class KeyboardLayout {
     public static char TouchUp(int xi, int yi){
         int qy = sQuadrantY;
         int qx = sQuadrantX;
-        return CurrentLayout()[qy+yi][qx+xi];
+        char result = CurrentLayout()[qy+yi][qx+xi];
+
+        if (sCurrentMode == CAP) sCurrentMode = LET; // drop out of single cap mode
+
+        return result;
     }
 
     private static final int[] NoKey = new int[]{-1,-1};
