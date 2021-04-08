@@ -91,7 +91,7 @@ public final class RichInputConnection {
      * This variable is a temporary object used in {@link #commitText(CharSequence,int)}
      * to avoid object creation.
      */
-    private SpannableStringBuilder mTempObjectForCommitText = new SpannableStringBuilder();
+    private final SpannableStringBuilder mTempObjectForCommitText = new SpannableStringBuilder();
 
     private final InputMethodService mParent;
     private InputConnection mIC;
@@ -156,7 +156,7 @@ public final class RichInputConnection {
     }
 
     public void endBatchEdit() {
-        if (mNestLevel <= 0) Log.e(TAG, "Batch edit not in progress!"); // TODO: exception instead
+        if (mNestLevel <= 0) Log.e(TAG, "Batch edit not in progress!");
         if (--mNestLevel == 0 && isConnected()) {
             mIC.endBatchEdit();
         }
@@ -220,22 +220,8 @@ public final class RichInputConnection {
 
     private void checkBatchEdit() {
         if (mNestLevel != 1) {
-            // TODO: exception instead
             Log.e(TAG, "Batch edit level incorrect : " + mNestLevel);
             Log.e(TAG, DebugLogUtils.getStackTrace(4));
-        }
-    }
-
-    public void finishComposingText() {
-        if (DEBUG_BATCH_NESTING) checkBatchEdit();
-        if (DEBUG_PREVIOUS_TEXT) checkConsistencyForDebug();
-        // TODO: this is not correct! The cursor is not necessarily after the composing text.
-        // In the practice right now this is only called when input ends so it will be reset so
-        // it works, but it's wrong and should be fixed.
-        mCommittedTextBeforeComposingText.append(mComposingText);
-        mComposingText.setLength(0);
-        if (isConnected()) {
-            mIC.finishComposingText();
         }
     }
 
@@ -283,18 +269,8 @@ public final class RichInputConnection {
         }
     }
 
-    public CharSequence getSelectedText(final int flags) {
-        return isConnected() ?  mIC.getSelectedText(flags) : null;
-    }
-
     public boolean canDeleteCharacters() {
         return mExpectedSelStart > 0;
-    }
-
-    public int getCodePointBeforeCursor() {
-        final int length = mCommittedTextBeforeComposingText.length();
-        if (length < 1) return Constants.NOT_A_CODE;
-        return Character.codePointBefore(mCommittedTextBeforeComposingText, length);
     }
 
     public CharSequence getTextBeforeCursor(final int n, final int flags) {
@@ -347,43 +323,6 @@ public final class RichInputConnection {
         }
     }
 
-    public void deleteTextBeforeCursor(final int beforeLength) {
-        if (DEBUG_BATCH_NESTING) checkBatchEdit();
-        // TODO: the following is incorrect if the cursor is not immediately after the composition.
-        // Right now we never come here in this case because we reset the composing state before we
-        // come here in this case, but we need to fix this.
-        final int remainingChars = mComposingText.length() - beforeLength;
-        if (remainingChars >= 0) {
-            mComposingText.setLength(remainingChars);
-        } else {
-            mComposingText.setLength(0);
-            // Never cut under 0
-            final int len = Math.max(mCommittedTextBeforeComposingText.length()
-                    + remainingChars, 0);
-            mCommittedTextBeforeComposingText.setLength(len);
-        }
-        if (mExpectedSelStart > beforeLength) {
-            mExpectedSelStart -= beforeLength;
-            mExpectedSelEnd -= beforeLength;
-        } else {
-            // There are fewer characters before the cursor in the buffer than we are being asked to
-            // delete. Only delete what is there, and update the end with the amount deleted.
-            mExpectedSelEnd -= mExpectedSelStart;
-            mExpectedSelStart = 0;
-        }
-        if (isConnected()) {
-            mIC.deleteSurroundingText(beforeLength, 0);
-        }
-        if (DEBUG_PREVIOUS_TEXT) checkConsistencyForDebug();
-    }
-
-    public void performEditorAction(final int actionId) {
-        mIC = mParent.getCurrentInputConnection();
-        if (isConnected()) {
-            mIC.performEditorAction(actionId);
-        }
-    }
-
     public void sendKeyEvent(final KeyEvent keyEvent) {
         if (DEBUG_BATCH_NESTING) checkBatchEdit();
         if (keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
@@ -414,7 +353,6 @@ public final class RichInputConnection {
                 }
 
                 if (mExpectedSelStart > 0 && mExpectedSelStart == mExpectedSelEnd) {
-                    // TODO: Handle surrogate pairs.
                     mExpectedSelStart -= 1;
                 }
                 mExpectedSelEnd = mExpectedSelStart;
@@ -441,49 +379,6 @@ public final class RichInputConnection {
         if (isConnected()) {
             mIC.sendKeyEvent(keyEvent);
         }
-    }
-
-    /**
-     * Set the selection of the text editor.
-     *
-     * Calls through to {@link InputConnection#setSelection(int, int)}.
-     *
-     * @param start the character index where the selection should start.
-     * @param end the character index where the selection should end.
-     * @return Returns true on success, false on failure: either the input connection is no longer
-     * valid when setting the selection or when retrieving the text cache at that point, or
-     * invalid arguments were passed.
-     */
-    public boolean setSelection(final int start, final int end) {
-        if (DEBUG_BATCH_NESTING) checkBatchEdit();
-        if (DEBUG_PREVIOUS_TEXT) checkConsistencyForDebug();
-        if (start < 0 || end < 0) {
-            return false;
-        }
-        mExpectedSelStart = start;
-        mExpectedSelEnd = end;
-        if (isConnected()) {
-            final boolean isIcValid = mIC.setSelection(start, end);
-            if (!isIcValid) {
-                return false;
-            }
-        }
-        return reloadTextCache();
-    }
-
-    public int getExpectedSelectionStart() {
-        return mExpectedSelStart;
-    }
-
-    public int getExpectedSelectionEnd() {
-        return mExpectedSelEnd;
-    }
-
-    /**
-     * @return whether there is a selection currently active.
-     */
-    public boolean hasSelection() {
-        return mExpectedSelEnd != mExpectedSelStart;
     }
 
     public boolean hasCursorPosition() {

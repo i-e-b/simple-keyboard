@@ -58,7 +58,6 @@ public final class Constants {
 
 
     public static final int NOT_A_CODE = -1;
-    public static final int NOT_A_COORDINATE = -1;
 
     // A hint on how many characters to cache from the TextView. A good value of this is given by
     // how many characters we need to be able to almost always find the caps mode.
@@ -70,7 +69,6 @@ public final class Constants {
      */
     public static final int CODE_ENTER = '\n';
     public static final int CODE_SPACE = ' ';
-    public static final int CODE_PERIOD = '.';
     public static final int CODE_SINGLE_QUOTE = '\'';
     public static final int CODE_DOUBLE_QUOTE = '"';
     public static final int CODE_INVERTED_QUESTION_MARK = 0xBF; // ¿
@@ -79,7 +77,6 @@ public final class Constants {
     /**
      * Special keys code. Must be negative.
      */
-    public static final int CODE_OUTPUT_TEXT = -4;
     public static final int CODE_DELETE = -5;
 
     private Constants() {

@@ -33,10 +33,6 @@ public final class CoordinateUtils {
         return coords[INDEX_X];
     }
 
-    public static int y(final int[] coords) {
-        return coords[INDEX_Y];
-    }
-
     public static void set(final int[] coords, final int x, final int y) {
         coords[INDEX_X] = x;
         coords[INDEX_Y] = y;

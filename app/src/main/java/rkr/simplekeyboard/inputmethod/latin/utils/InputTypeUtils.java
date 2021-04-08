@@ -17,7 +17,6 @@
 package rkr.simplekeyboard.inputmethod.latin.utils;
 
 import android.text.InputType;
-import android.view.inputmethod.EditorInfo;
 
 public final class InputTypeUtils implements InputType {
     private static final int WEB_TEXT_PASSWORD_INPUT_TYPE =
@@ -33,20 +32,17 @@ public final class InputTypeUtils implements InputType {
         InputType.TYPE_TEXT_VARIATION_PASSWORD,
         InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD,
         InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD };
-    public static final int IME_ACTION_CUSTOM_LABEL = EditorInfo.IME_MASK_ACTION + 1;
 
     private InputTypeUtils() {
         // This utility class is not publicly instantiable.
     }
 
     private static boolean isWebPasswordInputType(final int inputType) {
-        return WEB_TEXT_PASSWORD_INPUT_TYPE != 0
-                && inputType == WEB_TEXT_PASSWORD_INPUT_TYPE;
+        return inputType == WEB_TEXT_PASSWORD_INPUT_TYPE;
     }
 
     private static boolean isNumberPasswordInputType(final int inputType) {
-        return NUMBER_PASSWORD_INPUT_TYPE != 0
-                && inputType == NUMBER_PASSWORD_INPUT_TYPE;
+        return inputType == NUMBER_PASSWORD_INPUT_TYPE;
     }
 
     private static boolean isTextPasswordInputType(final int inputType) {
@@ -86,14 +82,4 @@ public final class InputTypeUtils implements InputType {
         return true;
     }
 
-    public static int getImeOptionsActionIdFromEditorInfo(final EditorInfo editorInfo) {
-        if ((editorInfo.imeOptions & EditorInfo.IME_FLAG_NO_ENTER_ACTION) != 0) {
-            return EditorInfo.IME_ACTION_NONE;
-        } else if (editorInfo.actionLabel != null) {
-            return IME_ACTION_CUSTOM_LABEL;
-        } else {
-            // Note: this is different from editorInfo.actionId, hence "ImeOptionsActionId"
-            return editorInfo.imeOptions & EditorInfo.IME_MASK_ACTION;
-        }
-    }
 }

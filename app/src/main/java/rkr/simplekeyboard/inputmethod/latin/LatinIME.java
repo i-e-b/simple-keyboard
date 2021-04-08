@@ -23,7 +23,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.inputmethodservice.InputMethodService;
 import android.media.AudioManager;
 import android.os.Build;
@@ -48,12 +47,9 @@ import java.io.PrintWriter;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.compat.PreferenceManagerCompat;
 import rkr.simplekeyboard.inputmethod.compat.ViewOutlineProviderCompatUtils;
 import rkr.simplekeyboard.inputmethod.compat.ViewOutlineProviderCompatUtils.InsetsUpdater;
-import rkr.simplekeyboard.inputmethod.event.Event;
-import rkr.simplekeyboard.inputmethod.event.InputTransaction;
 import rkr.simplekeyboard.inputmethod.keyboard.KeyboardActionListener;
 import rkr.simplekeyboard.inputmethod.keyboard.KeyboardLoader;
 import rkr.simplekeyboard.inputmethod.keyboard.MainKeyboardView;
@@ -102,20 +98,11 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         private static final int MSG_DEALLOCATE_MEMORY = 9;
         private static final int MSG_SWITCH_LANGUAGE_AUTOMATICALLY = 11;
 
-        private int mDelayInMillisecondsToUpdateShiftState;
-
         public UIHandler(final LatinIME ownerInstance) {
             super(ownerInstance);
         }
 
         public void onCreate() {
-            final LatinIME latinIme = getOwnerInstance();
-            if (latinIme == null) {
-                return;
-            }
-            final Resources res = latinIme.getResources();
-            mDelayInMillisecondsToUpdateShiftState = res.getInteger(
-                    R.integer.config_delay_in_milliseconds_to_update_shift_state);
         }
 
         @Override
@@ -126,7 +113,6 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
             }
             switch (msg.what) {
             case MSG_UPDATE_SHIFT_STATE:
-                break;
             case MSG_RESET_CACHES:
                 break;
             case MSG_WAIT_FOR_DICTIONARY_LOAD:
@@ -149,12 +135,6 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
             removeMessages(MSG_RESET_CACHES);
             sendMessage(obtainMessage(MSG_RESET_CACHES, tryResumeSuggestions ? 1 : 0,
                     remainingTries, null));
-        }
-
-        public void postUpdateShiftState() {
-            removeMessages(MSG_UPDATE_SHIFT_STATE);
-            sendMessageDelayed(obtainMessage(MSG_UPDATE_SHIFT_STATE),
-                    mDelayInMillisecondsToUpdateShiftState);
         }
 
         public void postDeallocateMemory() {
@@ -372,7 +352,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     public void onCurrentInputMethodSubtypeChanged(final InputMethodSubtype subtype) {
         // Note that the calling sequence of onCreate() and onCurrentInputMethodSubtypeChanged()
         // is not guaranteed. It may even be called at the same time on a different thread.
-        mRichImm.onSubtypeChanged(subtype);
+        mRichImm.onSubtypeChanged();
         loadKeyboard();
     }
 
@@ -661,20 +641,9 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     // Called from PointerTracker through the KeyboardActionListener interface
     @Override
     public void onTextInput(final String rawText) {
-        final Event event = Event.createSoftwareTextEvent(rawText, Constants.CODE_OUTPUT_TEXT);
-        final InputTransaction completeInputTransaction = onTextInputInternal(mSettings.getCurrent(), event);
-        updateStateAfterInputTransaction(completeInputTransaction);
-    }
-
-    public InputTransaction onTextInputInternal(final SettingsValues settingsValues, final Event event) {
-        final String text = event.getTextToCommit().toString();
-        final InputTransaction inputTransaction = new InputTransaction(settingsValues);
         mConnection.beginBatchEdit();
-        mConnection.commitText(text, 1);
+        mConnection.commitText(rawText, 1);
         mConnection.endBatchEdit();
-        // Space state must be updated before calling updateShiftState
-        inputTransaction.requireShiftUpdate(InputTransaction.SHIFT_UPDATE_NOW);
-        return inputTransaction;
     }
 
     private void loadKeyboard() {
@@ -688,23 +657,6 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         if (mKeyboardSwitcher.getMainKeyboardView() != null) {
             // Reload keyboard because the current language has been changed.
             mKeyboardSwitcher.loadKeyboard();
-        }
-    }
-
-    /**
-     * After an input transaction has been executed, some state must be updated. This includes
-     * the shift state of the keyboard and suggestions. This method looks at the finished
-     * inputTransaction to find out what is necessary and updates the state accordingly.
-     * @param inputTransaction The transaction that has been executed.
-     */
-    private void updateStateAfterInputTransaction(final InputTransaction inputTransaction) {
-        switch (inputTransaction.getRequiredShiftUpdate()) {
-        case InputTransaction.SHIFT_UPDATE_LATER:
-            mHandler.postUpdateShiftState();
-            break;
-        case InputTransaction.SHIFT_UPDATE_NOW:
-            break;
-        default: // SHIFT_NO_UPDATE
         }
     }
 
