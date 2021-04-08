@@ -17,18 +17,17 @@
 package rkr.simplekeyboard.inputmethod.latin.settings;
 
 import android.os.Bundle;
+import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 
 import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.latin.utils.ApplicationUtils;
 
-public final class SettingsFragment extends InputMethodSettingsFragment {
+public final class SettingsFragment extends PreferenceFragment {
     @Override
     public void onCreate(final Bundle icicle) {
         super.onCreate(icicle);
         setHasOptionsMenu(true);
-        setInputMethodSettingsCategoryTitle(R.string.language_selection_title);
-        setSubtypeEnablerTitle("Whozits?"/*R.string.select_language*/);
         addPreferencesFromResource(R.xml.prefs);
         final PreferenceScreen preferenceScreen = getPreferenceScreen();
         preferenceScreen.setTitle(

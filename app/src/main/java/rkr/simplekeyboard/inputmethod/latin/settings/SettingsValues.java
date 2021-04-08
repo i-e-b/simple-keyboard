@@ -35,8 +35,6 @@ import rkr.simplekeyboard.inputmethod.latin.RichInputMethodManager;
 public class SettingsValues {
     public static final float DEFAULT_SIZE_SCALE = 1.0f; // 100%
 
-    // From resources:
-    public final SpacingAndPunctuations mSpacingAndPunctuations;
     // From configuration:
     public final Locale mLocale;
     public final boolean mHasHardwareKeyboard;
@@ -69,8 +67,6 @@ public class SettingsValues {
     public SettingsValues(final SharedPreferences prefs, final Resources res,
             final InputAttributes inputAttributes) {
         mLocale = res.getConfiguration().locale;
-        // Get the resources
-        mSpacingAndPunctuations = new SpacingAndPunctuations(res);
 
         // Store the input attributes
         mInputAttributes = inputAttributes;
@@ -95,10 +91,6 @@ public class SettingsValues {
         mSpaceSwipeEnabled = Settings.readSpaceSwipeEnabled(prefs);
         mDeleteSwipeEnabled = Settings.readDeleteSwipeEnabled(prefs);
         mUseMatchingNavbarColor = Settings.readUseMatchingNavbarColor(prefs);
-    }
-
-    public boolean isWordSeparator(final int code) {
-        return mSpacingAndPunctuations.isWordSeparator(code);
     }
 
     public boolean isLanguageSwitchKeyEnabled() {

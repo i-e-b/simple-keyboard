@@ -19,7 +19,6 @@ package rkr.simplekeyboard.inputmethod.latin;
 import android.inputmethodservice.InputMethodService;
 import android.os.SystemClock;
 import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
 import android.text.style.CharacterStyle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -30,8 +29,6 @@ import android.view.inputmethod.InputConnection;
 import rkr.simplekeyboard.inputmethod.latin.common.Constants;
 import rkr.simplekeyboard.inputmethod.latin.common.StringUtils;
 import rkr.simplekeyboard.inputmethod.latin.common.UnicodeSurrogate;
-import rkr.simplekeyboard.inputmethod.latin.settings.SpacingAndPunctuations;
-import rkr.simplekeyboard.inputmethod.latin.utils.CapsModeUtils;
 import rkr.simplekeyboard.inputmethod.latin.utils.DebugLogUtils;
 
 /**
@@ -292,48 +289,6 @@ public final class RichInputConnection {
 
     public boolean canDeleteCharacters() {
         return mExpectedSelStart > 0;
-    }
-
-    /**
-     * Gets the caps modes we should be in after this specific string.
-     *
-     * This returns a bit set of TextUtils#CAP_MODE_*, masked by the inputType argument.
-     * This method also supports faking an additional space after the string passed in argument,
-     * to support cases where a space will be added automatically, like in phantom space
-     * state for example.
-     * Note that for English, we are using American typography rules (which are not specific to
-     * American English, it's just the most common set of rules for English).
-     *
-     * @param inputType a mask of the caps modes to test for.
-     * @param spacingAndPunctuations the values of the settings to use for locale and separators.
-     * @return the caps modes that should be on as a set of bits
-     */
-    public int getCursorCapsMode(final int inputType, final SpacingAndPunctuations spacingAndPunctuations) {
-        mIC = mParent.getCurrentInputConnection();
-        if (!isConnected()) {
-            return Constants.TextUtils.CAP_MODE_OFF;
-        }
-        if (!TextUtils.isEmpty(mComposingText)) {
-            // We have some composing text - we should be in MODE_CHARACTERS only.
-            return TextUtils.CAP_MODE_CHARACTERS & inputType;
-        }
-        // TODO: this will generally work, but there may be cases where the buffer contains SOME
-        // information but not enough to determine the caps mode accurately. This may happen after
-        // heavy pressing of delete, for example DEFAULT_TEXT_CACHE_SIZE - 5 times or so.
-        // getCapsMode should be updated to be able to return a "not enough info" result so that
-        // we can get more context only when needed.
-        if (TextUtils.isEmpty(mCommittedTextBeforeComposingText) && 0 != mExpectedSelStart) {
-            if (!reloadTextCache()) {
-                Log.w(TAG, "Unable to connect to the editor. "
-                        + "Setting caps mode without knowing text.");
-            }
-        }
-        // This never calls InputConnection#getCapsMode - in fact, it's a static method that
-        // never blocks or initiates IPC.
-        // TODO: don't call #toString() here. Instead, all accesses to
-        // mCommittedTextBeforeComposingText should be done on the main thread.
-        return CapsModeUtils.getCapsMode(mCommittedTextBeforeComposingText.toString(), inputType,
-                spacingAndPunctuations);
     }
 
     public int getCodePointBeforeCursor() {
