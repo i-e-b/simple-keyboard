@@ -223,7 +223,9 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
 
         // get the key and send it
         char result = KeyboardLayout.TouchUp((x*3) / lastDrawWidth,(y*3) / lastDrawHeight);
-        if (KeyboardLayout.IsInternal(result)) {
+        if (result == KeyboardLayout.nul) {
+            // nothing- most likely out-of-bounds, or an empty slot
+        } else if (KeyboardLayout.IsInternal(result)) {
             KeyboardLayout.SwitchMode(result);
         } else if (KeyboardLayout.IsSimple(result)) {
             sListener.onTextInput("" + result);

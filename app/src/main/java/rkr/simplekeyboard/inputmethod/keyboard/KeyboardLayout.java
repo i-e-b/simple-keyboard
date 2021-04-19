@@ -24,8 +24,8 @@ public class KeyboardLayout {
 
     private static final char[][] sLowerLetters = { // LET
             {'t','c',nul,  'q','h','j',  nul,'b','e'},
-            {'d',nul,nul,  nul,'u',nul,  nul,nul,'s'},
-            {'.',nul,nul,  nul,SYM,nul,  nul,nul,','},
+            {'d','.',nul,  nul,'u',nul,  nul,',','s'},
+            {nul,nul,nul,  nul,SYM,nul,  nul,nul,nul},
 
             {'\'',nul,nul, ARL,RET,ARR,  nul,nul,'"'},
             {'i','k',nul,  NUM,' ',CAP,  nul,'w','a'},
@@ -37,8 +37,8 @@ public class KeyboardLayout {
     };
     private static final char[][] sUpperLetters = { // CAP
             {'T','C',nul,  'Q','H','J',  nul,'B','E'},
-            {'D',nul,nul,  nul,'U',nul,  nul,nul,'S'},
-            {'.',nul,nul,  nul,SYM,nul,  nul,nul,','},
+            {'D','.',nul,  nul,'U',nul,  nul,',','S'},
+            {nul,nul,nul,  nul,SYM,nul,  nul,nul,nul},
 
             {'\'',nul,nul, ARL,RET,ARR,  '"',nul,nul},
             {'I','K',nul,  NUM,' ',LOK,  nul,'W','A'},
@@ -50,8 +50,8 @@ public class KeyboardLayout {
     };
     private static final char[][] sCapsLockLetters = { // LOK
             {'T','C',nul,  'Q','H','J',  nul,'B','E'},
-            {'D',nul,nul,  nul,'U',nul,  nul,nul,'S'},
-            {'.',nul,nul,  nul,SYM,nul,  nul,nul,','},
+            {'D','.',nul,  nul,'U',nul,  nul,',','S'},
+            {nul,nul,nul,  nul,SYM,nul,  nul,nul,nul},
 
             {'\'',nul,nul, ARL,RET,ARR,  '"',nul,nul},
             {'I','K',nul,  NUM,' ',LET,  nul,'W','A'},
@@ -190,8 +190,8 @@ public class KeyboardLayout {
      */
     public static void TouchDown(int xi, int yi)
     {
-        if (xi >= 0 && xi < 3) sQuadrantX = xi * 3;
-        if (yi >= 0 && yi < 3) sQuadrantY = yi * 3;
+        if (xi >= 0 && xi < 3) sQuadrantX = xi * 3; else sQuadrantX = -1;
+        if (yi >= 0 && yi < 3) sQuadrantY = yi * 3; else sQuadrantY = -1;
     }
 
     public static int sQuadrantY = 0;
@@ -204,6 +204,9 @@ public class KeyboardLayout {
      * @param yi y index 0..2
      */
     public static char TouchUp(int xi, int yi){
+        if (sQuadrantX < 0 || xi < 0 || xi >= 3) return nul;
+        if (sQuadrantY < 0 || yi < 0 || yi >= 3) return nul;
+
         int qy = sQuadrantY;
         int qx = sQuadrantX;
         char result = CurrentLayout()[qy+yi][qx+xi];
