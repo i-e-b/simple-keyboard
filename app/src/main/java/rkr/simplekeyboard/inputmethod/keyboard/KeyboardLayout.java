@@ -22,6 +22,8 @@ public class KeyboardLayout {
     public static final char AC1 = '\uE106'; // Accents 1
     public static final char AC2 = '\uE107'; // Accents 2
 
+    // TODO - Make switching page a whole page to itself
+
     private static final char[][] sLowerLetters = { // LET
             {'t','c',nul,  'q','h','j',  nul,'b','e'},
             {'d','.',nul,  nul,'u',nul,  nul,',','s'},
@@ -33,7 +35,7 @@ public class KeyboardLayout {
 
             {nul,nul,nul,  nul,AC1,nul,  '@',nul,nul},
             {'x',':',nul,  '!','y','?',  nul,'/','z'},
-            {'o','v',nul,  'm','n','g',  nul,'f','r'},
+            {'o','v','-',  'm','n','g',  nul,'f','r'},
     };
     private static final char[][] sUpperLetters = { // CAP
             {'T','C',nul,  'Q','H','J',  nul,'B','E'},
@@ -46,7 +48,7 @@ public class KeyboardLayout {
 
             {nul,nul,nul,  nul,AC1,nul,  '@',nul,nul},
             {'X',':',nul,  '!','Y','?',  nul,'/','Z'},
-            {'O','V',nul,  'M','N','G',  nul,'F','R'},
+            {'O','V','-',  'M','N','G',  nul,'F','R'},
     };
     private static final char[][] sCapsLockLetters = { // LOK
             {'T','C',nul,  'Q','H','J',  nul,'B','E'},
@@ -59,10 +61,10 @@ public class KeyboardLayout {
 
             {nul,nul,nul,  nul,AC1,nul,  '@',nul,nul},
             {'X',':',nul,  '!','Y','?',  nul,'/','Z'},
-            {'O','V',nul,  'M','N','G',  nul,'F','R'},
+            {'O','V','-',  'M','N','G',  nul,'F','R'},
     };
     private static final char[][] sNumeric = { // NUM
-            {'1',nul,nul,  nul,'3',nul,  nul,'_','5'},
+            {'1','=',nul,  nul,'3',nul,  nul,'_','5'},
             {'2',nul,nul,  nul,'4',nul,  nul,nul,'6'},
             {'#','×','%',  nul,SYM,nul,  '‹','›','÷'},
 
@@ -190,8 +192,14 @@ public class KeyboardLayout {
      */
     public static void TouchDown(int xi, int yi)
     {
-        if (xi >= 0 && xi < 3) sQuadrantX = xi * 3; else sQuadrantX = -1;
-        if (yi >= 0 && yi < 3) sQuadrantY = yi * 3; else sQuadrantY = -1;
+        if (xi >= 0 && xi < 3) sQuadrantX = xi * 3;
+        else if (xi >= 3) sQuadrantX = 9; // allow running off the end?
+        else sQuadrantX = 0;
+
+
+        if (yi >= 0 && yi < 3) sQuadrantY = yi * 3;
+        else if (yi >= 3) sQuadrantX = 9;
+        else sQuadrantY = 0;
     }
 
     public static int sQuadrantY = 0;
@@ -204,8 +212,12 @@ public class KeyboardLayout {
      * @param yi y index 0..2
      */
     public static char TouchUp(int xi, int yi){
-        if (sQuadrantX < 0 || xi < 0 || xi >= 3) return nul;
-        if (sQuadrantY < 0 || yi < 0 || yi >= 3) return nul;
+        if (sQuadrantX < 0) return nul;// || xi < 0 || xi >= 3) return nul;
+        if (sQuadrantY < 0) return nul;// || yi < 0 || yi >= 3) return nul;
+
+        // try limiting rather than rejecting?
+        if (xi<0) xi=0; if (xi >=3) xi=2;
+        if (yi<0) yi=0; if (yi >=3) yi=2;
 
         int qy = sQuadrantY;
         int qx = sQuadrantX;
