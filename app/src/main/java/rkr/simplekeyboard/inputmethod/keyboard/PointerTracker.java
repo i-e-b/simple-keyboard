@@ -23,6 +23,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.keyboard.internal.DrawingProxy;
@@ -138,7 +139,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
     public void processMotionEvent(final MotionEvent me) {
         final int action = me.getActionMasked();
         final long eventTime = me.getEventTime();
-        if (action == MotionEvent.ACTION_MOVE) {
+        /*if (action == MotionEvent.ACTION_MOVE) {
             // When this pointer is the only active pointer and is showing a more keys panel,
             // we should ignore other pointers' motion event.
             final boolean shouldIgnoreOtherPointers = getActivePointerTrackerCount() == 1;
@@ -154,22 +155,25 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
                 tracker.onMoveEvent(x, y, eventTime);
             }
             return;
-        }
+        }*/
         final int index = me.getActionIndex();
         final int x = (int)me.getX(index);
         final int y = (int)me.getY(index);
         switch (action) {
-        case MotionEvent.ACTION_DOWN:
-        case MotionEvent.ACTION_POINTER_DOWN:
-            onDownEvent(x, y, eventTime);
-            break;
-        case MotionEvent.ACTION_UP:
-        case MotionEvent.ACTION_POINTER_UP:
-            onUpEvent(x, y, eventTime);
-            break;
-        case MotionEvent.ACTION_CANCEL:
-            onCancelEvent(x, y, eventTime);
-            break;
+            case MotionEvent.ACTION_MOVE:
+                onMoveEvent(x,y,eventTime);
+                break;
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_POINTER_DOWN:
+                onDownEvent(x, y, eventTime);
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_POINTER_UP:
+                onUpEvent(x, y, eventTime);
+                break;
+            case MotionEvent.ACTION_CANCEL:
+                onCancelEvent(x, y, eventTime);
+                break;
         }
     }
 
@@ -178,7 +182,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
             printTouchEvent("onDownEvent:", x, y, eventTime);
         }
         // Naive up-to-down noise filter.
-        if (eventTime < sParams.mTouchNoiseThresholdTime) {
+        /*if (eventTime < sParams.mTouchNoiseThresholdTime) {
             final int distance = getDistance(x, y, mLastX, mLastY);
             if (distance < sParams.mTouchNoiseThresholdDistance) {
                 if (DEBUG_MODE)
@@ -188,10 +192,9 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
                 cancelTrackingForAction();
                 return;
             }
-        }
+        }*/
 
         sPointerTrackerQueue.add(this);
-        sDrawingProxy.onKeyPressed();
         KeyboardLayout.TouchDown((x*3) / lastDrawWidth,(y*3) / lastDrawHeight);
         sDrawingProxy.onKeyPressed();
     }
@@ -215,20 +218,23 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
             printTouchEvent("onUpEvent  :", x, y, eventTime);
         }
 
-        sPointerTrackerQueue.releaseAllPointersOlderThan(this, eventTime);
-
         mLastX = x;
         mLastY = y;
         sDrawingProxy.onKeyReleased();
 
+        sPointerTrackerQueue.releaseAllPointersOlderThan(this, eventTime);
+
         // get the key and send it
-        char result = KeyboardLayout.TouchUp((x*3) / lastDrawWidth,(y*3) / lastDrawHeight);
-        if (result == KeyboardLayout.nul) {
+        String result = KeyboardLayout.TouchUp((x*3) / lastDrawWidth,(y*3) / lastDrawHeight);
+        if (Objects.equals(result, KeyboardLayout.nul)) {
             // nothing- most likely out-of-bounds, or an empty slot
+            if (DEBUG_EVENT) {
+                printTouchEvent("up for nothing:", x, y, eventTime);
+            }
         } else if (KeyboardLayout.IsInternal(result)) {
             KeyboardLayout.SwitchMode(result);
         } else if (KeyboardLayout.IsSimple(result)) {
-            sListener.onTextInput("" + result);
+            sListener.onTextInput(result);
         } else {
             int[] codeAndMeta = KeyboardLayout.GetSpecialKey(result);
             if (codeAndMeta.length == 2 && codeAndMeta[0] > 0) {
@@ -275,6 +281,8 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         if (DEBUG_EVENT) {
             printTouchEvent("onCancelEvt:", x, y, eventTime);
         }
+
+        sDrawingProxy.onKeyReleased();
 
         cancelAllPointerTrackers();
         sPointerTrackerQueue.releaseAllPointers(eventTime);

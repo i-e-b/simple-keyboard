@@ -150,7 +150,7 @@ public class KeyboardView extends View {
         canvas.drawLine(twoThirdWidth, yZero, twoThirdWidth, height, paint);
 
         paint.setTypeface(Typeface.MONOSPACE);
-        char[][] layout = KeyboardLayout.CurrentLayout();
+        String[][] layout = KeyboardLayout.CurrentLayout();
 
         if(!sIsBeingPressed) {
             DrawZoomedOutView(canvas, height, width, fontDiv, xZero, yZero, ninthWidth, ninthHeight, paint, layout);
@@ -159,14 +159,14 @@ public class KeyboardView extends View {
         }
     }
 
-    private void DrawZoomedInView(Canvas canvas, float fontDiv, int oneThirdWidth, int oneThirdHeight, Paint paint, char[][] layout) {
+    private void DrawZoomedInView(Canvas canvas, float fontDiv, int oneThirdWidth, int oneThirdHeight, Paint paint, String[][] layout) {
         // Light colors
         int mainFontColor = 0xFF_00_00_7F;
         int modeFontColor = 0xFF_80_80_80;
 
         if (mDarkColors){
             mainFontColor = 0xFF_7F_7F_FF;
-            modeFontColor = 0xFF_80_80_80;
+            //modeFontColor = 0xFF_80_80_80;
         }
 
         // Draw zoomed view
@@ -196,7 +196,7 @@ public class KeyboardView extends View {
         }
     }
 
-    private void DrawZoomedOutView(Canvas canvas, int height, int width, float fontDiv, int xZero, int yZero, int ninthWidth, int ninthHeight, Paint paint, char[][] layout) {
+    private void DrawZoomedOutView(Canvas canvas, int height, int width, float fontDiv, int xZero, int yZero, int ninthWidth, int ninthHeight, Paint paint, String[][] layout) {
         // Light colors
         int minorLineColor = 0xFF_A0_A0_A0;
         int mainFontColor = 0xFF_00_00_7F;
@@ -205,7 +205,7 @@ public class KeyboardView extends View {
         if (mDarkColors){
             minorLineColor = 0xFF_80_80_80;
             mainFontColor = 0xFF_7F_7F_FF;
-            modeFontColor = 0xFF_80_80_80;
+            //modeFontColor = 0xFF_80_80_80;
         }
 
         // Minor lines (pre-touch only)

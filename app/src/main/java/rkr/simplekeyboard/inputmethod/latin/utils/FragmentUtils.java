@@ -18,13 +18,11 @@ package rkr.simplekeyboard.inputmethod.latin.utils;
 
 import java.util.HashSet;
 
-import rkr.simplekeyboard.inputmethod.latin.settings.PreferencesSettingsFragment;
 import rkr.simplekeyboard.inputmethod.latin.settings.SettingsFragment;
 
 public class FragmentUtils {
     private static final HashSet<String> sLatinImeFragments = new HashSet<>();
     static {
-        sLatinImeFragments.add(PreferencesSettingsFragment.class.getName());
         sLatinImeFragments.add(SettingsFragment.class.getName());
     }
 

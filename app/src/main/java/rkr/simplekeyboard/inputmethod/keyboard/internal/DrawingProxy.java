@@ -31,5 +31,4 @@ public interface DrawingProxy {
      * Called when a key is being released.
      */
     void onKeyReleased();
-
 }
