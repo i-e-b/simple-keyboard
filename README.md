@@ -1,8 +1,6 @@
 # Simple Keyboard
 
-<img src="images/screenshot.png"
-      alt="closeup"
-      width="500"/>
+<img src="images/Screenshot.png" alt="Screenshot"/>
       
 ## About
 
