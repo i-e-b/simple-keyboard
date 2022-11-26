@@ -2,15 +2,19 @@ apply plugin: 'com.android.application'
 
 android {
     signingConfigs {
-        test {
+        release {
+            storeFile file('/home/iain/code/simple-keyboard/testCerts/testCert.jks')
+            storePassword 'testpassword'
+            keyAlias 'key0'
+            keyPassword 'testpassword'
         }
     }
-    compileSdkVersion 30
+    compileSdkVersion 33
     buildToolsVersion '30.0.3'
     defaultConfig {
         applicationId "rkr.simplekeyboard.inputmethod"
         minSdkVersion 19
-        targetSdkVersion 30
+        targetSdkVersion 33
         versionCode 82
         versionName "4.7"
     }
@@ -18,6 +22,7 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     namespace 'rkr.simplekeyboard.inputmethod'

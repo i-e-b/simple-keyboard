@@ -29,7 +29,9 @@
             android:name=".latin.LatinIME"
             android:label="@string/english_ime_name"
             android:directBootAware="true"
-            android:permission="android.permission.BIND_INPUT_METHOD">
+            android:permission="android.permission.BIND_INPUT_METHOD"
+            tools:targetApi="n"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.view.InputMethod" />
             </intent-filter>
@@ -43,7 +45,8 @@
             android:name=".latin.settings.SettingsActivity"
             android:label="@string/english_ime_name"
             android:theme="@style/platformSettingsTheme"
-            tools:ignore="RedundantLabel">
+            tools:ignore="RedundantLabel"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
