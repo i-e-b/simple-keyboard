@@ -9,11 +9,14 @@ public class KeyboardLayout {
     public static final String RET = "\n";
     public static final String BAK = "\u0008";
 
-    // arrows (private use chars below 0xE100)
+    // arrows, other special buttons (private use chars below 0xE100)
     public static final String ARR = "\uE001";
     public static final String ARL = "\uE002";
     public static final String ARU = "\uE003";
     public static final String ARD = "\uE004";
+    public static final String SER = "\uE005"; // search action
+    public static final String CPY = "\uE006"; // Copy
+    public static final String PST = "\uE007"; // Paste
 
     // mode switches (private use chars above 0xE100)
     public static final String SYM = "\uE101"; // extra symbols
@@ -30,7 +33,7 @@ public class KeyboardLayout {
     private static final String[][] sLowerLetters = { // LET
             {"t","c",nul,  "q","h","j",  nul,"b","e"},
             {"d",".",nul,  nul,"u",nul,  nul,",","s"},
-            {nul,nul,nul,  nul,nul,nul,  nul,nul,nul},
+            {nul,nul,CPY,  SER,nul,nul,  PST,nul,nul},
 
             {"'",nul,nul,  ARL,RET,ARR,  nul,nul,"\""},
             {"i","k",nul,  NUM," ",CAP,  nul,"w","a"},
@@ -43,7 +46,7 @@ public class KeyboardLayout {
     private static final String[][] sUpperLetters = { // CAP
             {"T","C",nul,  "Q","H","J",  nul,"B","E"},
             {"D",".",nul,  nul,"U",nul,  nul,",","S"},
-            {nul,nul,nul,  nul,nul,nul,  nul,nul,nul},
+            {nul,nul,CPY,  SER,nul,nul,  PST,nul,nul},
 
             {"'",nul,nul,  ARL,RET,ARR,  nul,nul,"\""},
             {"I","K",nul,  NUM," ",LOK,  nul,"W","A"},
@@ -56,7 +59,7 @@ public class KeyboardLayout {
     private static final String[][] sCapsLockLetters = { // LOK
             {"T","C",nul,  "Q","H","J",  nul,"B","E"},
             {"D",".",nul,  nul,"U",nul,  nul,",","S"},
-            {nul,nul,nul,  nul,nul,nul,  nul,nul,nul},
+            {nul,nul,CPY,  SER,nul,nul,  PST,nul,nul},
 
             {"'",nul,nul,  ARL,RET,ARR,  nul,nul,"\""},
             {"I","K",nul,  NUM," ",LET,  nul,"W","A"},
@@ -197,7 +200,7 @@ public class KeyboardLayout {
     }
 
     public static String Visualise(String c){
-        if (IsSimple(c)) return ""+c;
+        if (IsSimple(c)) return c;
 
         switch (c){
             case nul: return "";
@@ -211,8 +214,11 @@ public class KeyboardLayout {
             case AC1: return "äŋç";
             case AC2: return "ÃΣØ";
             case CHM: return "mode";
-            case EMO: return "\uD83E\uDD28";
+            case EMO: return "\uD83E\uDD28"; // smile face
             case BAK: return "⇦";
+            case SER: return "\uD83D\uDD0D"; // magnifying glass icon
+            case CPY: return " ⎘"; // next-page icon
+            case PST: return "\uD83D\uDCCB"; // clipboard icon
 
             case ARD: return "↓";
             case ARU: return "↑";
@@ -261,7 +267,8 @@ public class KeyboardLayout {
         int qx = sQuadrantX;
         String result = CurrentLayout()[qy+yi][qx+xi];
 
-        if (Objects.equals(sCurrentMode, CAP)) sCurrentMode = LET; // drop out of single cap mode
+        // Drop out of single-cap mode, unless we just pressed space
+        if (Objects.equals(sCurrentMode, CAP) && (!Objects.equals(result, " "))) sCurrentMode = LET;
 
         return result;
     }
@@ -275,6 +282,11 @@ public class KeyboardLayout {
         switch (c){
             case RET: return new int[]{KEYCODE_ENTER, 0};
             case BAK: return new int[]{KEYCODE_DEL, 0};
+
+            case SER: return new int[]{KEYCODE_SEARCH, 0}; // Some inputs won't accept return.
+            case CPY: return new int[]{278/*KEYCODE_COPY*/, 0}; // copy
+            case PST: return new int[]{279/*KEYCODE_PASTE*/, 0}; // paste
+            /* KEYCODE_CUT = 277 */
 
             case ARD: return new int[]{KEYCODE_DPAD_DOWN, 0};
             case ARU: return new int[]{KEYCODE_DPAD_UP, 0};

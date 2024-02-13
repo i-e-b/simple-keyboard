@@ -195,8 +195,21 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         }*/
 
         sPointerTrackerQueue.add(this);
-        KeyboardLayout.TouchDown((x*3) / lastDrawWidth,(y*3) / lastDrawHeight);
+        KeyboardLayout.TouchDown(getXIndex(x),getYIndex(y));
         sDrawingProxy.onKeyPressed();
+    }
+
+    private  int getXIndex(int x){
+        int xi = ((x-lastDrawLeft)*3) / lastDrawWidth;
+        if (xi > 2) xi = 2;
+        if (xi < 0) xi = 0;
+        return xi;
+    }
+    private  int getYIndex(int y){
+        int yi = ((y-lastDrawTop)*3) / lastDrawHeight;
+        if (yi > 2) yi = 2;
+        if (yi < 0) yi = 0;
+        return yi;
     }
 
     private void resetKeySelectionByDraggingFinger() {
@@ -225,7 +238,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         sPointerTrackerQueue.releaseAllPointersOlderThan(this, eventTime);
 
         // get the key and send it
-        String result = KeyboardLayout.TouchUp((x*3) / lastDrawWidth,(y*3) / lastDrawHeight);
+        String result = KeyboardLayout.TouchUp(getXIndex(x),getYIndex(y));
         if (Objects.equals(result, KeyboardLayout.nul)) {
             // nothing- most likely out-of-bounds, or an empty slot
             if (DEBUG_EVENT) {

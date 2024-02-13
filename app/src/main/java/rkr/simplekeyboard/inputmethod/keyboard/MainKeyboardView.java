@@ -61,7 +61,7 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
     }
 
     public static void updateTheme(int uiMode) {
-        System.out.print(uiMode);
+        //System.out.print(uiMode);
         // TODO: something with this
     }
 

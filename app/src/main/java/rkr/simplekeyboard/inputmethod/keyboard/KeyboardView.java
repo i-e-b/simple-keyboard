@@ -33,6 +33,10 @@ import rkr.simplekeyboard.inputmethod.latin.settings.Settings;
  * A view that renders a virtual {@link KeyboardParams}.
  */
 public class KeyboardView extends View {
+    /** If true, the keyboard area is reduced to make it square */
+    private static final boolean FIX_TO_SQUARE = false;
+    /** If true, the keyboard width is reduced to make it a little narrower, but not as extreme as 'FIX_TO_SQUARE' */
+    private static final boolean NARROW_SLIGHTLY = true;
     // XML attributes
     public int mCustomColor = 0;
 
@@ -103,17 +107,32 @@ public class KeyboardView extends View {
 
     // TODO: this IS the top level drawing.
     private void onDrawKeyboard(final Canvas canvas) {
-        PointerTracker.lastDrawLeft = this.getLeft();
-        PointerTracker.lastDrawTop = this.getLeft();
-        PointerTracker.lastDrawWidth = this.getWidth();
-        PointerTracker.lastDrawHeight = this.getHeight();
 
+        int left = 0;
+        int top = 0;
         int height = canvas.getHeight();
         int width = canvas.getWidth();
+        if (FIX_TO_SQUARE){
+            int min = Math.min(height, width);
+            left = (width - min) / 2;
+            top = (height - min) / 2;
+            height = min;
+            width = min;
+        } else if (NARROW_SLIGHTLY){
+            int min = Math.min(height, width);
+            if (min < width){
+                left = (width - min) / 4;
+                width -= (width - min) / 2;
+            }
+        }
+
+        PointerTracker.lastDrawLeft = left;
+        PointerTracker.lastDrawTop = top;
+        PointerTracker.lastDrawWidth = width;
+        PointerTracker.lastDrawHeight = height;
+
         float fontDiv = (Math.min(height, width) / 9.0f) - 3.0f;
 
-        int xZero = 0;
-        int yZero = 0;
         int oneThirdWidth = width / 3;
         int oneThirdHeight = height / 3;
         int twoThirdWidth = oneThirdWidth *2;
@@ -126,40 +145,35 @@ public class KeyboardView extends View {
 
         // Light colors
         int backgroundColor = 0xFF_FF_FF_FF;
-        int touchHintColor = 0xFF_BB_FF_BB;
         int majorLineColor = 0xFF_00_00_00;
 
         if (mDarkColors){
             backgroundColor = 0xFF_00_00_00;
-            touchHintColor = 0xFF_00_40_00;
             majorLineColor = 0xFF_FF_FF_FF;
         }
 
         paint.setColor(backgroundColor);
-        canvas.drawRect(0, 0, width, height, paint);
-
-        paint.setColor(touchHintColor);
-        canvas.drawCircle(mLastTouchX, mLastTouchY, 50, paint);
+        canvas.drawRect(left, top, width+left, height+top, paint);
 
         // Major lines
         paint.setColor(majorLineColor);
-        canvas.drawLine(xZero, oneThirdHeight, width, oneThirdHeight, paint);
-        canvas.drawLine(xZero, twoThirdHeight, width, twoThirdHeight, paint);
+        canvas.drawLine(left, oneThirdHeight+top, width+left, oneThirdHeight+top, paint);
+        canvas.drawLine(left, twoThirdHeight+top, width+left, twoThirdHeight+top, paint);
 
-        canvas.drawLine(oneThirdWidth, yZero, oneThirdWidth, height, paint);
-        canvas.drawLine(twoThirdWidth, yZero, twoThirdWidth, height, paint);
+        canvas.drawLine(oneThirdWidth+left, top, oneThirdWidth+left, height+top, paint);
+        canvas.drawLine(twoThirdWidth+left, top, twoThirdWidth+left, height+top, paint);
 
         paint.setTypeface(Typeface.MONOSPACE);
         String[][] layout = KeyboardLayout.CurrentLayout();
 
         if(!sIsBeingPressed) {
-            DrawZoomedOutView(canvas, height, width, fontDiv, xZero, yZero, ninthWidth, ninthHeight, paint, layout);
+            DrawZoomedOutView(canvas, height, width, fontDiv, left, top, ninthWidth, ninthHeight, paint, layout);
         } else {
-            DrawZoomedInView(canvas, fontDiv, oneThirdWidth, oneThirdHeight, paint, layout);
+            DrawZoomedInView(canvas, left, top, fontDiv, oneThirdWidth, oneThirdHeight, paint, layout);
         }
     }
 
-    private void DrawZoomedInView(Canvas canvas, float fontDiv, int oneThirdWidth, int oneThirdHeight, Paint paint, String[][] layout) {
+    private void DrawZoomedInView(Canvas canvas, int left, int top, float fontDiv, int oneThirdWidth, int oneThirdHeight, Paint paint, String[][] layout) {
         // Light colors
         int mainFontColor = 0xFF_00_00_7F;
         int modeFontColor = 0xFF_80_80_80;
@@ -178,11 +192,15 @@ public class KeyboardView extends View {
 
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 3; x++) {
+                // bounds check
+                if (y+qy >= layout.length) continue;
+                if (x+qx >= layout[y+qy].length) continue;
+
                 String desc = KeyboardLayout.Visualise(layout[y+qy][x+qx]);
 
                 if (desc.length() > 1) {
                     paint.setColor(modeFontColor);
-                    paint.setTextSize(bigDiv * 0.7f);
+                    paint.setTextSize(bigDiv * 0.4f);
                 }
                 else {
                     paint.setColor(mainFontColor);
@@ -191,12 +209,12 @@ public class KeyboardView extends View {
 
                 float sw = paint.measureText(desc);
                 float offs = (oneThirdWidth / 2.0f) - (sw / 2.0f);
-                canvas.drawText(desc,x*oneThirdWidth + offs, (bigDiv*0.9f)+(y*oneThirdHeight), paint);
+                canvas.drawText(desc,x*oneThirdWidth + offs + left, (bigDiv*0.9f)+(y*oneThirdHeight) + top, paint);
             }
         }
     }
 
-    private void DrawZoomedOutView(Canvas canvas, int height, int width, float fontDiv, int xZero, int yZero, int ninthWidth, int ninthHeight, Paint paint, String[][] layout) {
+    private void DrawZoomedOutView(Canvas canvas, int height, int width, float fontDiv, int left, int top, int ninthWidth, int ninthHeight, Paint paint, String[][] layout) {
         // Light colors
         int minorLineColor = 0xFF_A0_A0_A0;
         int mainFontColor = 0xFF_00_00_7F;
@@ -211,8 +229,8 @@ public class KeyboardView extends View {
         // Minor lines (pre-touch only)
         paint.setColor(minorLineColor);
         for (int i = 1; i < 9; i++) {
-            canvas.drawLine(xZero, ninthHeight * i, width, ninthHeight * i, paint);
-            canvas.drawLine(ninthWidth * i, yZero, ninthWidth * i, height, paint);
+            canvas.drawLine(left, top+ninthHeight * i, left+width, top+ninthHeight * i, paint);
+            canvas.drawLine(left + ninthWidth * i, top, left+ninthWidth * i, height, paint);
         }
 
         // key positions
@@ -222,7 +240,7 @@ public class KeyboardView extends View {
                 String desc = KeyboardLayout.Visualise(layout[y][x]);
                 if (desc.length() > 1) {
                     paint.setColor(modeFontColor);
-                    paint.setTextSize(fontDiv * 0.6f);
+                    paint.setTextSize(fontDiv * 0.4f);
                 }
                 else {
                     paint.setColor(mainFontColor);
@@ -231,7 +249,7 @@ public class KeyboardView extends View {
 
                 float sw = paint.measureText(desc);
                 float offs = (ninthWidth / 2.0f) - (sw / 2.0f);
-                canvas.drawText(desc,x*ninthWidth + offs, (fontDiv*0.9f)+(y*ninthHeight), paint);
+                canvas.drawText(desc,x*ninthWidth + offs+left, (fontDiv*0.9f)+(y*ninthHeight)+top, paint);
             }
         }
     }
