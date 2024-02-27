@@ -28,6 +28,7 @@ public class KeyboardLayout {
     public static final String AC2 = "\uE107"; // Accents 2
     public static final String CHM = "\uE108"; // Mode list
     public static final String EMO = "\uE109"; // Emoji
+    public static final String GRE = "\uE110"; // Greek
 
 
     private static final String[][] sLowerLetters = { // LET
@@ -123,6 +124,20 @@ public class KeyboardLayout {
             {"⅛","∛","⅞",  "↙","↓","↘",  "⅐","⅑","⅒"},
     };
 
+    private static final String[][] sGreek = { // GRE
+            {"Α","Β","Γ",  "Δ","Ε","Ζ",  "Η","Θ","Ι"},
+            {"Κ","Λ","Μ",  "Ν","Ξ","Ο",  "Π","Ρ","Σ"},
+            {"Τ","Υ","Φ",  "Χ","Ψ","Ω",  "Ϙ","Ϝ","ϝ"},
+
+            {"Ϊ","Ϋ","ά",  ARL,RET,ARR,  "έ","ή","ί"},
+            {"ΰ","ϊ","ϋ",  NUM," ",LET,  "ό","ύ","ώ"},
+            {"Ͻ","Ͼ","Ͽ",  ARU,BAK,ARD,  "ϰ","ϛ","Ϛ"},
+
+            {"α","β","γ",  "δ","ε","ζ",  "η","θ","ι"},
+            {"κ","λ","μ",  "ν","ξ","ο",  "π","ρ","ς"},
+            {"σ","τ","υ",  "φ","χ","ψ",  "ω","ϕ","ϙ"},
+    };
+
     private static final String[][] sEmoji = { // SYM
             {Emoji.NoFace,Emoji.BigGrin,Emoji.Grin,          Emoji.Phew,Emoji.LoveFace,Emoji.KissFace,       Emoji.LookEyes,Emoji.SkullFace,Emoji.BigCry},
             {Emoji.BigSmile,Emoji.AngryFace,Emoji.Eyebrow,   Emoji.CowBoy,Emoji.CrossEye,Emoji.Puke,         Emoji.Ninja,Emoji.RobotFace,Emoji.FearFace},
@@ -148,7 +163,7 @@ public class KeyboardLayout {
 
             {nul,nul,nul,  nul,nul,nul,  nul,nul,nul},
             {nul,nul,nul,  nul,nul,nul,  nul,nul,nul},
-            {EMO,nul,nul,  nul,NUM,nul,  nul,nul,nul},
+            {EMO,nul,nul,  nul,NUM,nul,  nul,nul,GRE},
     };
 
 
@@ -168,6 +183,7 @@ public class KeyboardLayout {
             case AC2: return sAccents2;
             case SYM: return sSymbols;
             case EMO: return sEmoji;
+            case GRE: return sGreek;
 
             default:// any wrong modes, flip back to default
                 sCurrentMode = LET;
@@ -213,6 +229,7 @@ public class KeyboardLayout {
             case NUM: return "123";
             case AC1: return "äŋç";
             case AC2: return "ÃΣØ";
+            case GRE: return "Αβγ";
             case CHM: return "mode";
             case EMO: return "\uD83E\uDD28"; // smile face
             case BAK: return "⇦";
