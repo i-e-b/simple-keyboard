@@ -27,8 +27,9 @@ public class KeyboardLayout {
     public static final String AC1 = "\uE106"; // Accents 1
     public static final String AC2 = "\uE107"; // Accents 2
     public static final String CHM = "\uE108"; // Mode list
-    public static final String EMO = "\uE109"; // Emoji
+    public static final String EMO = "\uE109"; // Emoji: general
     public static final String GRE = "\uE110"; // Greek
+    public static final String FLG = "\uE111"; // Emoji: flags
 
 
     private static final String[][] sLowerLetters = { // LET
@@ -138,7 +139,7 @@ public class KeyboardLayout {
             {"σ","τ","υ",  "φ","χ","ψ",  "ω","ϕ","ϙ"},
     };
 
-    private static final String[][] sEmoji = { // SYM
+    private static final String[][] sEmoji = { // EMO
             {Emoji.NoFace,Emoji.BigGrin,Emoji.Grin,          Emoji.Phew,Emoji.LoveFace,Emoji.KissFace,       Emoji.LookEyes,Emoji.SkullFace,Emoji.BigCry},
             {Emoji.BigSmile,Emoji.AngryFace,Emoji.Eyebrow,   Emoji.CowBoy,Emoji.CrossEye,Emoji.Puke,         Emoji.Ninja,Emoji.RobotFace,Emoji.FearFace},
             {Emoji.Rofl,Emoji.Smile,Emoji.Wink,              Emoji.Weary,Emoji.SwearFace,Emoji.RageFace,     Emoji.Brain,Emoji.Muscle,Emoji.ShitFace},
@@ -152,6 +153,20 @@ public class KeyboardLayout {
             {Emoji.PadLock3,Emoji.Tools,Emoji.Calendar,      Emoji.WorldMap,Emoji.WarnLight,Emoji.Pitard,    Emoji.FuelPump,Emoji.MiniBusVan,Emoji.FastBike},
     };
 
+    private static final String[][] sFlags = { // FLG
+            {Flags.ChequeredFlag,Flags.BlackFlag,Flags.WhiteFlag,          Flags.UnitedNations,Flags.Antarctica,Flags.EuropeanUnion,       Flags.England,Flags.Scotland,Flags.UnitedKingdom},
+            {Flags.PirateFlag,nul,nul,                                     Flags.Spain,nul,Flags.Ukraine,                                  nul,nul,Flags.Wales},
+            {nul,nul,nul,                                                  nul,nul,nul,                                                    nul,nul,Flags.Ireland},
+
+            {nul,Flags.Ghana,nul,   ARL,RET,ARR,    nul,Flags.Australia,Flags.UnitedStates},
+            {nul,Flags.Kenya,nul,                NUM," ",LET,    nul,nul,nul},
+            {Flags.Tanzania,Flags.Gambia,nul,    ARU,BAK,ARD,    nul,Flags.NewZealand,Flags.Canada},
+
+            {nul,nul,nul,   nul,nul,nul,   nul,nul,nul},
+            {nul,nul,nul,   nul,nul,nul,   nul,nul,nul},
+            {nul,nul,nul,   nul,nul,nul,   nul,nul,nul},
+    };
+
     private static final String[][] sChangeMode = { // CHM
             {SYM,nul,nul,  nul,AC1,nul,  nul,nul,AC2},
             {nul,nul,nul,  nul,nul,nul,  nul,nul,nul},
@@ -163,7 +178,7 @@ public class KeyboardLayout {
 
             {nul,nul,nul,  nul,nul,nul,  nul,nul,nul},
             {nul,nul,nul,  nul,nul,nul,  nul,nul,nul},
-            {EMO,nul,nul,  nul,NUM,nul,  nul,nul,GRE},
+            {EMO,FLG,nul,  nul,NUM,nul,  nul,nul,GRE},
     };
 
 
@@ -183,6 +198,7 @@ public class KeyboardLayout {
             case AC2: return sAccents2;
             case SYM: return sSymbols;
             case EMO: return sEmoji;
+            case FLG: return sFlags;
             case GRE: return sGreek;
 
             default:// any wrong modes, flip back to default
@@ -232,6 +248,7 @@ public class KeyboardLayout {
             case GRE: return "Αβγ";
             case CHM: return "mode";
             case EMO: return "\uD83E\uDD28"; // smile face
+            case FLG: return "\uD83C\uDFC1"; // chequered flag
             case BAK: return "⇦";
             case SER: return "\uD83D\uDD0D"; // magnifying glass icon
             case CPY: return " ⎘"; // next-page icon
