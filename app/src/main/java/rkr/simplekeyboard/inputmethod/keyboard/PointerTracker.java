@@ -128,37 +128,12 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         CoordinateUtils.set(outCoords, mLastX, mLastY);
     }
 
-    private static int getDistance(final int x1, final int y1, final int x2, final int y2) {
-        return (int)Math.hypot(x1 - x2, y1 - y2);
-    }
-
-    /* package */ static int getActivePointerTrackerCount() {
-        return sPointerTrackerQueue.size();
-    }
-
     public void processMotionEvent(final MotionEvent me) {
         final int action = me.getActionMasked();
         final long eventTime = me.getEventTime();
-        /*if (action == MotionEvent.ACTION_MOVE) {
-            // When this pointer is the only active pointer and is showing a more keys panel,
-            // we should ignore other pointers' motion event.
-            final boolean shouldIgnoreOtherPointers = getActivePointerTrackerCount() == 1;
-            final int pointerCount = me.getPointerCount();
-            for (int index = 0; index < pointerCount; index++) {
-                final int id = me.getPointerId(index);
-                if (shouldIgnoreOtherPointers && id != mPointerId) {
-                    continue;
-                }
-                final int x = (int)me.getX(index);
-                final int y = (int)me.getY(index);
-                final PointerTracker tracker = getPointerTracker(id);
-                tracker.onMoveEvent(x, y, eventTime);
-            }
-            return;
-        }*/
         final int index = me.getActionIndex();
-        final int x = (int)me.getX(index);
-        final int y = (int)me.getY(index);
+        final int x = (int)(me.getX(index));
+        final int y = (int)(me.getY(index));
         switch (action) {
             case MotionEvent.ACTION_MOVE:
                 onMoveEvent(x,y,eventTime);
@@ -181,18 +156,6 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
         if (DEBUG_EVENT) {
             printTouchEvent("onDownEvent:", x, y, eventTime);
         }
-        // Naive up-to-down noise filter.
-        /*if (eventTime < sParams.mTouchNoiseThresholdTime) {
-            final int distance = getDistance(x, y, mLastX, mLastY);
-            if (distance < sParams.mTouchNoiseThresholdDistance) {
-                if (DEBUG_MODE)
-                    Log.w(TAG, String.format("[%d] onDownEvent:"
-                            + " ignore potential noise: time=%d distance=%d",
-                            mPointerId, eventTime, distance));
-                cancelTrackingForAction();
-                return;
-            }
-        }*/
 
         sPointerTrackerQueue.add(this);
         KeyboardLayout.TouchDown(getXIndex(x),getYIndex(y));
